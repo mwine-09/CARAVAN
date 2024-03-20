@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "456046104909",
+    "project_id": "caravan-8510e",
+    "storage_bucket": "caravan-8510e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:456046104909:android:187ebdbcced153f5ee2704",
+        "android_client_info": {
+          "package_name": "com.example.caravan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrQsGlWZ74jYTtP-cU7272LNusmBH6pAE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
