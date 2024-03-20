@@ -1,6 +1,4 @@
-import 'package:caravan/screens/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class RequestTripScreen extends StatefulWidget {
   const RequestTripScreen({super.key});
@@ -21,9 +19,11 @@ class _RequestTripScreenState extends State<RequestTripScreen> {
         ),
       ),
       body: const Center(
-        child: Stack(
-          children: [MatchedDriver()],
-        ),
+
+      
+
+
+     
       ),
     );
   }
@@ -34,48 +34,72 @@ class MatchedDriver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        color: const Color.fromARGB(255, 20, 20, 20),
-        // width 380 height 290
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+      child: SizedBox(
+          width: 380,
+          height: 290,
+          child: Card(
+              color: const Color.fromARGB(255, 20, 20, 20),
+              // width 380 height 290
 
-        child: const Column(children: [
-          SizedBox(height: 10),
-          Row(
-            children: [
-              SizedBox(width: 10),
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: AssetImage('assets/default_profile.jpg'),
-              ),
-              SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Driver Name',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    'Driver Rating',
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    'Driver Phone Number',
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 10)
-        ]));
+              child: Column(children: [
+                const SizedBox(height: 10),
+                const Row(
+                  children: [
+                    SizedBox(width: 10),
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundImage: AssetImage('assets/default_profile.jpg'),
+                    ),
+                    SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'John Doe',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          'Location: Kisaasi',
+                          style: TextStyle(color: Colors.white, fontSize: 15),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          'Destination: Wandegeya',
+                          style: TextStyle(color: Colors.white, fontSize: 15),
+                        ),
+                        Text(
+                          'Date & Time: Today 10:00 AM',
+                          style: TextStyle(color: Colors.white, fontSize: 15),
+                        ),
+                        Text(
+                          'Available seats: 3',
+                          style: TextStyle(color: Colors.white, fontSize: 15),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(320, 55),
+                        backgroundColor:
+                            const Color.fromARGB(255, 255, 255, 255),
+                        shape: const BeveledRectangleBorder()),
+                    onPressed: () {
+                      // TODO: go to the page that shows full details
+                    },
+                    child: const Text(
+                      'Request Trip',
+                      style: TextStyle(color: Colors.black, fontSize: 20),
+                    ))
+              ]))),
+    );
   }
 }

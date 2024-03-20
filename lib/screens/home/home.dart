@@ -5,6 +5,7 @@ import 'package:caravan/screens/history.dart';
 import 'package:caravan/screens/notifications.dart';
 import 'package:caravan/screens/profile.dart';
 import 'package:caravan/screens/request_trip.dart';
+import 'package:caravan/screens/trip_details.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -143,7 +144,7 @@ class _HomeState extends State<Home> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const RequestTripScreen()),
+                          builder: (context) => const TripDetailsScreen()),
                     );
                   },
                 ),

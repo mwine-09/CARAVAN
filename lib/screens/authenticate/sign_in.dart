@@ -1,4 +1,6 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously, duplicate_ignore
+import 'dart:ui';
+
 import 'package:caravan/screens/authenticate/register.dart';
 // import 'package:caravan/screens/main_template.dart';
 import 'package:caravan/services/auth.dart';
@@ -24,6 +26,8 @@ class _SignInState extends State<SignIn> {
         child: Column(
           children: [
             const Spacer(),
+            const Spacer(),
+            const Spacer(),
             Container(
               width: 150,
               height: 150,
@@ -37,39 +41,57 @@ class _SignInState extends State<SignIn> {
               ),
             ),
             const SizedBox(height: 20),
-            const Text("Sign in to Caravan",
+            const Text("Get started!",
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w500)),
             const SizedBox(height: 20),
-            const Align(
-              alignment: Alignment.centerLeft,
+            const Padding(
+              padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               child: Text("Enter your phone number",
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500)),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w200,
+                      fontStyle: FontStyle.normal)),
             ),
             const SizedBox(height: 20),
-            TextField(
-              keyboardType: TextInputType.phone,
-              onChanged: (value) {
-                setState(() {
-                  phoneNumber = value;
-                });
-              },
-              decoration: const InputDecoration(
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                labelText: 'Phone number',
-                labelStyle: TextStyle(color: Colors.white),
+            Center(
+              child: Row(
+                children: [
+                  Text(
+                    "+256",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  SizedBox(
+                    width: 250,
+                    child: TextField(
+                      keyboardType: TextInputType.phone,
+                      selectionWidthStyle: BoxWidthStyle.tight,
+                      onChanged: (value) {
+                        setState(() {
+                          phoneNumber = value;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 1.0),
+                        ),
+                        labelText: 'Phone number',
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
-              style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(height: 20),
-            const SizedBox(height: 10),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
