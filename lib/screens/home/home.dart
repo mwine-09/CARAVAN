@@ -1,5 +1,10 @@
 // ignore_for_file: avoid_print
 
+import 'package:caravan/screens/create_trip.dart';
+import 'package:caravan/screens/history.dart';
+import 'package:caravan/screens/notifications.dart';
+import 'package:caravan/screens/profile.dart';
+import 'package:caravan/screens/request_trip.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -14,6 +19,61 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor:
+            Colors.white, // Color of the selected item icon and text
+        unselectedItemColor:
+            Colors.grey[400], // Color of the unselected items' icons and text
+        selectedLabelStyle: const TextStyle(
+            color: Colors.white), // Color of the selected item text
+        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+        currentIndex: 1,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HistoryScreen()),
+              );
+              break;
+            case 1:
+              // Navigate to ProfileScreen
+
+              break;
+            case 2:
+              // Navigate to HistoryScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+              break;
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.history,
+              color: Colors.white,
+            ),
+            label: 'History',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.home_filled,
+              color: Colors.white,
+            ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.person,
+              color: Colors.white,
+            ),
+            label: 'Profile',
+            backgroundColor: Colors.white,
+          ),
+        ],
+      ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
@@ -31,7 +91,7 @@ class _HomeState extends State<Home> {
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
-        backgroundColor: Colors.grey[850],
+        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
         actions: [
           IconButton(
             icon: const Icon(
@@ -39,8 +99,12 @@ class _HomeState extends State<Home> {
               color: Colors.white,
             ),
             onPressed: () {
-              // Navigator.pop(context);
-              // Handle notifications icon press
+              // load the notificationscreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NotificationsScreen()),
+              );
             },
           ),
           IconButton(
@@ -57,16 +121,31 @@ class _HomeState extends State<Home> {
           children: [
             const SingleCard(),
             const SizedBox(height: 10),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 MyCard(
-                  'Create a trip',
-                  AssetImage('assets/car.png'),
-                ),
+                    title: 'create a trip',
+                    icon: const AssetImage('assets/car.png'),
+                    onTap: () {
+                      // Handle tap on request for a ride
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CreateTripScreen()),
+                      );
+                    }),
                 MyCard(
-                  'Request for a ride',
-                  AssetImage('assets/car.png'),
+                  title: 'Request for a ride',
+                  icon: const AssetImage('assets/car.png'),
+                  onTap: () {
+                    // Handle tap on request for a ride
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const RequestTripScreen()),
+                    );
+                  },
                 ),
               ],
             ),
@@ -95,7 +174,7 @@ class _HomeState extends State<Home> {
                     child: Container(
                       height: 120,
                       decoration: BoxDecoration(
-                        color: Colors.grey[850],
+                        color: const Color.fromARGB(255, 20, 20, 20),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -105,7 +184,7 @@ class _HomeState extends State<Home> {
                     child: Container(
                       height: 120,
                       decoration: BoxDecoration(
-                        color: Colors.grey[850],
+                        color: const Color.fromARGB(255, 20, 20, 20),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -115,7 +194,7 @@ class _HomeState extends State<Home> {
                     child: Container(
                       height: 120,
                       decoration: BoxDecoration(
-                        color: Colors.grey[850],
+                        color: const Color.fromARGB(255, 20, 20, 20),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -132,44 +211,58 @@ class _HomeState extends State<Home> {
   }
 }
 
-class MyCard extends StatelessWidget {
+class MyCard extends StatefulWidget {
   final String title;
   final AssetImage icon;
-  const MyCard(this.title, this.icon, {super.key});
+  // void function
+  void Function() onTap;
 
+  MyCard({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  State<MyCard> createState() => _MyCardState();
+}
+
+class _MyCardState extends State<MyCard> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+        onTap: widget.onTap,
         child: Card(
-      child: Container(
-        height: 150,
-        // width should fit the content
-        width: (MediaQuery.of(context).size.width - 50) / 2,
-        decoration: BoxDecoration(
-          color: Colors.grey[850],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          children: [
-            Transform.translate(
-              offset: const Offset(-30, 0),
-              child: Image(
-                image: icon,
-                height: 100,
-              ),
+          child: Container(
+            height: 150,
+            // width should fit the content
+            width: (MediaQuery.of(context).size.width - 50) / 2,
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 20, 20, 20),
+              borderRadius: BorderRadius.circular(10),
             ),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+            child: Column(
+              children: [
+                Transform.translate(
+                  offset: const Offset(-30, 0),
+                  child: Image(
+                    image: widget.icon,
+                    height: 100,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  widget.title,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    ));
+          ),
+        ));
   }
 }
 
@@ -179,7 +272,7 @@ class SingleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.grey[850],
+      color: const Color.fromARGB(255, 20, 20, 20),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

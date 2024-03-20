@@ -8,15 +8,6 @@ class Welcome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      // appBar: AppBar(
-      //   backgroundColor: const Color(0xFF232323),
-      //   title: const Text('Welcome to Caravan',
-      //       style: TextStyle(
-      //           color: Color.fromARGB(255, 254, 254, 254),
-      //           fontSize: 16,
-      //           fontWeight: FontWeight.bold)),
-      // ),
-
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
         child: Column(

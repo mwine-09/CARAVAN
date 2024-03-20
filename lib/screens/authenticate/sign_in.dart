@@ -84,7 +84,7 @@ class _SignInState extends State<SignIn> {
                   //  navigate to the home screen
                   // ignore: use_build_context_synchronously
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, '/main-template');
+                  Navigator.pushNamed(context, '/home');
                   // Navigator.push(
                   //   context,
                   //   MaterialPageRoute(builder: (context) => const MainTemplate()),

@@ -26,6 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Navigator.pop(context);
           },
         ),
+        
         backgroundColor: Colors.grey[850],
         title: const Text('Profile',
             style: TextStyle(

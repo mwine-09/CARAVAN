@@ -12,13 +12,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-        onPressed: () {
-          // Handle menu icon press
-          Navigator.pop(context);
-        },
-      )),
+        leading: IconButton(
+          icon:
+              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () {
+            // Handle menu icon press
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text("Previous trips",
+            style: TextStyle(
+                color: Color.fromARGB(255, 254, 254, 254),
+                fontSize: 16,
+                fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.grey[850],
+      ),
       body: ListView.builder(
         itemCount: trips.length,
         itemBuilder: (context, index) {
