@@ -15,23 +15,23 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        leading: IconButton(
-          icon:
-              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () {
-            // Handle menu icon press
-            Navigator.pop(context);
-          },
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'Hello John Doe!',
+          style: TextStyle(
+            color: Color.fromARGB(255, 254, 254, 254),
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+
+          maxLines: 1,
+          // show all the text
+          // increase the width of the text
         ),
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
         backgroundColor: Colors.grey[850],
-        title: const Text('Hello John Doe!',
-            style: TextStyle(
-                color: Color.fromARGB(255, 254, 254, 254),
-                fontSize: 16,
-                fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(

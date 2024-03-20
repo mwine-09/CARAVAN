@@ -24,6 +24,7 @@ class _MainTemplateState extends State<MainTemplate> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_currentIndex],
+      
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor:
             Colors.white, // Color of the selected item icon and text
@@ -36,7 +37,6 @@ class _MainTemplateState extends State<MainTemplate> {
         onTap: (index) {
           setState(() {
             _currentIndex = index;
-            // Navigator.pop(context);
           });
         },
         items: const [
