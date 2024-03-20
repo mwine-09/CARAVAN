@@ -36,7 +36,42 @@ class AuthService {
     }
   }
 
-  // sign in with email and password
+// sign in with phone number
+  Future signInWithPhoneNumber(String phoneNumber) async {
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) {},
+        verificationFailed: (FirebaseAuthException e) {},
+        codeSent: (String verificationId, int? resendToken) {},
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+      // await _auth.verifyPhoneNumber(
+      //   phoneNumber: phoneNumber,
+      //   verificationCompleted: (PhoneAuthCredential credential) async {
+      //     UserCredential result = await _auth.signInWithCredential(credential);
+      //     BaseUser? user = _userFromFireBase(result.user!);
+      //     print(user);
+      //   },
+      //   verificationFailed: (FirebaseAuthException e) {
+      //     print(e.message);
+      //   },
+      //   codeSent: (String verificationId, int? resendToken) {
+      //     print('Verification ID: $verificationId');
+      //     print('Resend Token: $resendToken');
+      //   },
+      //   codeAutoRetrievalTimeout: (String verificationId) {
+      //     // Auto-resolution timed out
+      //     // You can handle this case by prompting the user to enter the code manually
+      //     // or by automatically retrying with a new verification request
+      //     print('Verification ID: $verificationId');
+      //   },
+      // );
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
 
   //register with email and password
 

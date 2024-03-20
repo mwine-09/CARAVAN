@@ -1,8 +1,9 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously, duplicate_ignore
 import 'package:caravan/screens/authenticate/register.dart';
-import 'package:caravan/screens/main_template.dart';
+// import 'package:caravan/screens/main_template.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter/widgets.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -13,18 +14,11 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   final AuthService _auth = AuthService();
+  String phoneNumber = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[900],
-      // appBar: AppBar(
-      //     backgroundColor: const Color(0xFF232323),
-      //     elevation: 0.0,
-      //     title: const Text('Sign in to Caravan',
-      //         style: TextStyle(
-      //             color: Color.fromARGB(255, 254, 254, 254),
-      //             fontSize: 16,
-      //             fontWeight: FontWeight.bold))),
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -49,41 +43,48 @@ class _SignInState extends State<SignIn> {
                     fontSize: 20,
                     fontWeight: FontWeight.w500)),
             const SizedBox(height: 20),
-            const TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Email',
-              ),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Enter your phone number",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500)),
             ),
             const SizedBox(height: 20),
-            const TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Password',
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                'Forgot password?',
-                style: TextStyle(
-                  color: Colors.blue,
+            TextField(
+              keyboardType: TextInputType.phone,
+              onChanged: (value) {
+                setState(() {
+                  phoneNumber = value;
+                });
+              },
+              decoration: const InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
                 ),
+                labelText: 'Phone number',
+                labelStyle: TextStyle(color: Colors.white),
               ),
+              style: const TextStyle(color: Colors.white),
             ),
+            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
                 // Respond to button press
                 dynamic result = await _auth.signInAnon();
+                // get user input and pass it to the signInWithPhoneNumber function
+                // print(phoneNumber);
+                // dynamic result = await _auth.signInWithPhoneNumber(phoneNumber);
                 if (result == null) {
                   print('error signing in');
                 } else {
                   //  navigate to the home screen
                   // ignore: use_build_context_synchronously
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, '/main_template');
+                  Navigator.pushNamed(context, '/main-template');
                   // Navigator.push(
                   //   context,
                   //   MaterialPageRoute(builder: (context) => const MainTemplate()),
@@ -93,49 +94,17 @@ class _SignInState extends State<SignIn> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                // primary: Colors.blue,
-                // onPrimary: Colors.white,
-                minimumSize: const Size(150, 50),
-              ),
-              child: const Text('Sign in'),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Or',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Don't have an account?",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+                minimumSize: const Size(280, 50),
+                // reduce rounded corners
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
-                TextButton(
-                  onPressed: () {
-                    // Respond to button press
-                    // navigate to the register screen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const RegisterScreen()),
-                    );
-                  },
-                  child: const Text(
-                    'Sign up',
-                    style: TextStyle(
-                      color: Colors.blue,
-                    ),
-                  ),
-                ),
-              ],
+              ),
+              child: const Text('send code',
+                  style: TextStyle(color: Colors.black, fontSize: 20)),
             ),
+            const SizedBox(height: 10),
+            const Spacer(),
             const Spacer(),
           ],
         ),

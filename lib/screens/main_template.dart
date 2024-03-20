@@ -36,6 +36,7 @@ class _MainTemplateState extends State<MainTemplate> {
         onTap: (index) {
           setState(() {
             _currentIndex = index;
+            // Navigator.pop(context);
           });
         },
         items: const [

@@ -44,6 +44,7 @@ class Welcome extends StatelessWidget {
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
+                fontFamily: 'San Francisco',
               ),
               // center the text
             ),
@@ -59,12 +60,13 @@ class Welcome extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                   minimumSize: const Size(400, 50),
-                  backgroundColor: Colors.grey[900],
+                  backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                   shape: const BeveledRectangleBorder()),
 
               child: const Text(
                 'Get started',
-                style: TextStyle(color: Colors.white, fontSize: 18),
+                style: TextStyle(
+                    color: Color.fromARGB(255, 0, 0, 0), fontSize: 18),
               ),
               // i want a button with width that span across the whole screen
             ),

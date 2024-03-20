@@ -15,6 +15,14 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        leading: IconButton(
+          icon:
+              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () {
+            // Handle menu icon press
+            Navigator.pop(context);
+          },
+        ),
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
@@ -31,6 +39,7 @@ class _HomeState extends State<Home> {
               color: Colors.white,
             ),
             onPressed: () {
+              // Navigator.pop(context);
               // Handle notifications icon press
             },
           ),

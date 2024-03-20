@@ -18,14 +18,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: Colors.white,
+        leading: IconButton(
+          icon:
+              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () {
+            // Handle menu icon press
+            Navigator.pop(context);
+          },
         ),
         backgroundColor: Colors.grey[850],
         title: const Text('Profile',
             style: TextStyle(
                 color: Color.fromARGB(255, 254, 254, 254),
-                // fontSize: 16,
+                fontSize: 16,
                 fontWeight: FontWeight.bold)),
       ),
       body: Center(
