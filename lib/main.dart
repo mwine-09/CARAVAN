@@ -1,8 +1,9 @@
 import 'package:caravan/firebase_options.dart';
-import 'package:caravan/screens/history.dart';
-import 'package:caravan/screens/home/home.dart';
-import 'package:caravan/screens/index.dart';
-import 'package:caravan/screens/profile.dart';
+import 'package:caravan/screens/tabs/history.dart';
+import 'package:caravan/screens/tabs/home.dart';
+import 'package:caravan/screens/more%20screens/index.dart';
+import 'package:caravan/screens/main_scaffold.dart';
+import 'package:caravan/screens/tabs/profile.dart';
 import 'package:caravan/screens/wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -22,7 +23,7 @@ class MyRideSharingApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: const Wrapper(),
       routes: {
-        '/home': (context) => const Home(),
+        '/home': (context) => const HomePage(),
         '/profile': (context) => const ProfileScreen(),
         '/history': (context) => const HistoryScreen(),
         '/index': (context) => const Welcome(),

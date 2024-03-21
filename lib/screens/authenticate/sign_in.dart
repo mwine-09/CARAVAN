@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously, duplicate_ignore
 import 'dart:ui';
 
-import 'package:caravan/screens/authenticate/register.dart';
 // import 'package:caravan/screens/main_template.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:flutter/material.dart';
@@ -60,11 +59,11 @@ class _SignInState extends State<SignIn> {
             Center(
               child: Row(
                 children: [
-                  Text(
+                  const Text(
                     "+256",
                     style: TextStyle(color: Colors.white),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   SizedBox(

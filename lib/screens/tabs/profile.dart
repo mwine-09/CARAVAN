@@ -18,15 +18,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        leading: IconButton(
-          icon:
-              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () {
-            // Handle menu icon press
-            Navigator.pop(context);
-          },
-        ),
-        
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.grey[850],
         title: const Text('Profile',
             style: TextStyle(

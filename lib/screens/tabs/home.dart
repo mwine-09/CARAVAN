@@ -1,11 +1,10 @@
 // ignore_for_file: avoid_print
 
-import 'package:caravan/screens/create_trip.dart';
-import 'package:caravan/screens/history.dart';
-import 'package:caravan/screens/notifications.dart';
-import 'package:caravan/screens/profile.dart';
-import 'package:caravan/screens/request_trip.dart';
-import 'package:caravan/screens/trip_details.dart';
+import 'package:caravan/screens/more%20screens/create_trip.dart';
+import 'package:caravan/screens/tabs/history.dart';
+import 'package:caravan/screens/more%20screens/notifications.dart';
+import 'package:caravan/screens/tabs/profile.dart';
+import 'package:caravan/screens/more%20screens/trip_details.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -16,65 +15,33 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  // ViewScreens
+  final List<Widget> viewScreens = [
+    const HistoryScreen(),
+    const ProfileScreen(),
+  ];
+  late PageController _pageController;
+  int currentTab = 1;
+
+  goToTab(int page) {
+    setState(() {
+      currentTab = page;
+    });
+
+    _pageController.jumpToPage(page);
+  }
+
+  @override
+  void initState() {
+    _pageController = PageController(initialPage: 1);
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor:
-            Colors.white, // Color of the selected item icon and text
-        unselectedItemColor:
-            Colors.grey[400], // Color of the unselected items' icons and text
-        selectedLabelStyle: const TextStyle(
-            color: Colors.white), // Color of the selected item text
-        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
-        currentIndex: 1,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const HistoryScreen()),
-              );
-              break;
-            case 1:
-              // Navigate to ProfileScreen
-
-              break;
-            case 2:
-              // Navigate to HistoryScreen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-              break;
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.history,
-              color: Colors.white,
-            ),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home_filled,
-              color: Colors.white,
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.person,
-              color: Colors.white,
-            ),
-            label: 'Profile',
-            backgroundColor: Colors.white,
-          ),
-        ],
-      ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
@@ -212,6 +179,7 @@ class _HomeState extends State<Home> {
   }
 }
 
+// ignore: must_be_immutable
 class MyCard extends StatefulWidget {
   final String title;
   final AssetImage icon;
