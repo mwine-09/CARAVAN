@@ -18,7 +18,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 color: Color.fromARGB(255, 254, 254, 254),
                 fontSize: 16,
                 fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.grey[850],
+        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
       ),
       body: ListView.builder(
         itemCount: trips.length,

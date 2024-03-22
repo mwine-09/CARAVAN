@@ -25,7 +25,7 @@ class _SignInState extends State<SignIn> {
         child: Column(
           children: [
             const Spacer(),
-            const Spacer(),
+            // const Spacer(),
             const Spacer(),
             Container(
               width: 150,
@@ -52,13 +52,14 @@ class _SignInState extends State<SignIn> {
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
-                      fontWeight: FontWeight.w200,
+                      fontWeight: FontWeight.w500,
                       fontStyle: FontStyle.normal)),
             ),
             const SizedBox(height: 20),
             Center(
               child: Row(
                 children: [
+                  const SizedBox(width: 20),
                   const Text(
                     "+256",
                     style: TextStyle(color: Colors.white),
@@ -68,23 +69,26 @@ class _SignInState extends State<SignIn> {
                   ),
                   SizedBox(
                     width: 250,
-                    child: TextField(
-                      keyboardType: TextInputType.phone,
-                      selectionWidthStyle: BoxWidthStyle.tight,
-                      onChanged: (value) {
-                        setState(() {
-                          phoneNumber = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.white, width: 1.0),
+                    child: SizedBox(
+                      height: 50,
+                      child: TextField(
+                        keyboardType: TextInputType.phone,
+                        selectionWidthStyle: BoxWidthStyle.tight,
+                        onChanged: (value) {
+                          setState(() {
+                            phoneNumber = value;
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 1.0),
+                          ),
+                          labelText: 'Phone number',
+                          labelStyle: TextStyle(color: Colors.white),
                         ),
-                        labelText: 'Phone number',
-                        labelStyle: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
-                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
@@ -118,7 +122,7 @@ class _SignInState extends State<SignIn> {
                 minimumSize: const Size(280, 50),
                 // reduce rounded corners
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: BorderRadius.all(Radius.circular(5)),
                 ),
               ),
               child: const Text('send code',

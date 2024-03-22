@@ -18,68 +18,77 @@ class _RequestTripScreenState extends State<RequestTripScreen> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
-      body: const Center(
-
-      
-
-
-     
-      ),
+      body: const Center(),
     );
   }
 }
 
 class MatchedDriver extends StatelessWidget {
-  const MatchedDriver({super.key});
-
+  final String driverName;
+  final String location;
+  final String destination;
+  final String dateTime;
+  final int availableSeats;
+  // ignore: use_key_in_widget_constructors
+  const MatchedDriver({
+    required this.location,
+    required this.driverName,
+    required this.destination,
+    required this.dateTime,
+    required this.availableSeats,
+  });
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
       child: SizedBox(
-          width: 380,
-          height: 290,
+          width: 300,
+          height: 270,
           child: Card(
               color: const Color.fromARGB(255, 20, 20, 20),
               // width 380 height 290
 
               child: Column(children: [
                 const SizedBox(height: 10),
-                const Row(
+                Row(
                   children: [
-                    SizedBox(width: 10),
-                    CircleAvatar(
+                    const SizedBox(width: 10),
+                    const CircleAvatar(
                       radius: 40,
                       backgroundImage: AssetImage('assets/default_profile.jpg'),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'John Doe',
-                          style: TextStyle(
+                          driverName,
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 22,
                               fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Text(
-                          'Location: Kisaasi',
-                          style: TextStyle(color: Colors.white, fontSize: 15),
+                          'Location: $location ',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 15),
                         ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Text(
-                          'Destination: Wandegeya',
-                          style: TextStyle(color: Colors.white, fontSize: 15),
-                        ),
-                        Text(
-                          'Date & Time: Today 10:00 AM',
-                          style: TextStyle(color: Colors.white, fontSize: 15),
+                          'Destination: $destination',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 15),
                         ),
                         Text(
-                          'Available seats: 3',
-                          style: TextStyle(color: Colors.white, fontSize: 15),
+                          'Date & Time: $dateTime',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 15),
+                        ),
+                        Text(
+                          'Available seats: $availableSeats ',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 15),
                         ),
                       ],
                     ),

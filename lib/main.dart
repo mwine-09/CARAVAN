@@ -1,6 +1,5 @@
 import 'package:caravan/firebase_options.dart';
 import 'package:caravan/screens/tabs/history.dart';
-import 'package:caravan/screens/tabs/home.dart';
 import 'package:caravan/screens/more%20screens/index.dart';
 import 'package:caravan/screens/main_scaffold.dart';
 import 'package:caravan/screens/tabs/profile.dart';

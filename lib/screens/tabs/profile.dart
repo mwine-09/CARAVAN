@@ -19,7 +19,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.grey[850],
+        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+
         title: const Text('Profile',
             style: TextStyle(
                 color: Color.fromARGB(255, 254, 254, 254),

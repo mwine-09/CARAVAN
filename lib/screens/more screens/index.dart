@@ -50,9 +50,12 @@ class Welcome extends StatelessWidget {
                     ));
               },
               style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(400, 50),
-                  backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                  shape: const BeveledRectangleBorder()),
+                minimumSize: const Size(380, 50),
+                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5)),
+                ),
+              ),
 
               child: const Text(
                 'Get started',

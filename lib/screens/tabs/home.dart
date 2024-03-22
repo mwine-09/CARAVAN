@@ -51,10 +51,6 @@ class _HomeState extends State<Home> {
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
-
-          maxLines: 1,
-          // show all the text
-          // increase the width of the text
         ),
         iconTheme: const IconThemeData(
           color: Colors.white,
@@ -111,7 +107,7 @@ class _HomeState extends State<Home> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const TripDetailsScreen()),
+                          builder: (context) => TripDetailsScreen()),
                     );
                   },
                 ),
