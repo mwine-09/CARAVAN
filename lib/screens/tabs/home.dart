@@ -1,11 +1,14 @@
 // ignore_for_file: avoid_print
 
+// import 'dart:html';
+
 import 'package:caravan/screens/more%20screens/create_trip.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
 import 'package:caravan/screens/tabs/history.dart';
 import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:caravan/screens/tabs/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -114,7 +117,6 @@ class _HomeState extends State<Home> {
               ],
             ),
             const SizedBox(height: 10),
-
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -126,48 +128,49 @@ class _HomeState extends State<Home> {
                     fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(height: 10),
-
+            const SizedBox(height: 15),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 10),
-              child: Flex(
-                direction: Axis.horizontal,
-                children: [
-                  // generate 3 blank cards with a height 50 and the same width
-                  Flexible(
-                    child: Container(
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 20, 20, 20),
-                        borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                width: 380,
+                height: 100,
+                child: Flex(
+                  direction: Axis.horizontal,
+                  children: [
+                    // generate 3 blank cards with a height 50 and the same width
+                    Flexible(
+                      child: Container(
+                        // height: 100,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 20, 20, 20),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Flexible(
-                    child: Container(
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 20, 20, 20),
-                        borderRadius: BorderRadius.circular(10),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Container(
+                        // height: 100,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 20, 20, 20),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Flexible(
-                    child: Container(
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 20, 20, 20),
-                        borderRadius: BorderRadius.circular(10),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Container(
+                        // height: 100,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 20, 20, 20),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )
-
-            // Image(image: AssetImage('assets/car.png')),
+            ),
           ],
         ),
       ),

@@ -43,6 +43,7 @@ class Welcome extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Navigate to sign in screen
+                Navigator.pop(context);
                 Navigator.push(
                     context,
                     MaterialPageRoute(

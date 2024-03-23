@@ -20,12 +20,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: const Color.fromARGB(255, 20, 20, 20),
-
-        title: const Text('Profile',
-            style: TextStyle(
-                color: Color.fromARGB(255, 254, 254, 254),
-                fontSize: 16,
-                fontWeight: FontWeight.bold)),
+        title: const Center(
+          child: Text('Profile',
+              style: TextStyle(
+                  color: Color.fromARGB(255, 254, 254, 254),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
+        ),
       ),
       body: Center(
         child: Padding(

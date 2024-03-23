@@ -19,7 +19,7 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -108,7 +108,7 @@ class _SignInState extends State<SignIn> {
                 } else {
                   //  navigate to the home screen
                   // ignore: use_build_context_synchronously
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
                   Navigator.pushNamed(context, '/home');
                   // Navigator.push(
                   //   context,
