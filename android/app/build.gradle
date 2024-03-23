@@ -22,10 +22,20 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+
 android {
+    
+
     namespace "com.example.caravan"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
+
+
+    defaultConfig {
+        minSdkVersion 21
+    }
+     
+ 
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

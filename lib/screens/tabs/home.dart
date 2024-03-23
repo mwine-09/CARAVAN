@@ -1,10 +1,10 @@
 // ignore_for_file: avoid_print
 
 import 'package:caravan/screens/more%20screens/create_trip.dart';
+import 'package:caravan/screens/more%20screens/map_view.dart';
 import 'package:caravan/screens/tabs/history.dart';
 import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:caravan/screens/tabs/profile.dart';
-import 'package:caravan/screens/more%20screens/trip_details.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -107,7 +107,7 @@ class _HomeState extends State<Home> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => TripDetailsScreen()),
+                          builder: (context) => const GoogleMapsView()),
                     );
                   },
                 ),

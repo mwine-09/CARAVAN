@@ -6,12 +6,16 @@ class CreateTripScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Trip'),
-      ),
-      body: const Center(
-        child: Text('Create Trip Screen'),
-      ),
-    );
+        appBar: AppBar(
+          title: const Text(
+            'Create Trip',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
+        body: const Center(
+          child: Text("Create trips here"),
+        ));
   }
 }
