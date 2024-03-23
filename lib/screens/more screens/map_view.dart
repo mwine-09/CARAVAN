@@ -10,15 +10,20 @@ class GoogleMapsView extends StatefulWidget {
 
 class _GoogleMapsViewState extends State<GoogleMapsView> {
   static const googlePlex = LatLng(0.3254716, 32.5665353);
+  static const destination = LatLng(0.3254716, 32.6665353);
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: GoogleMap(
-        initialCameraPosition: CameraPosition(
+        initialCameraPosition: const CameraPosition(
           target: googlePlex,
-          zoom: 13,
+          zoom: 10,
         ),
+        markers: {
+          const Marker(markerId: MarkerId('marker_1'), position: googlePlex),
+          const Marker(markerId: MarkerId('marker_2'), position: destination),
+        },
 // CameraPosition
       ), // GoogleMap
     );
