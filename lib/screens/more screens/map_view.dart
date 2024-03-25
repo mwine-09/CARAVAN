@@ -28,7 +28,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!
+    WidgetsBinding.instance
         .addPostFrameCallback((_) async => await initializeMap());
   }
 
