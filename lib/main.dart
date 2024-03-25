@@ -15,12 +15,14 @@ Future<void> main() async {
 
 class MyRideSharingApp extends StatelessWidget {
   const MyRideSharingApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const Wrapper(),
+      theme: ThemeData(
+        pageTransitionsTheme: const PageTransitionsTheme(),
+      ),
       routes: {
         '/home': (context) => const HomePage(),
         '/profile': (context) => const ProfileScreen(),

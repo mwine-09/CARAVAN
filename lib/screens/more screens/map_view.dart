@@ -7,7 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class GoogleMapsView extends StatefulWidget {
-  const GoogleMapsView({super.key});
+  const GoogleMapsView({Key? key}) : super(key: key);
 
   @override
   State<GoogleMapsView> createState() => _GoogleMapsViewState();
@@ -19,20 +19,19 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   static const destination = LatLng(-0.6934700, 30.3019000);
 
   LatLng? currentPosition;
+  String? searchText;
 
   Map<PolylineId, Polyline> polylines = {};
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance
+    WidgetsBinding.instance!
         .addPostFrameCallback((_) async => await initializeMap());
   }
 
-// initialise map method
   Future<void> initializeMap() async {
     await fetchLocationUpdates();
-    print("The current position is $currentPosition");
     final coordinates = await fetchPolylinePoints();
     generatePolyLineFromPoints(coordinates);
   }
@@ -40,21 +39,110 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GoogleMap(
-        initialCameraPosition: const CameraPosition(
-          target: googlePlex,
-          zoom: 10,
-        ),
-        markers: {
-          Marker(
-              markerId: const MarkerId('marker_1'),
-              position: currentPosition ?? googlePlex),
-          const Marker(markerId: MarkerId('marker_2'), position: googlePlex),
-          const Marker(markerId: MarkerId('marker_2'), position: destination),
-        },
-        polylines: Set<Polyline>.of(polylines.values),
-// CameraPosition
-      ), // GoogleMap
+      body: Stack(
+        children: [
+          GoogleMap(
+            initialCameraPosition: const CameraPosition(
+              target: googlePlex,
+              zoom: 10,
+            ),
+            markers: {
+              Marker(
+                markerId: const MarkerId('marker_1'),
+                position: currentPosition ?? googlePlex,
+              ),
+              const Marker(
+                  markerId: MarkerId('marker_2'), position: googlePlex),
+              const Marker(
+                  markerId: MarkerId('marker_3'), position: destination),
+            },
+            polylines: Set<Polyline>.of(polylines.values),
+            onTap: (LatLng latLng) {
+              setState(() {
+                currentPosition = latLng;
+              });
+            },
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SizedBox(
+                height: 300,
+                width: double.infinity,
+                child: Container(
+                  // round the top two corners
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+
+                  padding: const EdgeInsets.all(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
+                    child: SizedBox(
+                      height: 120,
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 50, 50, 50),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            const Text(
+                              'Enter your destination',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                leadingDistribution:
+                                    TextLeadingDistribution.even,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              height: 50,
+                              width: 280,
+                              child: TextField(
+                                onChanged: (value) {
+                                  setState(() {
+                                    searchText = value;
+                                  });
+                                },
+                                decoration: const InputDecoration(
+                                  // text color is whitE
+
+                                  hintText: 'Enter a location',
+                                  hintStyle: TextStyle(color: Colors.white),
+                                  border: OutlineInputBorder(),
+                                  // prefix with a car icon
+                                  prefixIcon:
+                                      Icon(Icons.search, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Use the searchText to search for the location
+                              },
+                              child: const Text('Search'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                )),
+          )
+        ],
+      ),
     );
   }
 

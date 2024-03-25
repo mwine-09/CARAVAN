@@ -9,9 +9,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String phoneNumber = '1234567890';
+  String phoneNumber = '+256 760588927';
   String profilePicture = 'assets/default_profile.jpg';
-  String password = '********';
+  // String password = '********';
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +39,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 backgroundImage: AssetImage(profilePicture),
               ),
               const SizedBox(height: 16),
-              Text('Phone Number: $phoneNumber',
-                  style: const TextStyle(color: Colors.white)),
-              const SizedBox(height: 16),
-              Text('Password: $password',
-                  style: const TextStyle(color: Colors.white)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Phone Number:',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  Text('$phoneNumber',
+                      style: const TextStyle(color: Colors.white)),
+                ],
+              ),
+              // const SizedBox(height: 16),
+              // Text('Password: $password',
+              //     style: const TextStyle(color: Colors.white)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
@@ -61,7 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () {
                   // TODO: Implement edit password functionality
                 },
-                child: const Text('Edit Password'),
+                child: const Text('Edit phone number'),
               ),
             ],
           ),

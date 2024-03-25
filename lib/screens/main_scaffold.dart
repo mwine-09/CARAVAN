@@ -43,11 +43,10 @@ class _HomePageState extends State<HomePage> {
         children: tabs,
       ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentTab,
         backgroundColor: Colors.black,
         selectedItemColor: Colors.white,
-        currentIndex: currentTab,
         unselectedItemColor: Colors.grey,
-        unselectedFontSize: 12,
         onTap: goToTab,
         items: const [
           BottomNavigationBarItem(

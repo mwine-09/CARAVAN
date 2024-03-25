@@ -9,7 +9,9 @@ class AuthService {
   // create a user based on the firebase user
   BaseUser? _userFromFireBase(User user) {
     // ignore: unnecessary_null_comparison
-    return user != null ? BaseUser(uid: user.uid) : null;
+    return user != null
+        ? BaseUser(uid: user.uid, phoneNumber: '0760588927', name: 'Mwine')
+        : null;
     // if user is not null, return the user data
     // else return null
   }

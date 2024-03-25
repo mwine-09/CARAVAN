@@ -2,6 +2,7 @@
 
 // import 'dart:html';
 
+import 'package:caravan/screens/messaging.dart';
 import 'package:caravan/screens/more%20screens/create_trip.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
 import 'package:caravan/screens/tabs/history.dart';
@@ -69,8 +70,7 @@ class _HomeState extends State<Home> {
               // load the notificationscreen
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const NotificationsScreen()),
+                MaterialPageRoute(builder: (context) => const MessagePage()),
               );
             },
           ),
@@ -82,96 +82,98 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            const SingleCard(),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                MyCard(
-                    title: 'create a trip',
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              const SingleCard(),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  MyCard(
+                      title: 'create a trip',
+                      icon: const AssetImage('assets/car.png'),
+                      onTap: () {
+                        // Handle tap on request for a ride
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const CreateTripScreen()),
+                        );
+                      }),
+                  MyCard(
+                    title: 'Request for a ride',
                     icon: const AssetImage('assets/car.png'),
                     onTap: () {
                       // Handle tap on request for a ride
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const CreateTripScreen()),
+                            builder: (context) => const GoogleMapsView()),
                       );
-                    }),
-                MyCard(
-                  title: 'Request for a ride',
-                  icon: const AssetImage('assets/car.png'),
-                  onTap: () {
-                    // Handle tap on request for a ride
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const GoogleMapsView()),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'My previous trips',
-                style: TextStyle(
-                    letterSpacing: 1.5,
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
+                    },
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 15),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              child: SizedBox(
-                width: 380,
-                height: 100,
-                child: Flex(
-                  direction: Axis.horizontal,
-                  children: [
-                    // generate 3 blank cards with a height 50 and the same width
-                    Flexible(
-                      child: Container(
-                        // height: 100,
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 20, 20, 20),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Container(
-                        // height: 100,
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 20, 20, 20),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Container(
-                        // height: 100,
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 20, 20, 20),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 10),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'My previous trips',
+                  style: TextStyle(
+                      letterSpacing: 1.5,
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 15),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                child: SizedBox(
+                  width: 380,
+                  height: 100,
+                  child: Flex(
+                    direction: Axis.horizontal,
+                    children: [
+                      // generate 3 blank cards with a height 50 and the same width
+                      Flexible(
+                        child: Container(
+                          // height: 100,
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 20, 20, 20),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Container(
+                          // height: 100,
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 20, 20, 20),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Container(
+                          // height: 100,
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 20, 20, 20),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
