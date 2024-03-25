@@ -3,20 +3,22 @@ import 'dart:async';
 import 'package:caravan/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:location/location.dart' as location;
 
 class GoogleMapsView extends StatefulWidget {
-  const GoogleMapsView({Key? key}) : super(key: key);
+  const GoogleMapsView({super.key});
 
   @override
   State<GoogleMapsView> createState() => _GoogleMapsViewState();
 }
 
 class _GoogleMapsViewState extends State<GoogleMapsView> {
-  final locationController = Location();
+  final location.Location locationController1 = location.Location();
   static const googlePlex = LatLng(0.3254716, 32.5665353);
-  static const destination = LatLng(-0.6934700, 30.3019000);
+  // varible to hold the destination
+  static var destination = LatLng(-0.6934700, 30.3019000);
 
   LatLng? currentPosition;
   String? searchText;
@@ -53,8 +55,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
               ),
               const Marker(
                   markerId: MarkerId('marker_2'), position: googlePlex),
-              const Marker(
-                  markerId: MarkerId('marker_3'), position: destination),
+              Marker(markerId: MarkerId('marker_3'), position: destination),
             },
             polylines: Set<Polyline>.of(polylines.values),
             onTap: (LatLng latLng) {
@@ -125,12 +126,16 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
                                   prefixIcon:
                                       Icon(Icons.search, color: Colors.white),
                                 ),
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ),
                             const SizedBox(height: 10),
                             ElevatedButton(
                               onPressed: () {
-                                // Use the searchText to search for the location
+                                setState(() {
+                                  _searchLocation(searchText!);
+                                  print(searchText! + " was searched");
+                                });
                               },
                               child: const Text('Search'),
                             ),
@@ -148,26 +153,27 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
 
   Future<void> fetchLocationUpdates() async {
     bool serviceEnabled;
-    PermissionStatus permissionGranted;
+    location.PermissionStatus permissionGranted;
     print("Fetch location is running");
-    serviceEnabled = await locationController.serviceEnabled();
+    serviceEnabled = await locationController1.serviceEnabled();
     print(serviceEnabled);
     if (!serviceEnabled) {
-      serviceEnabled = await locationController.requestService();
+      serviceEnabled = await locationController1.requestService();
       print("Service is enabled now");
     } else {
       return;
     }
 
-    permissionGranted = await locationController.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await locationController.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await locationController1.hasPermission();
+    if (permissionGranted == location.PermissionStatus.denied) {
+      permissionGranted = await locationController1.requestPermission();
+      if (permissionGranted != location.PermissionStatus.granted) {
         return;
       }
     }
 
-    locationController.onLocationChanged.listen((LocationData currentLocation) {
+    locationController1.onLocationChanged
+        .listen((location.LocationData currentLocation) {
       if (currentLocation.latitude != null &&
           currentLocation.longitude != null) {
         setState(() {
@@ -208,5 +214,35 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
     setState(() {
       polylines[id] = polyline;
     });
+  }
+
+  void _searchLocation(String location) async {
+    try {
+      List<Location> locations = await locationFromAddress(location);
+      if (locations.isNotEmpty) {
+        Location firstLocation = locations.first;
+        double latitude = firstLocation.latitude;
+        double longitude = firstLocation.longitude;
+        setState(() {
+          destination = LatLng(latitude, longitude);
+          //refresh the map
+          initializeMap();
+        });
+
+        print(latitude);
+        print(longitude);
+
+        // Use the latitude and longitude to update the map markers
+
+        // For example, set the end point marker to the new location
+      } else {
+        // Handle case where no location was found
+        print("Location was not found");
+      }
+    } catch (e) {
+      // Handle any errors that occur during geocoding
+      print("Mwine error occurred while searching for location");
+      print(e);
+    }
   }
 }
