@@ -1,3 +1,16 @@
+buildscript {
+    ext.kotlin_version = '1.9.22' // Kotlin version used in the project
+
+    repositories {
+        google() // Google's Maven repository
+        mavenCentral() // Central Maven repository
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.0.4' // Android Gradle plugin version
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Kotlin Gradle plugin version
+    }
+}
+
 allprojects {
     repositories {
         google()
