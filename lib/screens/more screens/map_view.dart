@@ -5,7 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:location/location.dart' as location;
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+
+import 'package:caravan/services/location_service.dart';
 
 class GoogleMapsView extends StatefulWidget {
   const GoogleMapsView({super.key});
@@ -17,13 +23,54 @@ class GoogleMapsView extends StatefulWidget {
 class _GoogleMapsViewState extends State<GoogleMapsView> {
   final location.Location locationController1 = location.Location();
   static const googlePlex = LatLng(0.3254716, 32.5665353);
+
   // varible to hold the destination
-  static var destination = LatLng(-0.6934700, 30.3019000);
+  static var destination = const LatLng(-0.6934700, 30.3019000);
 
   LatLng? currentPosition;
   String? searchText;
+  List<String> locationSuggestions = [];
 
   Map<PolylineId, Polyline> polylines = {};
+  Future<dynamic> getLocationSuggestion(String query) async {
+    var key = LocationService().key;
+    var url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$query&key=$key');
+
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final places = json.decode(response.body);
+
+      // var result = {
+      //   'places_prediction1': places['predictions'][0]['description'],
+      //   'places_prediction2': places['predictions'][1]['description'],
+      //   'places_prediction3': places['predictions'][2]['description'] ?? '',
+      //   'places_prediction4': places['predictions'][3]['description'] ?? '',
+      // };
+      if (places['predictions'].length > 0) {
+        var result = {
+          'places_prediction1': places['predictions'][0]['description'],
+          'places_prediction2': places['predictions'][1]['description'],
+          'places_prediction3': places['predictions'][2]['description'] ?? '',
+          'places_prediction4': places['predictions'][3]['description'] ?? '',
+        };
+
+        // print(result);
+        setState(() {
+          locationSuggestions = List<String>.from(places['predictions']
+              .map((prediction) => prediction['description']));
+        });
+      } else {
+        // print('No predictions found');
+        setState(() {
+          locationSuggestions.clear();
+        });
+      }
+    } else {
+      throw Exception('Failed to load predictions');
+    }
+  }
 
   @override
   void initState() {
@@ -34,6 +81,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
 
   Future<void> initializeMap() async {
     await fetchLocationUpdates();
+    // _animateToLocation();
     final coordinates = await fetchPolylinePoints();
     generatePolyLineFromPoints(coordinates);
   }
@@ -49,13 +97,14 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
               zoom: 10,
             ),
             markers: {
-              Marker(
-                markerId: const MarkerId('marker_1'),
-                position: currentPosition ?? googlePlex,
+              const Marker(
+                markerId: MarkerId('marker_1'),
+                position: googlePlex,
               ),
               const Marker(
                   markerId: MarkerId('marker_2'), position: googlePlex),
-              Marker(markerId: MarkerId('marker_3'), position: destination),
+              Marker(
+                  markerId: const MarkerId('marker_3'), position: destination),
             },
             polylines: Set<Polyline>.of(polylines.values),
             onTap: (LatLng latLng) {
@@ -225,6 +274,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
         double longitude = firstLocation.longitude;
         setState(() {
           destination = LatLng(latitude, longitude);
+
           //refresh the map
           initializeMap();
         });
