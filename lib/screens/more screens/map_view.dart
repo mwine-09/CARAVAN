@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:caravan/constants.dart';
 import 'package:flutter/material.dart';
@@ -191,7 +192,10 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
 
                         // Move the camera to the pickup location
 
-                        animateToLocation(pickupLocationCoordinates, 10);
+                        // animateToLocation(pickupLocationCoordinates, 10);
+
+                        animateToBounds(
+                            pickupLocationCoordinates, destinationCoordinates);
                       });
                     },
                     child: const Text('Get Directions'),
@@ -362,5 +366,21 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
       _mapController!
           .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
     }
+  }
+
+  void animateToBounds(LatLng pickup, LatLng destination) {
+    LatLngBounds bounds = LatLngBounds(
+      southwest: LatLng(min(pickup.latitude, destination.latitude),
+          min(pickup.longitude, destination.longitude)),
+      northeast: LatLng(max(pickup.latitude, destination.latitude),
+          max(pickup.longitude, destination.longitude)),
+    );
+
+    // Calculate padding to ensure markers are fully visible
+    double padding = 50.0;
+
+    // Animate the camera to fit the bounds with padding
+    _mapController
+        ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, padding));
   }
 }
