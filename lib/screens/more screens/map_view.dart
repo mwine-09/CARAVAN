@@ -7,6 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:location/location.dart' as location;
+import 'package:caravan/services/location_service.dart';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -41,13 +42,8 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
 
     if (response.statusCode == 200) {
       final places = json.decode(response.body);
+      // print(places);
 
-      // var result = {
-      //   'places_prediction1': places['predictions'][0]['description'],
-      //   'places_prediction2': places['predictions'][1]['description'],
-      //   'places_prediction3': places['predictions'][2]['description'] ?? '',
-      //   'places_prediction4': places['predictions'][3]['description'] ?? '',
-      // };
       if (places['predictions'].length > 0) {
         var result = {
           'places_prediction1': places['predictions'][0]['description'],
@@ -61,6 +57,8 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
           locationSuggestions = List<String>.from(places['predictions']
               .map((prediction) => prediction['description']));
         });
+
+        // print(result);
       } else {
         // print('No predictions found');
         setState(() {
@@ -117,88 +115,57 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: SizedBox(
-                height: 300,
-                width: double.infinity,
-                child: Container(
-                  // round the top two corners
-                  decoration: const BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
+            // child is a modal for searching for destination locations
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              color: Colors.white,
+              child: Column(
+                children: [
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        searchText = value;
+                      });
+                      getLocationSuggestion(value);
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Search for a location',
+                      border: OutlineInputBorder(),
                     ),
                   ),
-
-                  padding: const EdgeInsets.all(8),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 10),
-                    child: SizedBox(
-                      height: 120,
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 50, 50, 50),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 10),
-                            const Text(
-                              'Enter your destination',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                leadingDistribution:
-                                    TextLeadingDistribution.even,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              height: 50,
-                              width: 280,
-                              child: TextField(
-                                onChanged: (value) {
+                  if (locationSuggestions.isNotEmpty)
+                    Column(
+                      children: locationSuggestions
+                          .map((location) => ListTile(
+                                title: Text(location),
+                                onTap: () {
+                                  // auto fill the search bar with the selected location and search for it
                                   setState(() {
-                                    searchText = value;
+                                    searchText = location;
                                   });
-                                },
-                                decoration: const InputDecoration(
-                                  // text color is whitE
+                                  _searchLocation(location);
 
-                                  hintText: 'Enter a location',
-                                  hintStyle: TextStyle(color: Colors.white),
-                                  border: OutlineInputBorder(),
-                                  // prefix with a car icon
-                                  prefixIcon:
-                                      Icon(Icons.search, color: Colors.white),
-                                ),
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _searchLocation(searchText!);
-                                  print(searchText! + " was searched");
-                                });
-                              },
-                              child: const Text('Search'),
-                            ),
-                          ],
-                        ),
-                      ),
+                                  print("The search text is $searchText");
+
+                                  setState(() {
+                                    locationSuggestions.clear();
+                                  });
+
+                                  // close the modal
+                                },
+                              ))
+                          .toList(),
                     ),
-                  ),
-                )),
+                ],
+              ),
+            ),
           )
         ],
       ),
     );
   }
+
+// use awesome_place_search to create the modal for predictions
 
   Future<void> fetchLocationUpdates() async {
     bool serviceEnabled;
@@ -267,31 +234,33 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
 
   void _searchLocation(String location) async {
     try {
-      List<Location> locations = await locationFromAddress(location);
-      if (locations.isNotEmpty) {
-        Location firstLocation = locations.first;
-        double latitude = firstLocation.latitude;
-        double longitude = firstLocation.longitude;
-        setState(() {
-          destination = LatLng(latitude, longitude);
+      // Get place details using the location name
+      Map<String, dynamic> placeDetails =
+          await LocationService().getPlace(location);
 
-          //refresh the map
-          initializeMap();
-        });
+      LocationService().getDirection('Kampala', 'Kigali, Rwanda');
 
-        print(latitude);
-        print(longitude);
+      // Extract coordinates from the place details
+      Map<String, double> coordinates =
+          LocationService().extractCoordinates(placeDetails);
+      double? latitude = coordinates["lat"];
+      double? longitude = coordinates["lng"];
 
-        // Use the latitude and longitude to update the map markers
+      // Update the destination with the new coordinates
+      setState(() {
+        destination = LatLng(latitude!, longitude!);
 
-        // For example, set the end point marker to the new location
-      } else {
-        // Handle case where no location was found
-        print("Location was not found");
-      }
+        // Refresh the map
+        initializeMap();
+      });
+
+      print("Latitude: $latitude, Longitude: $longitude");
+
+      // Use the latitude and longitude to update the map markers
+      // For example, set the end point marker to the new location
     } catch (e) {
-      // Handle any errors that occur during geocoding
-      print("Mwine error occurred while searching for location");
+      // Handle any errors that occur during the search
+      print("An error occurred while searching for location");
       print(e);
     }
   }

@@ -1,12 +1,12 @@
 // ignore_for_file: avoid_print
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:caravan/constants.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
 class LocationService {
-  // final String key = 'AIzaSyAAdIxyR8uIlf95cQvjONiX2f3U6IUBUpk';
-  final String key = 'AIzaSyC1MUukWs-DVGpt-Olq4Dfz2z9w7IpIHKU';
+  final String key = googleMapsApiKey;
 
   Future<String> getPlaceId(String input) async {
     final String url =
@@ -18,7 +18,7 @@ class LocationService {
 
     var placeId = json['candidates'][0]['place_id'] as String;
 
-    print(placeId);
+    // print("THis is the place id $placeId");
     return placeId;
   }
 
@@ -29,13 +29,22 @@ class LocationService {
         "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$key";
 
     var response = await http.get(Uri.parse(url));
+    print("wait");
 
     var json = convert.jsonDecode(response.body);
+    print(" still wait");
 
     var results = json['result'] as Map<String, dynamic>;
 
-    print(results);
+    // print("These are the results : $results");
     return results;
+  }
+
+  Map<String, double> extractCoordinates(Map<String, dynamic> placeDetails) {
+    double lat = placeDetails["geometry"]["location"]["lat"];
+    double lng = placeDetails["geometry"]["location"]["lng"];
+
+    return {"lat": lat, "lng": lng};
   }
 
   Future<Map<String, dynamic>> getDirection(

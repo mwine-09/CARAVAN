@@ -1,15 +1,16 @@
 {
   "project_info": {
     "project_number": "456046104909",
+    "firebase_url": "https://caravan-8510e-default-rtdb.firebaseio.com",
     "project_id": "caravan-8510e",
     "storage_bucket": "caravan-8510e.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:456046104909:android:187ebdbcced153f5ee2704",
+        "mobilesdk_app_id": "1:456046104909:android:b04b86b8674029e8ee2704",
         "android_client_info": {
-          "package_name": "com.example.caravan"
+          "package_name": "com.bse24_7.caravan"
         }
       },
       "oauth_client": [],
