@@ -23,16 +23,36 @@ class GoogleMapsView extends StatefulWidget {
 
 class _GoogleMapsViewState extends State<GoogleMapsView> {
   final location.Location locationController1 = location.Location();
-  static const googlePlex = LatLng(0.3254716, 32.5665353);
+  static var pickupLocationCoordinates = LatLng(0.3254716, 32.5665353);
+  static var pickupLocationName = 'Kampala, Uganda';
 
-  // varible to hold the destination
-  static var destination = const LatLng(-0.6934700, 30.3019000);
-
+  // varible to hold the destinationCoordinates
+  static var destinationCoordinates = const LatLng(-0.6934700, 30.3019000);
+  static var destinationName = 'Kigali, Rwanda';
+  GoogleMapController? _mapController;
   LatLng? currentPosition;
   String? searchText;
   List<String> locationSuggestions = [];
+  final Set<Marker> _markers = {
+    Marker(
+      markerId: MarkerId('marker_1'),
+      position: pickupLocationCoordinates,
+    ),
+    // Marker(markerId: MarkerId('marker_2'), position: pickupLocationCoordinates),
+    Marker(
+        markerId: const MarkerId('marker_3'), position: destinationCoordinates),
+  };
 
   Map<PolylineId, Polyline> polylines = {};
+
+  final pickupController = TextEditingController();
+  final destinationController = TextEditingController();
+
+  static bool pickupFocus = true;
+
+  String pickupText = '';
+  String destinationText = '';
+
   Future<dynamic> getLocationSuggestion(String query) async {
     var key = LocationService().key;
     var url = Uri.parse(
@@ -80,7 +100,8 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   Future<void> initializeMap() async {
     await fetchLocationUpdates();
     // _animateToLocation();
-    final coordinates = await fetchPolylinePoints();
+    final coordinates = await fetchPolylinePoints(
+        pickupLocationCoordinates, destinationCoordinates);
     generatePolyLineFromPoints(coordinates);
   }
 
@@ -90,20 +111,14 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
       body: Stack(
         children: [
           GoogleMap(
-            initialCameraPosition: const CameraPosition(
-              target: googlePlex,
+            onMapCreated: (controller) {
+              _mapController = controller;
+            },
+            initialCameraPosition: CameraPosition(
+              target: pickupLocationCoordinates,
               zoom: 10,
             ),
-            markers: {
-              const Marker(
-                markerId: MarkerId('marker_1'),
-                position: googlePlex,
-              ),
-              const Marker(
-                  markerId: MarkerId('marker_2'), position: googlePlex),
-              Marker(
-                  markerId: const MarkerId('marker_3'), position: destination),
-            },
+            markers: _markers,
             polylines: Set<Polyline>.of(polylines.values),
             onTap: (LatLng latLng) {
               setState(() {
@@ -115,43 +130,94 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
             bottom: 0,
             left: 0,
             right: 0,
-            // child is a modal for searching for destination locations
+            // child is a modal for searching for destinationCoordinates locations
             child: Container(
               padding: const EdgeInsets.all(10),
               color: Colors.white,
               child: Column(
                 children: [
                   TextField(
+                    controller: pickupController,
                     onChanged: (value) {
                       setState(() {
-                        searchText = value;
+                        pickupText = value;
+                        pickupFocus = true;
                       });
                       getLocationSuggestion(value);
                     },
                     decoration: const InputDecoration(
-                      hintText: 'Search for a location',
+                      hintText: 'Enter pickup location',
                       border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.location_on),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: destinationController,
+                    onChanged: (value) {
+                      setState(() {
+                        destinationText = value;
+                        pickupFocus = false;
+                      });
+                      getLocationSuggestion(value);
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Enter destinationCoordinates location',
+                      border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.location_on),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      // Get the coordinates of the pickup and destinationCoordinates locations
+                      pickupLocationCoordinates =
+                          await _searchLocation(pickupText);
+                      destinationCoordinates =
+                          await _searchLocation(destinationText);
+                      // Update the markers on the map
+                      updateMarkers(
+                          pickupLocationCoordinates, destinationCoordinates);
+
+                      // Fetch the polyline points between the pickup and destinationCoordinates locations
+                      fetchPolylinePoints(
+                              pickupLocationCoordinates, destinationCoordinates)
+                          .then((polylinePoints) {
+                        // Generate the polyline from the points
+                        generatePolyLineFromPoints(polylinePoints);
+
+                        // initialise the map
+                        initializeMap();
+
+                        // Move the camera to the pickup location
+
+                        animateToLocation(pickupLocationCoordinates, 10);
+                      });
+                    },
+                    child: const Text('Get Directions'),
+                  ),
+                  SizedBox(height: 16),
                   if (locationSuggestions.isNotEmpty)
                     Column(
                       children: locationSuggestions
                           .map((location) => ListTile(
+                                leading: Icon(Icons.location_on),
                                 title: Text(location),
                                 onTap: () {
-                                  // auto fill the search bar with the selected location and search for it
+                                  // Auto-fill the search bar with the selected location and search for it
                                   setState(() {
-                                    searchText = location;
-                                  });
-                                  _searchLocation(location);
+                                    if (pickupFocus) {
+                                      pickupText = location;
+                                      pickupLocationName = location;
 
-                                  print("The search text is $searchText");
-
-                                  setState(() {
+                                      pickupController.text = location;
+                                    } else {
+                                      destinationText = location;
+                                      destinationName = location;
+                                      destinationController.text = location;
+                                    }
                                     locationSuggestions.clear();
                                   });
-
-                                  // close the modal
                                 },
                               ))
                           .toList(),
@@ -202,12 +268,13 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
     });
   }
 
-  Future<List<LatLng>> fetchPolylinePoints() async {
+  Future<List<LatLng>> fetchPolylinePoints(
+      LatLng pickup, LatLng destinationAddress) async {
     final polylinePoints = PolylinePoints();
     final result = await polylinePoints.getRouteBetweenCoordinates(
       googleMapsApiKey,
-      PointLatLng(googlePlex.latitude, googlePlex.longitude),
-      PointLatLng(destination.latitude, destination.longitude),
+      PointLatLng(pickup.latitude, pickup.longitude),
+      PointLatLng(destinationAddress.latitude, destinationAddress.longitude),
     );
     if (result.points.isNotEmpty) {
       return result.points
@@ -232,36 +299,68 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
     });
   }
 
-  void _searchLocation(String location) async {
+  Future<LatLng> _searchLocation(String location) async {
     try {
       // Get place details using the location name
       Map<String, dynamic> placeDetails =
           await LocationService().getPlace(location);
 
-      LocationService().getDirection('Kampala', 'Kigali, Rwanda');
-
       // Extract coordinates from the place details
       Map<String, double> coordinates =
           LocationService().extractCoordinates(placeDetails);
-      double? latitude = coordinates["lat"];
-      double? longitude = coordinates["lng"];
+      double latitude = coordinates["lat"]!;
+      double longitude = coordinates["lng"]!;
 
-      // Update the destination with the new coordinates
-      setState(() {
-        destination = LatLng(latitude!, longitude!);
+      // print(LatLng(latitude, longitude));
 
-        // Refresh the map
-        initializeMap();
-      });
-
-      print("Latitude: $latitude, Longitude: $longitude");
-
-      // Use the latitude and longitude to update the map markers
-      // For example, set the end point marker to the new location
+      return LatLng(latitude, longitude);
     } catch (e) {
       // Handle any errors that occur during the search
       print("An error occurred while searching for location");
       print(e);
+      return LatLng(
+          0, 0); // Return a default value or handle the error as needed
+    }
+  }
+
+  void updateMarkers(LatLng pickupLocation, LatLng destinationLocation) {
+    setState(() {
+      // Clear existing markers
+      _markers.clear();
+
+      // Add new markers for pickup and destinationCoordinates
+      _markers.add(
+        Marker(
+          markerId: MarkerId('pickup'),
+          position: pickupLocationCoordinates,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          infoWindow: InfoWindow(title: 'Pickup Location'),
+        ),
+      );
+      _markers.add(
+        Marker(
+          markerId: MarkerId('destinationCoordinates'),
+          position: destinationCoordinates,
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          infoWindow: InfoWindow(title: 'Destination'),
+        ),
+      );
+    });
+  }
+
+  // animate to location
+  void animateToLocation(LatLng location, double zoom) {
+    if (_mapController != null) {
+      // Create a CameraPosition with the given location and zoom level
+      CameraPosition cameraPosition = CameraPosition(
+        target: location,
+        zoom: zoom,
+      );
+
+      // Animate the map camera to the specified position
+      _mapController!
+          .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
     }
   }
 }
