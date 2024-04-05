@@ -23,13 +23,6 @@ class AuthService {
       UserCredential result = await _auth.signInAnonymously();
       BaseUser? user = _userFromFireBase(result.user!);
       return user;
-      // UserCredential is a class that holds the user data
-      // signInAnonymously() is a method that returns a Future object
-      // await is used to wait for the Future object to return a value
-      // result is a variable of type UserCredential that holds the user data
-      // user is a variable of type User that holds the user data
-      // return user;
-      // return the user data
     } catch (e) {
       print(e.toString());
       // print the error message
@@ -73,6 +66,12 @@ class AuthService {
       print(e.toString());
       return null;
     }
+  }
+
+  // getCurrentUser function as a base user
+  BaseUser? getCurrentUser() {
+    User? user = _auth.currentUser;
+    return _userFromFireBase(user!);
   }
 
   //register with email and password

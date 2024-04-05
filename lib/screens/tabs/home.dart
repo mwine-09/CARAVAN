@@ -5,11 +5,11 @@
 import 'package:caravan/screens/messaging.dart';
 import 'package:caravan/screens/more%20screens/create_trip.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
-import 'package:caravan/screens/tabs/history.dart';
 import 'package:caravan/screens/more%20screens/notifications.dart';
+import 'package:caravan/screens/tabs/history.dart';
+// import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:caravan/screens/tabs/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -70,7 +70,8 @@ class _HomeState extends State<Home> {
               // load the notificationscreen
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const MessagePage()),
+                MaterialPageRoute(
+                    builder: (context) => const NotificationsScreen()),
               );
             },
           ),
@@ -100,7 +101,7 @@ class _HomeState extends State<Home> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const CreateTripScreen()),
+                              builder: (context) => CreateTripScreen()),
                         );
                       }),
                   MyCard(
