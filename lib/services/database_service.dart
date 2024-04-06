@@ -55,6 +55,11 @@ class DatabaseService {
     }
   }
 
+  // fetch all trips from the "trips" collection
+  Stream<QuerySnapshot> fetchTrips() {
+    return _firestore.collection('trips').snapshots();
+  }
+
   // Add a new booking to the "bookings" collection
   Future<void> addBooking(String bookingId, String tripId, String passengerId,
       DateTime bookingTime, String bookingStatus) async {

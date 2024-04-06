@@ -3,6 +3,7 @@
 // import 'dart:html';
 
 import 'package:caravan/screens/messaging.dart';
+import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/create_trip.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
 import 'package:caravan/screens/more%20screens/notifications.dart';
@@ -94,14 +95,14 @@ class _HomeState extends State<Home> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   MyCard(
-                      title: 'create a trip',
+                      title: 'View trips',
                       icon: const AssetImage('assets/car.png'),
                       onTap: () {
                         // Handle tap on request for a ride
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => CreateTripScreen()),
+                              builder: (context) => const AvailableTrips()),
                         );
                       }),
                   MyCard(
