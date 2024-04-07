@@ -39,35 +39,34 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
         ),
       ),
       body: SafeArea(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text(
-            "Driver details",
-            style: TextStyle(
-              color: Color.fromARGB(255, 255, 255, 255),
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          TripDriverCard(trip: trip),
-          const SizedBox(height: 5),
-          const Text(
-            "Trip Details",
-            style: TextStyle(
-                color: Color.fromARGB(255, 249, 249, 249),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Driver details",
+              style: TextStyle(
+                color: Color.fromARGB(255, 255, 255, 255),
                 fontSize: 16,
-                fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 22, 22, 22),
-              borderRadius: BorderRadius.circular(5),
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            child: Column(
-                // crossAxisAlignment: CrossAxisAlignment.start,
+            TripDriverCard(trip: trip),
+            const SizedBox(height: 5),
+            const Text(
+              "Trip Details",
+              style: TextStyle(
+                  color: Color.fromARGB(255, 249, 249, 249),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 22, 22, 22),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Column(
                 children: [
                   Row(
                     children: [
@@ -93,9 +92,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
@@ -145,9 +142,11 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                       polylines: polylines.values.toSet(),
                     ),
                   ),
-                ]),
-          )
-        ]),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -228,10 +227,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           max(pickup.longitude, destination.longitude)),
     );
 
-    // Calculate padding to ensure markers are fully visible
     double padding = 50.0;
-
-    // Animate the camera to fit the bounds with padding
 
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, padding));
   }
