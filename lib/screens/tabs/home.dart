@@ -204,6 +204,8 @@ class _MyCardState extends State<MyCard> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+        splashColor: const Color.fromARGB(255, 252, 250, 248),
+        borderRadius: BorderRadius.circular(20),
         onTap: widget.onTap,
         child: Card(
           child: Container(
@@ -244,6 +246,7 @@ class SingleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
       color: const Color.fromARGB(255, 20, 20, 20),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -256,7 +259,7 @@ class SingleCard extends StatelessWidget {
                 'MY WALLET',
                 style: TextStyle(
                     letterSpacing: 1.5,
-                    color: Color.fromARGB(255, 254, 254, 254),
+                    color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold),
               ),
@@ -265,7 +268,7 @@ class SingleCard extends StatelessWidget {
             const Text(
               'UGX ********',
               style: TextStyle(
-                  color: Color.fromARGB(255, 254, 254, 254),
+                  color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
@@ -279,14 +282,14 @@ class SingleCard extends StatelessWidget {
             const SizedBox(height: 20),
 
             // add a flat button
-
-            //  add a text button with a white background
-            TextButton(
-              onPressed: null,
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            ElevatedButton(
+              onPressed: () {},
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.white),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
               child: const Flex(
@@ -308,7 +311,7 @@ class SingleCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
+            )
           ],
         ),
       ),
