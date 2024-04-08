@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -134,20 +135,20 @@ class DatabaseService {
     }
   }
 
-  // Add a new message to the "messages" collection
-  Future<void> addMessage(String messageId, String senderId, String receiverId,
-      String messageContent, String messageType, DateTime timestamp) async {
+  Future<void> sendMessage({
+    required String receiverId,
+    required String messageContent,
+    required Timestamp timestamp,
+  }) async {
     try {
-      await _firestore.collection('messages').doc(messageId).set({
-        'sender ID': senderId,
+      await _firestore.collection('messages').add({
+        'sender ID': FirebaseAuth.instance.currentUser?.uid ?? '',
         'receiver ID': receiverId,
         'message content': messageContent,
-        'message type': messageType,
         'timestamp': timestamp,
       });
     } catch (e) {
-      // Handle any errors
-      print('Error adding message: $e');
+      print('Error sending message: $e');
     }
   }
 
