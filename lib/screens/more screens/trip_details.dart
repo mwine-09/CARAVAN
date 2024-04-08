@@ -4,7 +4,9 @@ import 'package:caravan/constants.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/services/location_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -20,12 +22,12 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   late GoogleMapController mapController;
   Map<PolylineId, Polyline> polylines = {};
   Map<MarkerId, Marker> markers = {};
+  static LatLng _center = const LatLng(0, 0);
 
   @override
   Widget build(BuildContext context) {
     final tripProvider = Provider.of<TripDetailsProvider>(context);
     final Trip trip = tripProvider.tripDetails!;
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -124,22 +126,23 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Container(
-                    width: 380,
-                    height: 220,
-                    decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(16)),
-                    child: GoogleMap(
-                      onMapCreated: (controller) {
-                        mapController = controller;
-                        initializeMap(trip);
-                      },
-                      initialCameraPosition: const CameraPosition(
-                        target: LatLng(0, 0),
-                        zoom: 15,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: SizedBox(
+                      width: 380,
+                      height: 220,
+                      child: GoogleMap(
+                        onMapCreated: (controller) {
+                          mapController = controller;
+                          initializeMap(trip);
+                        },
+                        initialCameraPosition: CameraPosition(
+                          target: _center,
+                          zoom: 20,
+                        ),
+                        markers: markers.values.toSet(),
+                        polylines: polylines.values.toSet(),
                       ),
-                      markers: markers.values.toSet(),
-                      polylines: polylines.values.toSet(),
                     ),
                   ),
                 ],
@@ -165,6 +168,10 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
     );
 
     setState(() {
+      _center = LatLng(
+          (pickupCoordinates.latitude + destinationCoordinates.latitude) / 2,
+          (pickupCoordinates.longitude + destinationCoordinates.longitude) / 2);
+      print("The center is $_center");
       polylines.clear();
       generatePolyLineFromPoints(polylinePoints);
 
@@ -178,6 +185,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
         markerId: const MarkerId('pickup'),
         position: pickupCoordinates,
         infoWindow: const InfoWindow(title: 'Pickup'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       );
 
       markers[destinationMarker.markerId] = destinationMarker;
@@ -207,10 +215,10 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   }
 
   void generatePolyLineFromPoints(List<LatLng> polylinePoints) {
-    final id = PolylineId('polyline');
+    final id = const PolylineId('polyline');
     final polyline = Polyline(
       polylineId: id,
-      color: const Color.fromARGB(255, 68, 255, 71),
+      color: Color.fromARGB(255, 68, 158, 255),
       points: polylinePoints,
       width: 3,
     );

@@ -28,7 +28,18 @@ class MyRideSharingApp extends StatelessWidget {
       home: const Wrapper(),
       theme: ThemeData(
         pageTransitionsTheme: const PageTransitionsTheme(),
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black,
+          centerTitle: true,
+        ),
+
+        // primarySwatch: Colors.blue,
+
+        primaryColor: Colors.black,
+        secondaryHeaderColor: Colors.white,
       ),
+
       routes: {
         '/home': (context) => const HomePage(),
         '/profile': (context) => const ProfileScreen(),

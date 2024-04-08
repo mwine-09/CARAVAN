@@ -6,6 +6,7 @@ import 'package:caravan/screens/messaging.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/create_trip.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
+import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:caravan/screens/tabs/history.dart';
 // import 'package:caravan/screens/more%20screens/notifications.dart';
@@ -71,8 +72,7 @@ class _HomeState extends State<Home> {
               // load the notificationscreen
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const NotificationsScreen()),
+                MaterialPageRoute(builder: (context) => ChatScreen()),
               );
             },
           ),

@@ -19,20 +19,20 @@ class MessageWidget extends StatelessWidget {
             margin: EdgeInsets.only(right: 8, bottom: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: Color(0xff1972F5),
+              color: Color.fromARGB(255, 12, 12, 12),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(message.text!,
-                    style: theme.textTheme.bodyText2
+                    style: theme.textTheme.bodySmall
                         ?.copyWith(color: Colors.white)),
                 SizedBox(
                   height: 4,
                 ),
                 Text(message.createdAt,
                     style: theme.textTheme.bodySmall
-                        ?.copyWith(color: Colors.grey.shade300)),
+                        ?.copyWith(color: Colors.white)),
               ],
             ),
           ),
@@ -47,16 +47,24 @@ class MessageWidget extends StatelessWidget {
             margin: EdgeInsets.only(left: 8, bottom: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: Color.fromARGB(255, 225, 231, 236),
+              color: Color.fromARGB(255, 24, 24, 24),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(message.text!, style: theme.textTheme.bodyText2),
+                Text(
+                  message.text!,
+                  style:
+                      theme.textTheme.bodySmall?.copyWith(color: Colors.white),
+                ),
                 SizedBox(
                   height: 4,
                 ),
-                Text(message.createdAt, style: theme.textTheme.bodySmall),
+                Text(
+                  message.createdAt,
+                  style:
+                      theme.textTheme.bodySmall?.copyWith(color: Colors.white),
+                ),
               ],
             ),
           ),

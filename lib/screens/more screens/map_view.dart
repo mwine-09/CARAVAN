@@ -36,7 +36,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   List<String> locationSuggestions = [];
   final Set<Marker> _markers = {
     Marker(
-      markerId: MarkerId('marker_1'),
+      markerId: const MarkerId('marker_1'),
       position: pickupLocationCoordinates,
     ),
     // Marker(markerId: MarkerId('marker_2'), position: pickupLocationCoordinates),
@@ -109,6 +109,11 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: true,
+        elevation: 0,
+      ),
       body: Stack(
         children: [
           GoogleMap(
