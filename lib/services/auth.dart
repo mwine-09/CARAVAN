@@ -2,6 +2,8 @@
 
 import 'dart:async';
 
+import 'package:caravan/models/emergency_contact.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:caravan/models/user.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -77,7 +79,7 @@ class AuthService {
     return _userFromFireBase(user!);
   }
 
-  //register with email and password
+  // register with email and password
   Future registerWithEmailAndPassword(
       String email, String password, String name) async {
     try {
@@ -95,6 +97,59 @@ class AuthService {
       return null;
     }
   }
+
+  // Future registerWithEmailAndPassword(
+  //     String email, String password, String name,
+  //     {String? username,
+  //     String? firstName,
+  //     String? lastName,
+  //     int? age,
+  //     String? carBrand,
+  //     String? make,
+  //     String? numberPlate,
+  //     String? phoneNumber,
+  //     List<String>? preferences,
+  //     List<EmergencyContact>? emergencyContacts}) async {
+  //   try {
+  //     UserCredential result = await _auth.createUserWithEmailAndPassword(
+  //         email: email, password: password);
+
+  //     User? user = result.user;
+
+  //     await user!.sendEmailVerification();
+  //     await user.updateDisplayName(name);
+
+  //     // Create user document in Firestore
+  //     Map<String, dynamic> userData = {
+  //       'name': name,
+  //       'email': email,
+  //     };
+
+  //     if (username != null) userData['username'] = username;
+  //     if (firstName != null) userData['firstName'] = firstName;
+  //     if (lastName != null) userData['lastName'] = lastName;
+  //     if (age != null) userData['age'] = age;
+  //     if (carBrand != null) userData['carBrand'] = carBrand;
+  //     if (make != null) userData['make'] = make;
+  //     if (numberPlate != null) userData['numberPlate'] = numberPlate;
+  //     if (phoneNumber != null) userData['phoneNumber'] = phoneNumber;
+  //     if (preferences != null) userData['preferences'] = preferences;
+  //     if (emergencyContacts != null) {
+  //       userData['emergencyContacts'] =
+  //           emergencyContacts.map((e) => e.toJson()).toList();
+  //     }
+
+  //     await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(user.uid)
+  //         .set(userData);
+
+  //     return _userFromFireBase(user);
+  //   } catch (e) {
+  //     print(e.toString());
+  //     return null;
+  //   }
+  // }
 
   // sign in with email and password
   Future signInWithEmailAndPassword(String email, String password) async {

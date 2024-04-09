@@ -1,7 +1,6 @@
 import 'package:caravan/models/emergency_contact.dart';
 
-class User {
-  final String uid;
+class UserProfile {
   final String? username;
   final String? firstName;
   final String? lastName;
@@ -13,8 +12,7 @@ class User {
   final List<String>? preferences;
   final List<EmergencyContact>? emergencyContacts;
 
-  User({
-    required this.uid,
+  UserProfile({
     this.username,
     this.firstName,
     this.lastName,
@@ -26,4 +24,22 @@ class User {
     this.preferences,
     this.emergencyContacts,
   });
+
+  // to json
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['username'] = username;
+    data['firstName'] = firstName;
+    data['lastName'] = lastName;
+    data['age'] = age;
+    data['carBrand'] = carBrand;
+    data['make'] = make;
+    data['numberPlate'] = numberPlate;
+    data['phoneNumber'] = phoneNumber;
+    data['preferences'] = preferences;
+    data['emergencyContacts'] =
+        emergencyContacts?.map((e) => e.toJson()).toList();
+
+    return data;
+  }
 }

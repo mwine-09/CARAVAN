@@ -70,8 +70,6 @@ class DatabaseService {
         .collection('/trips')
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) {
-              print(doc['driver ID'] + "is the doc is");
-              print("Fetching trips");
               return Trip(
                 id: doc.id,
                 driverID: doc['driver ID'],
@@ -193,6 +191,25 @@ class DatabaseService {
     });
   }
 
+  Future<String> getDriverName(String userId) async {
+    try {
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (userSnapshot.exists) {
+        return userSnapshot[
+            'name']; // Assuming 'name' is the field containing the driver's name
+      } else {
+        return 'Unknown'; // Or handle the case where the user does not exist
+      }
+    } catch (e) {
+      print('Error getting driver name: $e');
+      return 'Unknown'; // Handle the error case
+    }
+  }
+
   // Add a new emergency alert to the "emergency_alerts" collection
   Future<void> addEmergencyAlert(
       String alertId,
@@ -234,16 +251,9 @@ class DatabaseService {
   Future<void> updateUserProfile(
       String uid, Map<String, dynamic> updatedData) async {
     try {
-      // Fetch the current user profile data
-      DocumentSnapshot userSnapshot =
-          await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      // Map<String, dynamic> existingData = userSnapshot.data() ?? {};
+      await _firestore.collection('users').doc(uid).update(updatedData);
 
-      // Merge the existing data with the updated data, keeping existing data if not provided
-      // Map<String, dynamic> mergedData = {...existingData, ...updatedData};
-
-      // Update the user profile in Firestore
-      // await FirebaseFirestore.instance.collection('users').doc(uid).update(mergedData);
+      // Update the user profile in the user provider
     } catch (e) {
       print('Error updating user profile: $e');
       throw e;

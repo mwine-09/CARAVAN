@@ -1,4 +1,4 @@
-import 'package:caravan/screens/authenticate/interm_login.dart';
+import 'package:caravan/screens/authenticate/interim_login.dart';
 // import 'package:caravan/screens/authenticate/sign_in.dart';
 import 'package:flutter/material.dart';
 

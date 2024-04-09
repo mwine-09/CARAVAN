@@ -1,6 +1,7 @@
 import 'package:caravan/models/user.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
+import 'package:caravan/screens/more%20screens/complete_profile.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/shared/constants/text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -123,6 +124,7 @@ class _MyLoginState extends State<MyLogin> {
                             .signInWithEmailAndPassword(email, password);
 
                         userProvider.setUsername(userCredential.username);
+                        userProvider.setUid(userCredential.uid);
                         Navigator.pop(context);
                         Navigator.pushNamed(context, '/home');
                         print('Signed in: ${userCredential.username}');

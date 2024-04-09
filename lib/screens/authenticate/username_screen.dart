@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:caravan/models/user.dart';
 import 'package:caravan/providers/user_provider.dart';
+import 'package:caravan/screens/more%20screens/complete_profile.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/shared/constants/text_field.dart';
 import 'package:flutter/material.dart';
@@ -49,15 +51,23 @@ class _UsernameScreenState extends State<UsernameScreen> {
                 onPressed: () async {
                   String username = _usernameController.text;
                   userProvider.setUsername(username);
+
                   String email = userProvider.getEmail();
                   String password = userProvider.getPassword();
-                  Future user = await AuthService()
+                  // create account
+                  AuthService()
                       .registerWithEmailAndPassword(email, password, username);
+// log the user in
+                  UserModel userCredential = await AuthService()
+                      .signInWithEmailAndPassword(email, password);
+
+                  userProvider.setUid(userCredential.uid);
 
                   // Navigate to the home screen
-                  // ignore: use_build_context_synchronously
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/home');
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const CompleteProfile()));
 
                   // Do something with the username, like saving it to a database
                 },

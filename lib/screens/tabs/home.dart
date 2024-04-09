@@ -3,7 +3,7 @@
 // import 'dart:html';
 
 import 'package:caravan/providers/user_provider.dart';
-import 'package:caravan/screens/authenticate/interm_login.dart';
+import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/all_chats.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
@@ -11,7 +11,7 @@ import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 
 import 'package:caravan/screens/tabs/history.dart';
 // import 'package:caravan/screens/more%20screens/notifications.dart';
-import 'package:caravan/screens/tabs/profile.dart';
+import 'package:caravan/screens/more%20screens/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +27,7 @@ class _HomeState extends State<Home> {
   // ViewScreens
   final List<Widget> viewScreens = [
     const HistoryScreen(),
-    const ProfileScreen(),
+    ProfileScreen(),
   ];
   late PageController _pageController;
   int currentTab = 1;

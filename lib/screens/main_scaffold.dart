@@ -1,6 +1,6 @@
 import 'package:caravan/screens/tabs/history.dart';
 import 'package:caravan/screens/tabs/home.dart';
-import 'package:caravan/screens/tabs/profile.dart';
+import 'package:caravan/screens/tabs/settings.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,11 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final tabs = <Widget>[
-    const HistoryScreen(),
-    const Home(),
-    const ProfileScreen()
-  ];
+  final tabs = <Widget>[const HistoryScreen(), const Home(), SettingsScreen()];
 
   late PageController _pageController;
   int currentTab = 0;

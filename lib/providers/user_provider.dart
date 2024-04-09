@@ -18,6 +18,11 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setUid(String uid) {
+    user.uid = uid;
+    notifyListeners();
+  }
+
   String getEmail() {
     return user.email;
   }
@@ -29,9 +34,14 @@ class UserProvider extends ChangeNotifier {
   String getUsername() {
     return user.username;
   }
+
+  String getUid() {
+    return user.uid;
+  }
 }
 
 class User {
+  String uid = '';
   String email = '';
   String password = '';
   String username = '';
