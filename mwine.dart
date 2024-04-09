@@ -5,12 +5,11 @@ import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({Key? key}) : super(key: key);
+  const ChatScreen({super.key});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -67,13 +66,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final tripProvider = Provider.of<TripDetailsProvider>(context);
     final Trip trip = tripProvider.tripDetails!;
-    UserProvider _userProvider = Provider.of(context, listen: false);
+    UserProvider userProvider = Provider.of(context, listen: false);
 
     _receiverID = trip.driverID;
 
-    print("The receiver id is ${_receiverID}");
+    print("The receiver id is $_receiverID");
 
-    String username = _userProvider.getUsername();
+    String username = userProvider.getUsername();
 
     return Scaffold(
       appBar: AppBar(
@@ -123,7 +122,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       } else if (snapshot.hasError) {
                         return Center(
                             child: Text('Error: ${snapshot.error}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     color: Colors.white, fontSize: 20)));
                       } else {
                         List<Message>? messages = snapshot.data;

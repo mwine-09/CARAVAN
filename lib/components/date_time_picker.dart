@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DepartureTimePicker extends StatefulWidget {
   final ValueChanged<DateTime>? onChanged;
 
-  const DepartureTimePicker({Key? key, this.onChanged}) : super(key: key);
+  const DepartureTimePicker({super.key, this.onChanged});
 
   @override
   _DepartureTimePickerState createState() => _DepartureTimePickerState();
@@ -44,22 +44,22 @@ class _DepartureTimePickerState extends State<DepartureTimePicker> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Departure Time',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: Text(
                 '${_selectedDate.toLocal()}'.split(' ')[0],
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
             ),
             ElevatedButton(
               onPressed: () => _selectDateTime(context),
-              child: Text('Select Time'),
+              child: const Text('Select Time'),
             ),
           ],
         ),

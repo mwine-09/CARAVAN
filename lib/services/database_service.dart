@@ -2,7 +2,6 @@ import 'package:caravan/models/message.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:rxdart/rxdart.dart';
 
 class DatabaseService {
   // create a variable that store the user
@@ -256,7 +255,7 @@ class DatabaseService {
       // Update the user profile in the user provider
     } catch (e) {
       print('Error updating user profile: $e');
-      throw e;
+      rethrow;
     }
   }
 }

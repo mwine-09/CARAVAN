@@ -2,11 +2,8 @@
 
 import 'dart:async';
 
-import 'package:caravan/models/emergency_contact.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:caravan/models/user.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class AuthService {
   // _auth is an instance of FirebaseAuth class and it is a private variable

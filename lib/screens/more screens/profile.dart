@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: Text(
+        title: const Text(
           'Profile',
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
         ),
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.white,
         ),
       ),
@@ -30,7 +32,7 @@ class ProfileScreen extends StatelessWidget {
               onPressed: () {
                 // Add change profile picture functionality here
               },
-              child: Text('Change profile picture'),
+              child: const Text('Change profile picture'),
             ),
 
             const SizedBox(height: 20),
@@ -42,20 +44,20 @@ class ProfileScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: Colors.white),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             const Text(
               // Add user's email here
               'johndoe@example.com',
               style: TextStyle(fontSize: 16, color: Colors.white),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 // Add logout functionality here
               },
-              child: Text('Logout'),
+              child: const Text('Logout'),
             ),
-            Spacer()
+            const Spacer()
           ],
         ),
       ),

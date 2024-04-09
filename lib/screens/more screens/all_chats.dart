@@ -1,11 +1,10 @@
-import 'package:caravan/providers/user_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AllChats extends StatelessWidget {
+  const AllChats({super.key});
+
   @override
   Widget build(BuildContext context) {
     // UserProvider _userProvider = Provider.of(context, listen: false);
@@ -14,8 +13,8 @@ class AllChats extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
           'Chats',
           style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
         ),
@@ -27,21 +26,21 @@ class AllChats extends StatelessWidget {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           List<QueryDocumentSnapshot> messages = snapshot.data!.docs;
 
           // Group messages by senderId to create a chat list
           Map<String, List<QueryDocumentSnapshot>> chatMap = {};
-          messages.forEach((message) {
+          for (var message in messages) {
             print(message.data());
             String senderId = message['senderId'];
             if (!chatMap.containsKey(senderId)) {
               chatMap[senderId] = [];
             }
             chatMap[senderId]!.add(message);
-          });
+          }
 
           return ListView.builder(
             itemCount: chatMap.length,
@@ -56,7 +55,7 @@ class AllChats extends StatelessWidget {
 
               return ListTile(
                 horizontalTitleGap: 20,
-                leading: CircleAvatar(
+                leading: const CircleAvatar(
                   backgroundImage: AssetImage('assets/default_profile.jpg'),
                 ),
                 title: Text(senderName),

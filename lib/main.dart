@@ -44,7 +44,7 @@ class MyRideSharingApp extends StatelessWidget {
 
       routes: {
         '/home': (context) => const HomePage(),
-        '/profile': (context) => ProfileScreen(),
+        '/profile': (context) => const ProfileScreen(),
         '/history': (context) => const HistoryScreen(),
         '/index': (context) => const Welcome(),
       },

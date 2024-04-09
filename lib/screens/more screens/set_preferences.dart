@@ -135,16 +135,16 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => EmergencyContactScreen()));
+                  builder: (context) => const EmergencyContactScreen()));
         },
-        child: Icon(Icons.check),
+        child: const Icon(Icons.check),
       ),
     );
   }
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: PreferencesScreen(),
   ));
 }

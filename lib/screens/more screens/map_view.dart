@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:caravan/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:location/location.dart' as location;
@@ -13,7 +12,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import 'package:caravan/services/location_service.dart';
 
 class GoogleMapsView extends StatefulWidget {
   const GoogleMapsView({super.key});
@@ -24,7 +22,7 @@ class GoogleMapsView extends StatefulWidget {
 
 class _GoogleMapsViewState extends State<GoogleMapsView> {
   final location.Location locationController1 = location.Location();
-  static var pickupLocationCoordinates = LatLng(0.3254716, 32.5665353);
+  static var pickupLocationCoordinates = const LatLng(0.3254716, 32.5665353);
   static var pickupLocationName = 'Kampala, Uganda';
 
   // varible to hold the destinationCoordinates
@@ -205,12 +203,12 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
                     },
                     child: const Text('Get Directions'),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   if (locationSuggestions.isNotEmpty)
                     Column(
                       children: locationSuggestions
                           .map((location) => ListTile(
-                                leading: Icon(Icons.location_on),
+                                leading: const Icon(Icons.location_on),
                                 title: Text(location),
                                 onTap: () {
                                   // Auto-fill the search bar with the selected location and search for it
@@ -327,7 +325,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
       // Handle any errors that occur during the search
       print("An error occurred while searching for location");
       print(e);
-      return LatLng(
+      return const LatLng(
           0, 0); // Return a default value or handle the error as needed
     }
   }
@@ -340,19 +338,19 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
       // Add new markers for pickup and destinationCoordinates
       _markers.add(
         Marker(
-          markerId: MarkerId('pickup'),
+          markerId: const MarkerId('pickup'),
           position: pickupLocationCoordinates,
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-          infoWindow: InfoWindow(title: 'Pickup Location'),
+          infoWindow: const InfoWindow(title: 'Pickup Location'),
         ),
       );
       _markers.add(
         Marker(
-          markerId: MarkerId('destinationCoordinates'),
+          markerId: const MarkerId('destinationCoordinates'),
           position: destinationCoordinates,
           icon:
               BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-          infoWindow: InfoWindow(title: 'Destination'),
+          infoWindow: const InfoWindow(title: 'Destination'),
         ),
       );
     });

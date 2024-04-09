@@ -1,31 +1,32 @@
-import 'dart:ffi';
 
 import 'package:caravan/components/date_time_picker.dart';
 import 'package:caravan/models/user.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/shared/constants/text_field.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class CreateTripScreen extends StatelessWidget {
+  const CreateTripScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text('Add Trip'),
-        iconTheme: IconThemeData(
+        title: const Text('Add Trip'),
+        iconTheme: const IconThemeData(
           color: Colors.white,
         ),
       ),
-      body: AddTripForm(),
+      body: const AddTripForm(),
     );
   }
 }
 
 class AddTripForm extends StatefulWidget {
+  const AddTripForm({super.key});
+
   @override
   _AddTripFormState createState() => _AddTripFormState();
 }
@@ -36,7 +37,7 @@ class _AddTripFormState extends State<AddTripForm> {
 
   String _departureLocation = '';
   String _destination = '';
-  DateTime _departureTime = DateTime.now();
+  final DateTime _departureTime = DateTime.now();
   int _availableSeats = 0;
   String _tripStatus = '';
   UserModel? user = AuthService().getCurrentUser();
@@ -122,7 +123,7 @@ class _AddTripFormState extends State<AddTripForm> {
                   // Navigator.pop(context) to go back to the previous screen
                 }
               },
-              child: Text('Save Trip'),
+              child: const Text('Save Trip'),
             ),
           ],
         ),

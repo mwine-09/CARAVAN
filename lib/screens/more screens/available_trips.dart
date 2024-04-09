@@ -1,23 +1,21 @@
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/screens/more%20screens/create_trip.dart';
-import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/screens/more%20screens/trip_details.dart';
 import 'package:caravan/services/database_service.dart';
 import "package:flutter/material.dart";
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class AvailableTrips extends StatelessWidget {
-  const AvailableTrips({Key? key}) : super(key: key);
+  const AvailableTrips({super.key});
 
   @override
   Widget build(BuildContext context) {
     final tripProvider = context.read<TripDetailsProvider>();
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 0, 0, 0),
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
         title: const Text(
           'Available Trips',
@@ -35,7 +33,7 @@ class AvailableTrips extends StatelessWidget {
             icon: const Icon(Icons.add, color: Colors.white),
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CreateTripScreen()));
+                  MaterialPageRoute(builder: (context) => const CreateTripScreen()));
             },
           ),
         ],
@@ -45,12 +43,12 @@ class AvailableTrips extends StatelessWidget {
         stream: DatabaseService().fetchTrips(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}',
-                style: TextStyle(color: Colors.white));
+                style: const TextStyle(color: Colors.white));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Text(
+            return const Text(
               'No data available',
               style: TextStyle(color: Colors.white),
             );
@@ -76,9 +74,9 @@ class AvailableTrips extends StatelessWidget {
 
 class AvailabeTripCard extends StatelessWidget {
   const AvailabeTripCard({
-    Key? key,
+    super.key,
     required this.trip,
-  }) : super(key: key);
+  });
 
   final Trip trip;
 
@@ -138,7 +136,7 @@ class AvailabeTripCard extends StatelessWidget {
                         fontWeight: FontWeight.w300,
                       ),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(
                       "Time: ${DateFormat.jm().format(trip.dateTime)}",
                       style: const TextStyle(

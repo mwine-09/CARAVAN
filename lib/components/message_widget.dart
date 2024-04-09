@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class MessageWidget extends StatelessWidget {
   final Message message;
-  const MessageWidget({Key? key, required this.message}) : super(key: key);
+  const MessageWidget({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +16,12 @@ class MessageWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Container(
-            constraints: BoxConstraints(maxWidth: 250),
-            padding: EdgeInsets.all(8),
-            margin: EdgeInsets.only(right: 8, bottom: 8),
+            constraints: const BoxConstraints(maxWidth: 250),
+            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.only(right: 8, bottom: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: Color.fromARGB(255, 12, 12, 12),
+              color: const Color.fromARGB(255, 12, 12, 12),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -29,7 +29,7 @@ class MessageWidget extends StatelessWidget {
                 Text(message.text!,
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: Colors.white)),
-                SizedBox(
+                const SizedBox(
                   height: 4,
                 ),
                 Text(DateFormat('h:mm a').format(message.createdAt.toDate()),
@@ -44,12 +44,12 @@ class MessageWidget extends StatelessWidget {
       return Row(
         children: [
           Container(
-            constraints: BoxConstraints(maxWidth: 250),
-            padding: EdgeInsets.all(8),
-            margin: EdgeInsets.only(left: 8, bottom: 8),
+            constraints: const BoxConstraints(maxWidth: 250),
+            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.only(left: 8, bottom: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: Color.fromARGB(255, 24, 24, 24),
+              color: const Color.fromARGB(255, 24, 24, 24),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,7 +59,7 @@ class MessageWidget extends StatelessWidget {
                   style:
                       theme.textTheme.bodySmall?.copyWith(color: Colors.white),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 4,
                 ),
                 Text(

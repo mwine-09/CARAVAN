@@ -1,15 +1,13 @@
 import 'package:caravan/models/user.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
-import 'package:caravan/screens/more%20screens/complete_profile.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/shared/constants/text_field.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MyLogin extends StatefulWidget {
-  const MyLogin({Key? key}) : super(key: key);
+  const MyLogin({super.key});
 
   @override
   _MyLoginState createState() => _MyLoginState();
@@ -146,7 +144,7 @@ class _MyLoginState extends State<MyLogin> {
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 SizedBox(

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CompleteProfile extends StatefulWidget {
-  const CompleteProfile({Key? key}) : super(key: key);
+  const CompleteProfile({super.key});
 
   @override
   _CompleteProfileState createState() => _CompleteProfileState();
@@ -66,7 +66,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
         Provider.of<UserProfileProvider>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.white,
         ),
         title: const Text(
@@ -142,7 +142,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => PreferencesScreen()));
+                            builder: (context) => const PreferencesScreen()));
                   },
                   child: const Text('Next'),
                 ),

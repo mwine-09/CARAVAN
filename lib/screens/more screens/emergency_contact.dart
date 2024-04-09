@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 List<String> relationships = <String>['Father', 'Mother', 'Sister', 'Brother'];
 
 class EmergencyContactScreen extends StatefulWidget {
+  const EmergencyContactScreen({super.key});
+
   @override
   _EmergencyContactScreenState createState() => _EmergencyContactScreenState();
 }
@@ -16,14 +18,14 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
   List<EmergencyContact> contacts = [];
   String _dropdownValue = relationships.first;
   static final myTextFieldStyle = InputDecoration(
-    labelStyle: TextStyle(color: Colors.black),
+    labelStyle: const TextStyle(color: Colors.black),
     labelText: 'Name',
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10.0),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10.0),
-      borderSide: BorderSide(
+      borderSide: const BorderSide(
         color: Color.fromARGB(255, 122, 17, 17),
         width: 2.0,
       ),
@@ -38,8 +40,8 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
     UserProvider userProvider = Provider.of(context, listen: true);
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
           'Emergency Contacts',
           style: TextStyle(color: Colors.white),
         ),
@@ -52,7 +54,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
               itemCount: contacts.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  subtitleTextStyle: TextStyle(fontSize: 14),
+                  subtitleTextStyle: const TextStyle(fontSize: 14),
                   title: Text(
                     contacts[index].name,
                     style: const TextStyle(color: Colors.white),
@@ -93,7 +95,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 ),
               ),
             ),
-          Spacer()
+          const Spacer()
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -135,7 +137,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
         String phoneNumber = '';
 
         return AlertDialog(
-          title: Text('Add Emergency Contact'),
+          title: const Text('Add Emergency Contact'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -189,13 +191,13 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
           ],
         );

@@ -1,15 +1,12 @@
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/authenticate/username_screen.dart';
-import 'package:caravan/screens/more%20screens/complete_profile.dart';
-import 'package:caravan/services/auth.dart';
-import 'package:caravan/services/database_service.dart';
 import 'package:caravan/shared/constants/text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({super.key});
 
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
@@ -106,7 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => UsernameScreen()));
+                              builder: (context) => const UsernameScreen()));
                     } else {
                       // Passwords don't match, show error message
                     }

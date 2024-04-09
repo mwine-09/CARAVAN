@@ -9,7 +9,7 @@ import 'package:caravan/services/database_service.dart';
 import 'package:caravan/components/message_widget.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({Key? key}) : super(key: key);
+  const ChatScreen({super.key});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -56,15 +56,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    UserProvider _userProvider = Provider.of(context, listen: false);
+    UserProvider userProvider = Provider.of(context, listen: false);
     final TripDetailsProvider tripProvider =
         Provider.of(context, listen: false);
     final Trip trip = tripProvider.tripDetails!;
     receiverID = trip.driverID;
 
-    print("The receiver id is ${receiverID}");
+    print("The receiver id is $receiverID");
 
-    String username = _userProvider.getUsername();
+    String username = userProvider.getUsername();
 
     return Scaffold(
       appBar: AppBar(
@@ -114,7 +114,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       } else if (snapshot.hasError) {
                         return Center(
                             child: Text('Error: ${snapshot.error}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     color: Colors.white, fontSize: 20)));
                       } else {
                         List<Message>? messages = snapshot.data;

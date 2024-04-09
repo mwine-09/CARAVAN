@@ -7,7 +7,6 @@ import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/all_chats.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
-import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 
 import 'package:caravan/screens/tabs/history.dart';
 // import 'package:caravan/screens/more%20screens/notifications.dart';
@@ -27,7 +26,7 @@ class _HomeState extends State<Home> {
   // ViewScreens
   final List<Widget> viewScreens = [
     const HistoryScreen(),
-    ProfileScreen(),
+    const ProfileScreen(),
   ];
   late PageController _pageController;
   int currentTab = 1;
@@ -57,7 +56,7 @@ class _HomeState extends State<Home> {
         centerTitle: false,
         automaticallyImplyLeading: false,
         title: Text(
-          'Hello ${username} !',
+          'Hello $username !',
           style: const TextStyle(
             color: Color.fromARGB(255, 254, 254, 254),
             fontSize: 18,
@@ -78,7 +77,7 @@ class _HomeState extends State<Home> {
               // load the notificationscreen
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AllChats()),
+                MaterialPageRoute(builder: (context) => const AllChats()),
               );
             },
           ),

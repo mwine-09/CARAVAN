@@ -9,12 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class UsernameScreen extends StatefulWidget {
+  const UsernameScreen({super.key});
+
   @override
   _UsernameScreenState createState() => _UsernameScreenState();
 }
 
 class _UsernameScreenState extends State<UsernameScreen> {
-  TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +73,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
 
                   // Do something with the username, like saving it to a database
                 },
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           ),

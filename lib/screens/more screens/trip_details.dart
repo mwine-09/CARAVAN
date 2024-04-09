@@ -6,15 +6,13 @@ import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/services/location_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 class TripDetailsScreen extends StatefulWidget {
-  const TripDetailsScreen({Key? key}) : super(key: key);
+  const TripDetailsScreen({super.key});
 
   @override
   State<TripDetailsScreen> createState() => _TripDetailsScreenState();
@@ -65,7 +63,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
             ),
             const SizedBox(height: 10),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 22, 22, 22),
                 borderRadius: BorderRadius.circular(5),
@@ -127,7 +125,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(320, 50),
-                      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
@@ -243,10 +241,10 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   }
 
   void generatePolyLineFromPoints(List<LatLng> polylinePoints) {
-    final id = const PolylineId('polyline');
+    const id = PolylineId('polyline');
     final polyline = Polyline(
       polylineId: id,
-      color: Color.fromARGB(255, 68, 158, 255),
+      color: const Color.fromARGB(255, 68, 158, 255),
       points: polylinePoints,
       width: 3,
     );
@@ -271,9 +269,9 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
 
 class TripDriverCard extends StatelessWidget {
   const TripDriverCard({
-    Key? key,
+    super.key,
     required this.trip,
-  }) : super(key: key);
+  });
 
   final Trip trip;
 
