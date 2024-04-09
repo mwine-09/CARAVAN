@@ -1,19 +1,18 @@
 // ignore_for_file: avoid_print
 
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:caravan/models/user.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   // _auth is an instance of FirebaseAuth class and it is a private variable
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   // create a user based on the firebase user
-  BaseUser? _userFromFireBase(User user) {
-    // ignore: unnecessary_null_comparison
-    return user != null
-        ? BaseUser(uid: user.uid, phoneNumber: '0760588927', name: 'Mwine')
-        : null;
-    // if user is not null, return the user data
-    // else return null
+  UserModel _userFromFireBase(User user) {
+    return UserModel(
+        uid: user.uid, email: user.email, username: user.displayName!);
   }
 
   //
@@ -21,7 +20,8 @@ class AuthService {
   Future signInAnon() async {
     try {
       UserCredential result = await _auth.signInAnonymously();
-      BaseUser? user = _userFromFireBase(result.user!);
+
+      UserModel? user = _userFromFireBase(result.user!);
       return user;
     } catch (e) {
       print(e.toString());
@@ -31,6 +31,9 @@ class AuthService {
     }
   }
 
+// Stream <User> get user{
+//   return _auth
+// }
 // sign in with phone number
   Future signInWithPhoneNumber(String phoneNumber) async {
     try {
@@ -45,7 +48,7 @@ class AuthService {
       //   phoneNumber: phoneNumber,
       //   verificationCompleted: (PhoneAuthCredential credential) async {
       //     UserCredential result = await _auth.signInWithCredential(credential);
-      //     BaseUser? user = _userFromFireBase(result.user!);
+      //     UserModel? user = _userFromFireBase(result.user!);
       //     print(user);
       //   },
       //   verificationFailed: (FirebaseAuthException e) {
@@ -69,12 +72,55 @@ class AuthService {
   }
 
   // getCurrentUser function as a base user
-  BaseUser? getCurrentUser() {
+  UserModel? getCurrentUser() {
     User? user = _auth.currentUser;
     return _userFromFireBase(user!);
   }
 
   //register with email and password
+  Future registerWithEmailAndPassword(
+      String email, String password, String name) async {
+    try {
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+
+      User? user = result.user;
+
+      await user!.sendEmailVerification();
+      await user.updateDisplayName(name);
+
+      return _userFromFireBase(user);
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
+
+  // sign in with email and password
+  Future signInWithEmailAndPassword(String email, String password) async {
+    try {
+      UserCredential result = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+
+      result.toString();
+      // print(result.user);
+      print("MWine mwinewine");
+      User? user = result.user;
+      print(user!.displayName);
+      return _userFromFireBase(user);
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
 
   // sign out
+  Future signOut() async {
+    try {
+      return await _auth.signOut();
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
 }

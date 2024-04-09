@@ -4,6 +4,7 @@ import 'package:caravan/components/date_time_picker.dart';
 import 'package:caravan/models/user.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
+import 'package:caravan/shared/constants/text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,11 @@ class CreateTripScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: true,
         title: Text('Add Trip'),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
       ),
       body: AddTripForm(),
     );
@@ -34,7 +39,7 @@ class _AddTripFormState extends State<AddTripForm> {
   DateTime _departureTime = DateTime.now();
   int _availableSeats = 0;
   String _tripStatus = '';
-  BaseUser? user = AuthService().getCurrentUser();
+  UserModel? user = AuthService().getCurrentUser();
   String _driverId = '';
   @override
   Widget build(BuildContext context) {
@@ -44,17 +49,23 @@ class _AddTripFormState extends State<AddTripForm> {
         key: _formKey,
         child: ListView(
           children: [
+            // create a trip
+            Text(user?.username ?? 'No username'),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Departure Location'),
+              style: myInputTextStyle,
+              decoration:
+                  myTextFieldStyle.copyWith(labelText: 'Departure Location'),
               onChanged: (value) {
                 setState(() {
                   _departureLocation = value;
-                  print(user!.name);
+                  print(user?.username);
                 });
               },
             ),
+            const SizedBox(height: 16),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Destination'),
+              style: myInputTextStyle,
+              decoration: myTextFieldStyle.copyWith(labelText: 'Destination'),
               onChanged: (value) {
                 setState(() {
                   _destination = value;
@@ -62,31 +73,44 @@ class _AddTripFormState extends State<AddTripForm> {
               },
             ),
             //  date time picker for departure time
-            DepartureTimePicker(),
-
+            const DepartureTimePicker(),
+            const SizedBox(height: 16),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Available Seats'),
+              style: myInputTextStyle,
+              decoration:
+                  myTextFieldStyle.copyWith(labelText: 'Available Seats'),
               onChanged: (value) {
                 _availableSeats = int.parse(value);
                 // Parse the value to int and assign it to _availableSeats
               },
             ),
+            const SizedBox(height: 16),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Trip Status'),
+              style: myInputTextStyle,
+              decoration: myTextFieldStyle.copyWith(labelText: 'Trip Status'),
               onChanged: (value) {
                 setState(() {
                   _tripStatus = value;
                 });
               },
             ),
+
+            const SizedBox(height: 16),
             ElevatedButton(
+              style: ButtonStyle(
+                textStyle: MaterialStateProperty.all(
+                  const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
+                ),
+              ),
               onPressed: () {
                 // Validate form input
                 if (_formKey.currentState!.validate()) {
                   // Save the trip details to FireStore
                   _driverId = user!.uid;
                   DatabaseService().addTrip(
-                      'tripId',
                       _driverId,
                       _departureLocation,
                       _destination,

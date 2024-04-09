@@ -1,3 +1,4 @@
+import 'package:caravan/models/trip.dart';
 import 'package:flutter/material.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -10,6 +11,7 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
+    List<Trip> trips = [];
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -28,7 +30,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           final trip = trips[index];
           return ListTile(
             title: Text(trip.destination),
-            subtitle: Text(trip.date),
+            // subtitle: Text(trip.dateTime),
             onTap: () {
               // Handle tap on trip
             },
@@ -38,16 +40,3 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 }
-
-class Trip {
-  final String destination;
-  final String date;
-
-  Trip({required this.destination, required this.date});
-}
-
-final List<Trip> trips = [
-  Trip(destination: 'Trip 1', date: '2022-01-01'),
-  Trip(destination: 'Trip 2', date: '2022-02-01'),
-  Trip(destination: 'Trip 3', date: '2022-03-01'),
-];

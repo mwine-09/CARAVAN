@@ -1,7 +1,13 @@
+import 'package:caravan/models/message.dart';
+import 'package:caravan/models/trip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:rxdart/rxdart.dart';
 
 class DatabaseService {
+  // create a variable that store the user
+  User? user = FirebaseAuth.instance.currentUser;
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Add a new user to the "users" collection
@@ -34,7 +40,6 @@ class DatabaseService {
 
   // Add a new trip to the "trips" collection
   Future<void> addTrip(
-      String tripId,
       String driverId,
       String departureLocation,
       String destination,
@@ -42,7 +47,7 @@ class DatabaseService {
       int availableSeats,
       String tripStatus) async {
     try {
-      await _firestore.collection('trips').doc(tripId).set({
+      await _firestore.collection('trips').doc().set({
         'driver ID': driverId,
         'departure location': departureLocation,
         'destination': destination,
@@ -57,8 +62,25 @@ class DatabaseService {
   }
 
   // fetch all trips from the "trips" collection
-  Stream<QuerySnapshot> fetchTrips() {
-    return _firestore.collection('trips').snapshots();
+  // Stream<QuerySnapshot> fetchTrips() {
+  //   return _firestore.collection('trips').snapshots();
+  // }
+  Stream<List<Trip>> fetchTrips() {
+    return FirebaseFirestore.instance
+        .collection('/trips')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+              print(doc['driver ID'] + "is the doc is");
+              print("Fetching trips");
+              return Trip(
+                id: doc.id,
+                driverID: doc['driver ID'],
+                location: doc['departure location'],
+                destination: doc['destination'],
+                availableSeats: doc['available seats'],
+                dateTime: (doc['departure time'] as Timestamp).toDate(),
+              );
+            }).toList());
   }
 
   // Add a new booking to the "bookings" collection
@@ -142,7 +164,7 @@ class DatabaseService {
   }) async {
     try {
       await _firestore.collection('messages').add({
-        'sender ID': FirebaseAuth.instance.currentUser?.uid ?? '',
+        'sender ID': user?.uid ?? '',
         'receiver ID': receiverId,
         'message content': messageContent,
         'timestamp': timestamp,
@@ -150,6 +172,25 @@ class DatabaseService {
     } catch (e) {
       print('Error sending message: $e');
     }
+  }
+
+  Stream<List<Message>> getMessagesStream(String receiverId) {
+    return _firestore
+        .collection('messages')
+        .where('sender ID', isEqualTo: user?.uid ?? '')
+        .where('receiver ID', isEqualTo: receiverId)
+        // .orderBy('timestamp')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return Message(
+          id: doc.id,
+          text: doc['message content'],
+          createdAt: doc['timestamp'],
+          isMe: doc['sender ID'] == user?.uid,
+        );
+      }).toList();
+    });
   }
 
   // Add a new emergency alert to the "emergency_alerts" collection
@@ -187,6 +228,25 @@ class DatabaseService {
     } catch (e) {
       // Handle any errors
       print('Error adding emergency contact: $e');
+    }
+  }
+
+  Future<void> updateUserProfile(
+      String uid, Map<String, dynamic> updatedData) async {
+    try {
+      // Fetch the current user profile data
+      DocumentSnapshot userSnapshot =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      // Map<String, dynamic> existingData = userSnapshot.data() ?? {};
+
+      // Merge the existing data with the updated data, keeping existing data if not provided
+      // Map<String, dynamic> mergedData = {...existingData, ...updatedData};
+
+      // Update the user profile in Firestore
+      // await FirebaseFirestore.instance.collection('users').doc(uid).update(mergedData);
+    } catch (e) {
+      print('Error updating user profile: $e');
+      throw e;
     }
   }
 }

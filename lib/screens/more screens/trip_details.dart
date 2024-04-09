@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:caravan/constants.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/trips_provider.dart';
+import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/services/location_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +72,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
               child: Column(
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,6 +93,31 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                                 color: Colors.white, fontSize: 14),
                           ),
                         ],
+                      ),
+                      // message button
+                      ElevatedButton(
+                        onPressed: () {
+                          // Add navigation logic here
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ChatScreen()));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(100, 50),
+                          backgroundColor:
+                              const Color.fromARGB(255, 255, 255, 255),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
+                        ),
+                        child: const Text(
+                          'Message',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     ],
                   ),

@@ -1,6 +1,9 @@
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/trips_provider.dart';
+import 'package:caravan/screens/more%20screens/create_trip.dart';
+import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/screens/more%20screens/trip_details.dart';
+import 'package:caravan/services/database_service.dart';
 import "package:flutter/material.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -27,37 +30,42 @@ class AvailableTrips extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.white),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CreateTripScreen()));
+            },
+          ),
+        ],
         backgroundColor: Colors.black,
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('/trips').snapshots(),
+      body: StreamBuilder<List<Trip>>(
+        stream: DatabaseService().fetchTrips(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final trips = snapshot.data?.docs;
-            final tripsList =
-                trips?.map((doc) => Trip.fromFirestore(doc)).toList() ?? [];
-
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}',
+                style: TextStyle(color: Colors.white));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Text(
+              'No data available',
+              style: TextStyle(color: Colors.white),
+            );
+          } else {
+            // Data is available, you can use snapshot.data safely
+            final trips = snapshot.data!;
             return ListView.builder(
-              itemCount: tripsList.length,
+              itemCount: trips.length,
               itemBuilder: (context, index) {
-                final trip = tripsList[index];
+                final trip = trips[index];
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: AvailabeTripCard(trip: trip),
                 );
               },
-            );
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            return const Center(
-              child: SizedBox(
-                width: 100,
-                height: 100,
-                child: CircularProgressIndicator(
-                  color: Color.fromARGB(255, 255, 255, 255),
-                ),
-              ),
             );
           }
         },
@@ -76,6 +84,8 @@ class AvailabeTripCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tripProvider =
+        Provider.of<TripDetailsProvider>(context, listen: true);
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
@@ -145,24 +155,22 @@ class AvailabeTripCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
               child: ElevatedButton(
                 onPressed: () {
-                  final tripProvider =
-                      Provider.of<TripDetailsProvider>(context, listen: false);
                   tripProvider.setTripDetails(trip);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => TripDetailsScreen()),
+                        builder: (context) => const TripDetailsScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(320, 50),
-                  backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                  backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(5)),
                   ),
                 ),
                 child: const Text(
-                  'Request Trip',
+                  'See More About This Trip',
                   style: TextStyle(
                     color: Color.fromARGB(255, 0, 0, 0),
                     fontSize: 14,

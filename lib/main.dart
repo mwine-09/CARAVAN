@@ -2,7 +2,7 @@ import 'package:caravan/firebase_options.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/tabs/history.dart';
-import 'package:caravan/screens/more%20screens/index.dart';
+import 'package:caravan/screens/more%20screens/welcome_screen.dart';
 import 'package:caravan/screens/main_scaffold.dart';
 import 'package:caravan/screens/tabs/profile.dart';
 import 'package:caravan/screens/wrapper.dart';
@@ -15,7 +15,7 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => TripDetailsProvider()),
-    ChangeNotifierProvider(create: (context) => BaseUserProvider()),
+    ChangeNotifierProvider(create: (context) => UserProvider()),
   ], child: const MyRideSharingApp()));
 }
 

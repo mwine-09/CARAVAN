@@ -65,10 +65,10 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.person,
+              Icons.settings,
               color: Colors.white,
             ),
-            label: 'Profile',
+            label: 'Settings',
             backgroundColor: Colors.white,
           ),
         ],

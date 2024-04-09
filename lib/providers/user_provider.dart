@@ -1,13 +1,38 @@
-import 'package:caravan/models/user.dart';
 import 'package:flutter/material.dart';
 
-class BaseUserProvider extends ChangeNotifier {
-  BaseUser? _baseUser;
+class UserProvider extends ChangeNotifier {
+  User user = User();
 
-  BaseUser? get baseUser => _baseUser;
-
-  void setBaseUser(BaseUser baseUser) {
-    _baseUser = baseUser;
+  void setUserEmail(String email) {
+    user.email = email;
     notifyListeners();
   }
+
+  void setUserPassword(String password) {
+    user.password = password;
+    notifyListeners();
+  }
+
+  void setUsername(String username) {
+    user.username = username;
+    notifyListeners();
+  }
+
+  String getEmail() {
+    return user.email;
+  }
+
+  String getPassword() {
+    return user.password;
+  }
+
+  String getUsername() {
+    return user.username;
+  }
+}
+
+class User {
+  String email = '';
+  String password = '';
+  String username = '';
 }

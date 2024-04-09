@@ -2,16 +2,19 @@
 
 // import 'dart:html';
 
-import 'package:caravan/screens/messaging.dart';
+import 'package:caravan/providers/user_provider.dart';
+import 'package:caravan/screens/authenticate/interm_login.dart';
+import 'package:caravan/screens/more%20screens/all_chats.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
-import 'package:caravan/screens/more%20screens/create_trip.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
-import 'package:caravan/screens/more%20screens/notifications.dart';
+
 import 'package:caravan/screens/tabs/history.dart';
 // import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:caravan/screens/tabs/profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -46,13 +49,16 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    UserProvider userProvider = Provider.of(context, listen: true);
+    String username = userProvider.getUsername();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        centerTitle: false,
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Hello John Doe!',
-          style: TextStyle(
+        title: Text(
+          'Hello ${username} !',
+          style: const TextStyle(
             color: Color.fromARGB(255, 254, 254, 254),
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -72,14 +78,20 @@ class _HomeState extends State<Home> {
               // load the notificationscreen
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ChatScreen()),
+                MaterialPageRoute(builder: (context) => AllChats()),
               );
             },
           ),
           IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
+            icon: const Icon(Icons.power_settings_new,
+                color: Colors.white, weight: 0.8),
             onPressed: () {
               // Handle settings icon press
+              FirebaseAuth.instance.signOut();
+// redirect to login
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const MyLogin()));
             },
           ),
         ],

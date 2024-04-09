@@ -1,7 +1,7 @@
 // import 'package:caravan/screens/authenticate/authenticate.dart';
 // import 'package:caravan/screens/authenticate/sign_in.dart';
 // import 'package:caravan/screens/home/home.dart';
-import 'package:caravan/screens/more%20screens/index.dart';
+import 'package:caravan/screens/more%20screens/welcome_screen.dart';
 // import 'package:caravan/screens/home/home.dart';
 import 'package:flutter/material.dart';
 

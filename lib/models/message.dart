@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Message {
   Message({
     required this.id,
@@ -6,16 +8,16 @@ class Message {
     required this.isMe,
   });
 
-  int id;
+  String id;
   String? text;
 
-  String createdAt;
+  Timestamp createdAt;
   bool isMe;
 
   Message copyWith({
-    required int id,
+    required String id,
     String? text,
-    required String createdAt,
+    required Timestamp createdAt,
     required bool isMe,
     required textColor,
   }) =>

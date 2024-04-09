@@ -1,104 +1,70 @@
-import 'package:caravan/components/message_widget.dart';
-import 'package:caravan/models/message.dart';
-import 'package:caravan/services/database_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:caravan/models/message.dart';
+import 'package:caravan/models/trip.dart';
+import 'package:caravan/providers/trips_provider.dart';
+import 'package:caravan/providers/user_provider.dart';
+import 'package:caravan/services/database_service.dart';
+import 'package:caravan/components/message_widget.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({Key? key}) : super(key: key);
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
-  // create a text controller
   final textController = TextEditingController();
-  final List<Message> messages = [
-    Message(
-      id: 1,
-      text: 'Hi, I saw your ride offer. Is the seat still available?',
-      createdAt: '10:00 AM',
-      isMe: false,
-    ),
-    Message(
-      id: 2,
-      text: 'Yes, the seat is still available. Are you interested?',
-      createdAt: '10:01 AM',
-      isMe: true,
-    ),
-    Message(
-      id: 3,
-      text:
-          'Yes, I would like to book a seat. Can you please share the details?',
-      createdAt: '10:02 AM',
-      isMe: false,
-    ),
-    Message(
-      id: 4,
-      text: 'Sure! I will pick you up at 8:00 AM from your location.',
-      createdAt: '10:03 AM',
-      isMe: true,
-    ),
-    Message(
-      id: 5,
-      text: 'That works for me. How much will the ride cost?',
-      createdAt: '10:04 AM',
-      isMe: false,
-    ),
-    Message(
-      id: 6,
-      text: 'The ride will cost 20. Is that okay with you?',
-      createdAt: '10:05 AM',
-      isMe: true,
-    ),
-    Message(
-      id: 7,
-      text: 'Yes, that sounds good. See you tomorrow!',
-      createdAt: '10:06 AM',
-      isMe: false,
-    ),
-  ];
-
-  late AnimationController slideInputController;
-  late Animation<Offset> slideInputAnimation;
+  late Stream<List<Message>> messagesStream;
+  late String receiverID;
 
   @override
   void initState() {
-    slideInputController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    slideInputAnimation = Tween<Offset>(
-      begin: const Offset(0, 0),
-      end: const Offset(-2, 0),
-    ).animate(slideInputController);
     super.initState();
+    final tripProvider =
+        Provider.of<TripDetailsProvider>(context, listen: false);
+    final Trip trip = tripProvider.tripDetails!;
+    receiverID = trip.driverID;
+
+    messagesStream = DatabaseService().getMessagesStream(receiverID);
+    messagesStream.forEach((element) {
+      print(element);
+    });
   }
 
   @override
   void dispose() {
-    slideInputController.dispose();
+    textController.dispose();
     super.dispose();
   }
 
-  // void sendMessage(String text) {
-  //   setState(() {
-  //     messages.insert(
-  //       0,
-  //       Message(
-  //         id: messages.length + 1,
-  //         text: text,
-  //         createdAt: 'Just now',
-  //         isMe: true,
-  //       ),
-  //     );
-  //   });
-  // }
+  void sendMessage(String text) {
+    Timestamp now = Timestamp.now();
+    DatabaseService().sendMessage(
+      receiverId: receiverID,
+      messageContent: text,
+      timestamp: now,
+    );
+    textController.clear();
+  }
+
+  String capitalize(String s) {
+    return s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+  }
 
   @override
   Widget build(BuildContext context) {
-    // final theme = Theme.of(context);
+    UserProvider _userProvider = Provider.of(context, listen: false);
+    final TripDetailsProvider tripProvider =
+        Provider.of(context, listen: false);
+    final Trip trip = tripProvider.tripDetails!;
+    receiverID = trip.driverID;
+
+    print("The receiver id is ${receiverID}");
+
+    String username = _userProvider.getUsername();
 
     return Scaffold(
       appBar: AppBar(
@@ -119,9 +85,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'John Doe',
-              style: TextStyle(color: Colors.white),
+            Text(
+              capitalize(username),
+              style: const TextStyle(color: Colors.white),
             ),
           ],
         ),
@@ -136,64 +102,63 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 child: Container(
                   color: Colors.black,
                   padding: const EdgeInsets.all(8),
-                  child: ListView.builder(
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      return MessageWidget(message: messages[index]);
+                  child: StreamBuilder<List<Message>>(
+                    stream: messagesStream,
+                    builder: (context, snapshot) {
+                      print("The snapshot is ${snapshot.data}");
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                            child: CircularProgressIndicator(
+                          color: Color.fromARGB(255, 198, 193, 193),
+                        ));
+                      } else if (snapshot.hasError) {
+                        return Center(
+                            child: Text('Error: ${snapshot.error}',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20)));
+                      } else {
+                        List<Message>? messages = snapshot.data;
+                        print(messages);
+                        return ListView.builder(
+                          itemCount: messages?.length ?? 0,
+                          itemBuilder: (context, index) {
+                            return MessageWidget(message: messages![index]);
+                          },
+                        );
+                      }
                     },
                   ),
                 ),
               ),
-              SlideTransition(
-                position: slideInputAnimation,
-                child: Card(
-                  margin: EdgeInsets.zero,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: textController,
-                            onEditingComplete: () {
-                              print(textController.value);
-                            },
-                            decoration: InputDecoration(
-                              hintStyle: const TextStyle(
-                                  color: Color.fromARGB(179, 0, 0, 0)),
-                              hintText: 'Type a message...',
-                              border: const OutlineInputBorder(),
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.send),
-                                onPressed: () {
-                                  Timestamp now = Timestamp.now();
-
-                                  if (textController.text.isNotEmpty) {
-                                    // use firebase to send message
-                                    DatabaseService().sendMessage(
-                                        receiverId:
-                                            '3Kvyg4rpBBfuI3UwRdvHqax8kyh2',
-                                        messageContent: textController.text,
-                                        timestamp: now);
-
-                                    print("message sent");
-                                    // sendMessage(textController.text);
-                                    textController.clear();
-                                  }
-                                },
-                              ),
-                              focusedBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+              Container(
+                height: 40,
+                margin: const EdgeInsets.all(8),
+                child: TextField(
+                  textAlignVertical: TextAlignVertical.center,
+                  style: const TextStyle(color: Colors.white),
+                  controller: textController,
+                  decoration: InputDecoration(
+                    hintStyle: const TextStyle(
+                        color: Color.fromARGB(179, 139, 139, 139)),
+                    hintText: 'Type a message...',
+                    border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(40))),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.send, color: Colors.grey[600]),
+                      onPressed: () {
+                        if (textController.text.isNotEmpty) {
+                          sendMessage(textController.text);
+                        }
+                      },
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 124, 124, 124)),
                     ),
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),

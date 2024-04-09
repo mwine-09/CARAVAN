@@ -30,14 +30,14 @@ class LocationService {
         "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$key";
 
     var response = await http.get(Uri.parse(url));
-    print("wait");
+    // print("wait");
 
     var json = convert.jsonDecode(response.body);
-    print(" still wait");
+    // print(" still wait");
 
     var results = json['result'] as Map<String, dynamic>;
 
-    print("These are the results : $results");
+    // print("These are the results : $results");
     return results;
   }
 
@@ -69,7 +69,7 @@ class LocationService {
           .decodePolyline(json['routes'][0]['overview_polyline']['points']),
     };
 
-    print(results);
+    // print(results);
     return results;
   }
 
@@ -90,7 +90,7 @@ class LocationService {
       return LatLng(latitude, longitude);
     } catch (e) {
       // Handle any errors that occur during the search
-      print("An error occurred while searching for location");
+      // print("An error occurred while searching for location");
       print(e);
       return const LatLng(
           0, 0); // Return a default value or handle the error as needed

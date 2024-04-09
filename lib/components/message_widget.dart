@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 import '../models/message.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +32,7 @@ class MessageWidget extends StatelessWidget {
                 SizedBox(
                   height: 4,
                 ),
-                Text(message.createdAt,
+                Text(DateFormat('h:mm a').format(message.createdAt.toDate()),
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: Colors.white)),
               ],
@@ -61,7 +63,7 @@ class MessageWidget extends StatelessWidget {
                   height: 4,
                 ),
                 Text(
-                  message.createdAt,
+                  DateFormat('h:mm a').format(message.createdAt.toDate()),
                   style:
                       theme.textTheme.bodySmall?.copyWith(color: Colors.white),
                 ),

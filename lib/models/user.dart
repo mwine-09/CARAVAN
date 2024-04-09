@@ -1,23 +1,21 @@
-class BaseUser {
-  final String uid;
-  final String name;
-  final String phoneNumber;
+import 'package:firebase_auth/firebase_auth.dart';
 
-  BaseUser({
+class UserModel {
+  final String uid;
+  final String? email;
+  final String username;
+
+  UserModel({
     required this.uid,
-    required this.name,
-    required this.phoneNumber,
+    this.email,
+    required this.username,
   });
 
-  factory BaseUser.fromJson(Map<String, dynamic> json) => BaseUser(
-        uid: json["id"],
-        name: json["name"],
-        phoneNumber: json["phoneNumber"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "id": uid,
-        "name": name,
-        "phoneNumber": phoneNumber,
-      };
+  factory UserModel.fromFirebase(User user) {
+    return UserModel(
+      uid: user.uid,
+      email: user.email ?? '',
+      username: user.displayName ?? '',
+    );
+  }
 }

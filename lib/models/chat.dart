@@ -4,9 +4,9 @@ import 'dart:convert';
 import '../models/user.dart';
 import '../models/message.dart';
 
-Chat chatFromJson(String str) => Chat.fromJson(json.decode(str));
+// Chat chatFromJson(String str) => Chat.fromJson(json.decode(str));
 
-String chatToJson(Chat data) => json.encode(data.toJson());
+// String chatToJson(Chat data) => json.encode(data.toJson());
 
 class Chat {
   Chat({
@@ -18,7 +18,7 @@ class Chat {
   });
 
   int id;
-  BaseUser user;
+  UserModel user;
   List<Message> messages;
   int unReadCount;
   String lastMessageAt;
@@ -33,7 +33,7 @@ class Chat {
 
   Chat copyWith({
     required int id,
-    required BaseUser user,
+    required UserModel user,
     required List<Message> messages,
     required int unReadCount,
     required String lastMessageAt,
@@ -44,21 +44,4 @@ class Chat {
           messages: messages,
           unReadCount: unReadCount,
           lastMessageAt: lastMessageAt);
-
-  factory Chat.fromJson(Map<String, dynamic> json) => Chat(
-        id: json["id"],
-        user: BaseUser.fromJson(json["user"]),
-        unReadCount: json["unReadCount"],
-        lastMessageAt: json["lastMessageAt"],
-        messages: List<Message>.from(
-            json["messages"].map((x) => Message.fromJson(x))),
-      );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "user": user.toJson(),
-        "unReadCount": unReadCount,
-        "lastMessageAt": lastMessageAt,
-        "messages": List<dynamic>.from(messages.map((x) => x.toJson())),
-      };
 }

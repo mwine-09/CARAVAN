@@ -1,4 +1,5 @@
-import 'package:caravan/screens/authenticate/sign_in.dart';
+import 'package:caravan/screens/authenticate/interm_login.dart';
+// import 'package:caravan/screens/authenticate/sign_in.dart';
 import 'package:flutter/material.dart';
 
 class Welcome extends StatelessWidget {
@@ -47,7 +48,7 @@ class Welcome extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const SignIn(),
+                      builder: (context) => const MyLogin(),
                     ));
               },
               style: ElevatedButton.styleFrom(
