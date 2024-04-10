@@ -1,4 +1,5 @@
 import 'package:caravan/models/emergency_contact.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserProfile {
   final String? username;
@@ -44,5 +45,25 @@ class UserProfile {
     data['role'] = role; // Include role in JSON
 
     return data;
+  }
+
+  // from snapshot
+  factory UserProfile.fromSnapshot(DocumentSnapshot snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return UserProfile(
+      username: data['username'],
+      firstName: data['firstName'],
+      lastName: data['lastName'],
+      age: data['age'],
+      carBrand: data['carBrand'],
+      make: data['make'],
+      numberPlate: data['numberPlate'],
+      phoneNumber: data['phoneNumber'],
+      preferences: List<String>.from(data['preferences']),
+      emergencyContacts: (data['emergencyContacts'] as List<dynamic>?)
+          ?.map((e) => EmergencyContact.fromMap(e))
+          .toList(),
+      role: data['role'],
+    );
   }
 }

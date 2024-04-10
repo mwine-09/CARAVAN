@@ -16,4 +16,13 @@ class EmergencyContact {
       'phoneNumber': phoneNumber,
     };
   }
+
+  // from map
+  factory EmergencyContact.fromMap(Map<String, dynamic> data) {
+    return EmergencyContact(
+      name: data['name'],
+      relationship: data['relationship'],
+      phoneNumber: data['phoneNumber'],
+    );
+  }
 }

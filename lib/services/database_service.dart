@@ -1,5 +1,6 @@
 import 'package:caravan/models/message.dart';
 import 'package:caravan/models/trip.dart';
+import 'package:caravan/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -225,9 +226,20 @@ class DatabaseService {
   }
 
   // return userprofile that matches the given user id
-  Future<DocumentSnapshot> getUserProfile(String userId) async {
+  // Future<DocumentSnapshot> getUserProfile(String userId) async {
+  //   try {
+  //     return await _firestore.collection('users').doc(userId).get();
+  //   } catch (e) {
+  //     print('Error getting user profile: $e');
+  //     rethrow;
+  //   }
+  // }
+
+  Future<UserProfile> getUserProfile(String userId) async {
     try {
-      return await _firestore.collection('users').doc(userId).get();
+      DocumentSnapshot snapshot =
+          await _firestore.collection('users').doc(userId).get();
+      return UserProfile.fromSnapshot(snapshot);
     } catch (e) {
       print('Error getting user profile: $e');
       rethrow;

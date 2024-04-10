@@ -154,13 +154,24 @@ class AvailabeTripCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
               child: ElevatedButton(
-                onPressed: () {
-                  tripProvider.setTripDetails(trip);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const TripDetailsScreen()),
-                  );
+                onPressed: () async {
+                  try {
+                    tripProvider.setTripDetails(trip);
+                    final driverID = trip.driverID;
+                    print(driverID);
+                    final userProfile =
+                        await DatabaseService().getUserProfile(driverID);
+                    print(userProfile);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            TripDetailsScreen(userProfile: userProfile),
+                      ),
+                    );
+                  } catch (e) {
+                    print('Error fetching user profile: $e');
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(320, 50),
