@@ -47,17 +47,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       timestamp: now,
     );
 
-    // Update the messagesStream with the new message
-    // messagesStream = messagesStream.map((messages) {
-    //   return List.from(messages)
-    //     ..add(Message(
-    //       id: 'new_message_id', // Generate a unique message ID here
-    //       text: text,
-    //       createdAt: now,
-    //       isMe: true, // Assuming the current user sent the message
-    //     ));
-    // });
-
     textController.clear();
   }
 
