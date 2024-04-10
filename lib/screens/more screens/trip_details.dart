@@ -24,7 +24,6 @@ class TripDetailsScreen extends StatefulWidget {
 
 class _TripDetailsScreenState extends State<TripDetailsScreen> {
   late GoogleMapController mapController;
-  late String _driverName = '';
   Map<PolylineId, Polyline> polylines = {};
   Map<MarkerId, Marker> markers = {};
   static LatLng _center = const LatLng(0, 0);
@@ -33,6 +32,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   Widget build(BuildContext context) {
     final tripProvider = Provider.of<TripDetailsProvider>(context);
     final Trip trip = tripProvider.tripDetails!;
+    String? selectedDriver = widget.userProfile.username;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -41,8 +41,8 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           color: Colors.white,
         ),
         title: Text(
-          _driverName,
-          style: const TextStyle(color: Colors.white),
+          selectedDriver!,
+          style: TextStyle(color: Colors.white),
         ),
       ),
       body: SafeArea(
@@ -57,15 +57,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            TripDriverCard(
-              trip: trip,
-              onDriverNameLoaded: (driverName) {
-                setState(() {
-                  _driverName =
-                      driverName; // Update the driverName in the state
-                });
-              },
-            ),
+            TripDriverCard(trip: trip),
             const SizedBox(height: 5),
             const Text(
               "Trip Details",
@@ -284,18 +276,16 @@ class TripDriverCard extends StatelessWidget {
   const TripDriverCard({
     super.key,
     required this.trip,
-    required this.onDriverNameLoaded,
   });
 
   final Trip trip;
-  final Function(String) onDriverNameLoaded; // Callback function
 
   @override
   Widget build(BuildContext context) {
     String driverID = trip.driverID;
     print("The driver id is $driverID");
 
-    return FutureBuilder<UserProfile>(
+    return FutureBuilder<DocumentSnapshot>(
       future: DatabaseService().getUserProfile(driverID),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -308,11 +298,7 @@ class TripDriverCard extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          final driverName = snapshot.data!.username;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            onDriverNameLoaded(driverName ??
-                ''); // Pass the driverName back to the parent widget
-          });
+          String driverName = snapshot.data?['username'];
           return Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5),
@@ -351,7 +337,7 @@ class TripDriverCard extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  driverName!, // Use null check operator
+                                  driverName, // Use null check operator
                                   style: const TextStyle(
                                     color: Color.fromARGB(255, 255, 255, 255),
                                     fontSize: 14,
