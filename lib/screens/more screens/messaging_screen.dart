@@ -23,8 +23,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final textController = TextEditingController();
   late Stream<List<Message>> messagesStream;
   late Trip trip;
-
-  final StreamController _messageStreamController = StreamController();
+  late ScrollController scrollController;
 
   @override
   void initState() {
@@ -32,6 +31,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     final tripProvider =
         Provider.of<TripDetailsProvider>(context, listen: false);
     trip = tripProvider.tripDetails!;
+
+    scrollController = ScrollController();
+  }
+
+  void _animateToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   @override
@@ -113,7 +124,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   child: StreamBuilder<List<Message>>(
                     stream: messagesStream,
                     builder: (context, snapshot) {
-                      print("BUilder has ran");
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
                           child: CircularProgressIndicator(
@@ -130,8 +140,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         );
                       } else {
                         List<Message>? messages = snapshot.data;
-                        print(messages?.length);
+                        _animateToBottom();
+
                         return ListView.builder(
+                          controller: scrollController,
                           itemCount: messages?.length ?? 0,
                           itemBuilder: (context, index) {
                             return MessageWidget(message: messages![index]);
