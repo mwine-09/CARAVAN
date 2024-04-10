@@ -7,12 +7,12 @@ import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/services/location_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class TripDetailsScreen extends StatefulWidget {
   final UserProfile userProfile;
@@ -32,7 +32,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   Widget build(BuildContext context) {
     final tripProvider = Provider.of<TripDetailsProvider>(context);
     final Trip trip = tripProvider.tripDetails!;
-    String? selectedDriver = widget.userProfile.username;
+    String? selectedDriverName = widget.userProfile.username;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -41,7 +41,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           color: Colors.white,
         ),
         title: Text(
-          selectedDriver!,
+          selectedDriverName!,
           style: TextStyle(color: Colors.white),
         ),
       ),
@@ -57,7 +57,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            TripDriverCard(trip: trip),
+            TripDriverCard(trip: trip, selectedDriverName: selectedDriverName),
             const SizedBox(height: 5),
             const Text(
               "Trip Details",
@@ -68,7 +68,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
             ),
             const SizedBox(height: 10),
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 22, 22, 22),
                 borderRadius: BorderRadius.circular(5),
@@ -130,7 +130,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(320, 50),
-                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                      backgroundColor: Color.fromARGB(255, 255, 255, 255),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
@@ -246,10 +246,10 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   }
 
   void generatePolyLineFromPoints(List<LatLng> polylinePoints) {
-    const id = PolylineId('polyline');
+    final id = const PolylineId('polyline');
     final polyline = Polyline(
       polylineId: id,
-      color: const Color.fromARGB(255, 68, 158, 255),
+      color: Color.fromARGB(255, 68, 158, 255),
       points: polylinePoints,
       width: 3,
     );
@@ -273,10 +273,12 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
 }
 
 class TripDriverCard extends StatelessWidget {
+  final String selectedDriverName;
   const TripDriverCard({
-    super.key,
+    Key? key,
     required this.trip,
-  });
+    required this.selectedDriverName,
+  }) : super(key: key);
 
   final Trip trip;
 
@@ -284,146 +286,127 @@ class TripDriverCard extends StatelessWidget {
   Widget build(BuildContext context) {
     String driverID = trip.driverID;
     print("The driver id is $driverID");
-
-    return FutureBuilder<DocumentSnapshot>(
-      future: DatabaseService().getUserProfile(driverID),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: SpinKitCubeGrid(
-              color: Colors.white,
-              size: 50.0,
-            ),
-          ); // Show a loading indicator
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          String driverName = snapshot.data?['username'];
-          return Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-            color: const Color.fromARGB(255, 22, 22, 22),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5),
+      ),
+      color: const Color.fromARGB(255, 22, 22, 22),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Center(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(width: 10),
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/default_profile.jpg'),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Text(
-                                  "Driver Name: ",
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 255, 255, 255),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                Text(
-                                  driverName, // Use null check operator
-                                  style: const TextStyle(
-                                    color: Color.fromARGB(255, 255, 255, 255),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            const Row(
-                              children: [
-                                Text(
-                                  "Number Plate: ",
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 255, 255, 255),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                Text(
-                                  "UBQ 876G",
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 255, 255, 255),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                SizedBox(height: 5),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                const Text(
-                                  "Available Seats: ",
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 255, 255, 255),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  "${trip.availableSeats}",
-                                  style: const TextStyle(
-                                    color: Color.fromARGB(255, 255, 255, 255),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                  const SizedBox(width: 10),
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/default_profile.jpg'),
+                      ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Add navigation logic here
-                      },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(320, 50),
-                        backgroundColor:
-                            const Color.fromARGB(255, 255, 255, 255),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                        ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            "Driver Name: ",
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          Text(
+                            selectedDriverName,
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
                       ),
-                      child: const Text(
-                        'See Full Profile',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 0, 0, 0),
-                          fontSize: 16,
-                        ),
+                      const SizedBox(height: 5),
+                      const Row(
+                        children: [
+                          Text(
+                            "Number Plate: ",
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          Text(
+                            "UBQ 876G",
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                        ],
                       ),
-                    ),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          const Text(
+                            "Available Seats: ",
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            "${trip.availableSeats}",
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          );
-        }
-      },
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Add navigation logic here
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(320, 50),
+                  backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                  ),
+                ),
+                child: const Text(
+                  'See Full Profile',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 0, 0, 0),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
