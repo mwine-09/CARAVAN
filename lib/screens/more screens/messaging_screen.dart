@@ -29,9 +29,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     receiverID = trip.driverID;
 
     messagesStream = DatabaseService().getMessagesStream(receiverID);
-    messagesStream.forEach((element) {
-      print(element.first.text);
-    });
   }
 
   @override
@@ -47,6 +44,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       messageContent: text,
       timestamp: now,
     );
+
+    // Update the messagesStream with the new message
+    messagesStream = messagesStream.map((messages) {
+      return List.from(messages)
+        ..add(Message(
+          id: 'new_message_id', // Generate a unique message ID here
+          text: text,
+          createdAt: now,
+          isMe: true, // Assuming the current user sent the message
+        ));
+    });
+
     textController.clear();
   }
 

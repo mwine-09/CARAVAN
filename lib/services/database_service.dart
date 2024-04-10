@@ -167,27 +167,60 @@ class DatabaseService {
         'message content': messageContent,
         'timestamp': timestamp,
       });
+
+      print("Message sent");
     } catch (e) {
       print('Error sending message: $e');
     }
   }
 
+  // Stream<List<Message>> getMessagesStream(String receiverId) {
+  //   return _firestore
+  //       .collection('messages')
+  //       .where('sender ID', isEqualTo: receiverId)
+  //       .where('receiver ID', isEqualTo: user?.uid ?? '')
+  //       // .orderBy('timestamp')
+  //       .snapshots()
+  //       .map((snapshot) {
+  //     return snapshot.docs.map((doc) {
+  //       return Message(
+  //         id: doc.id,
+  //         text: doc['message content'],
+  //         createdAt: doc['timestamp'],
+  //         isMe: doc['sender ID'] == user?.uid,
+  //       );
+  //     }).toList();
+  //   });
+  // }
+
   Stream<List<Message>> getMessagesStream(String receiverId) {
-    return _firestore
-        .collection('messages')
+    CollectionReference messages = _firestore.collection("messages");
+
+    Future<QuerySnapshot<Object?>> userToReceiver = messages
         .where('sender ID', isEqualTo: receiverId)
         .where('receiver ID', isEqualTo: user?.uid ?? '')
-        // .orderBy('timestamp')
-        .snapshots()
+        .get();
+    Future<QuerySnapshot<Object?>> receiverToUser = messages
+        .where('sender ID', isEqualTo: user?.uid ?? '')
+        .where('receiver ID', isEqualTo: receiverId)
+        .get();
+    // combine the two streams
+    return Future.wait([userToReceiver, receiverToUser])
+        .asStream()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return Message(
-          id: doc.id,
-          text: doc['message content'],
-          createdAt: doc['timestamp'],
-          isMe: doc['sender ID'] == user?.uid,
-        );
-      }).toList();
+      List<Message> messages = [];
+      for (var element in snapshot) {
+        messages.addAll(element.docs.map((doc) {
+          return Message(
+            id: doc.id,
+            text: doc['message content'],
+            createdAt: doc['timestamp'],
+            isMe: doc['sender ID'] == user?.uid,
+          );
+        }).toList());
+      }
+      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      return messages;
     });
   }
 
