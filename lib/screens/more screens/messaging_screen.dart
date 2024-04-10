@@ -1,3 +1,4 @@
+import 'package:caravan/models/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,7 +10,8 @@ import 'package:caravan/services/database_service.dart';
 import 'package:caravan/components/message_widget.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final UserProfile selectedDriver;
+  const ChatScreen({super.key, required this.selectedDriver});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -17,7 +19,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final textController = TextEditingController();
-  late Stream<List<Message>> messagesStream;
+  late Stream<List<Message>> messagesStream =
+      DatabaseService().getMessagesStream(receiverID);
   late String receiverID;
 
   @override
@@ -27,9 +30,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         Provider.of<TripDetailsProvider>(context, listen: false);
     final Trip trip = tripProvider.tripDetails!;
     receiverID = trip.driverID;
-
-    messagesStream = DatabaseService().getMessagesStream(receiverID);
   }
+  // messagesStream =
 
   @override
   void dispose() {
@@ -46,15 +48,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
 
     // Update the messagesStream with the new message
-    messagesStream = messagesStream.map((messages) {
-      return List.from(messages)
-        ..add(Message(
-          id: 'new_message_id', // Generate a unique message ID here
-          text: text,
-          createdAt: now,
-          isMe: true, // Assuming the current user sent the message
-        ));
-    });
+    // messagesStream = messagesStream.map((messages) {
+    //   return List.from(messages)
+    //     ..add(Message(
+    //       id: 'new_message_id', // Generate a unique message ID here
+    //       text: text,
+    //       createdAt: now,
+    //       isMe: true, // Assuming the current user sent the message
+    //     ));
+    // });
 
     textController.clear();
   }
@@ -70,10 +72,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         Provider.of(context, listen: false);
     final Trip trip = tripProvider.tripDetails!;
     receiverID = trip.driverID;
-
+    UserProfile selectedDriver = widget.selectedDriver;
     print("The receiver id is $receiverID");
 
-    String username = userProvider.getUsername();
+    String? username = selectedDriver.username;
     var sendMessageIconColor = Colors.grey[600];
 
     return Scaffold(
@@ -97,7 +99,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(width: 8),
-            Text(capitalize(username),
+            Text(capitalize(username!),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontSize: 16,
@@ -142,7 +144,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                     color: Colors.white, fontSize: 20)));
                       } else {
                         List<Message>? messages = snapshot.data;
-                        print(messages);
                         return ListView.builder(
                           itemCount: messages?.length ?? 0,
                           itemBuilder: (context, index) {

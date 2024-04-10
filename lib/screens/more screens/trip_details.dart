@@ -31,6 +31,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    UserProfile selectedDriver = widget.userProfile;
     final tripProvider = Provider.of<TripDetailsProvider>(context);
     final Trip trip = tripProvider.tripDetails!;
     String? selectedDriverName = widget.userProfile.username;
@@ -109,7 +110,8 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const ChatScreen()));
+                                  builder: (context) => ChatScreen(
+                                      selectedDriver: selectedDriver)));
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(100, 50),
