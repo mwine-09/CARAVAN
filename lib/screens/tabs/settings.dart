@@ -8,10 +8,14 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Settings',
-          style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -19,21 +23,31 @@ class SettingsScreen extends StatelessWidget {
         children: [
           ListTile(
             leading: const Icon(Icons.person, color: Colors.white),
-            title: const Text(
+            title: Text(
               "Profile",
-              style: TextStyle(color: Colors.white),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
             ),
             trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
             onTap: () {
               // Handle profile tap
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const ProfileScreen()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ProfileScreen()));
             },
           ),
           ListTile(
             leading: const Icon(Icons.delete, color: Colors.white),
-            title:
-                const Text('Delete account', style: TextStyle(color: Colors.white)),
+            title: Text(
+              'Delete account',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+            ),
             trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
             onTap: () {
               // Handle option 2 tap
@@ -41,7 +55,13 @@ class SettingsScreen extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.notifications, color: Colors.white),
-            title: const Text('Notifications', style: TextStyle(color: Colors.white)),
+            title: Text(
+              'Notifications',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+            ),
             trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
             onTap: () {
               // Handle option 3 tap

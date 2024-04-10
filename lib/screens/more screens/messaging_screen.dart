@@ -74,9 +74,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     print("The receiver id is $receiverID");
 
     String username = userProvider.getUsername();
+    var sendMessageIconColor = Colors.grey[600];
 
     return Scaffold(
       appBar: AppBar(
+        // add a trailing icon for calls
+
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         title: Row(
@@ -94,9 +97,21 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(width: 8),
-            Text(
-              capitalize(username),
-              style: const TextStyle(color: Colors.white),
+            Text(capitalize(username),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2.0)),
+
+            // add a trailing icon for calls
+
+            const Spacer(),
+            IconButton(
+              icon: const Icon(Icons.call),
+              onPressed: () {
+                // Implement call functionality
+              },
             ),
           ],
         ),
@@ -153,17 +168,22 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(40))),
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.send, color: Colors.grey[600]),
+                      icon: Icon(Icons.send, color: sendMessageIconColor),
                       onPressed: () {
                         if (textController.text.isNotEmpty) {
                           sendMessage(textController.text);
+                          // change the color of the send icon
+                          setState(() {
+                            sendMessageIconColor =
+                                const Color.fromARGB(255, 210, 210, 210);
+                          });
                         }
                       },
                     ),
                     focusedBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(50)),
                       borderSide:
-                          BorderSide(color: Color.fromARGB(255, 124, 124, 124)),
+                          BorderSide(color: Color.fromARGB(255, 223, 223, 223)),
                     ),
                   ),
                 ),

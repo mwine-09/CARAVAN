@@ -57,11 +57,11 @@ class _HomeState extends State<Home> {
         automaticallyImplyLeading: false,
         title: Text(
           'Hello $username !',
-          style: const TextStyle(
-            color: Color.fromARGB(255, 254, 254, 254),
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Colors.white,
+                fontSize: 20,
+                letterSpacing: 1,
+              ),
         ),
         iconTheme: const IconThemeData(
           color: Colors.white,
@@ -131,15 +131,15 @@ class _HomeState extends State<Home> {
                 ],
               ),
               const SizedBox(height: 10),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'My previous trips',
-                  style: TextStyle(
-                      letterSpacing: 1.5,
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ),
               const SizedBox(height: 15),
@@ -237,13 +237,12 @@ class _MyCardState extends State<MyCard> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  widget.title,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                ),
+                Text(widget.title,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        )),
               ],
             ),
           ),
@@ -264,25 +263,28 @@ class SingleCard extends StatelessWidget {
         child: Column(
           children: [
             // MY WALLET text should be at the beginning of the card
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'MY WALLET',
-                style: TextStyle(
-                    letterSpacing: 1.5,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Colors.white,
                     fontSize: 16,
-                    fontWeight: FontWeight.bold),
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2),
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'UGX ********',
-              style: TextStyle(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2),
             ),
+            // const SizedBox(height: 20),
+
             const Divider(
               color: Colors.white,
               height: 20,
@@ -303,22 +305,23 @@ class SingleCard extends StatelessWidget {
                   ),
                 ),
               ),
-              child: const Flex(
+              child: Flex(
                 direction: Axis.horizontal,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // add a money icon
-                  Icon(
+                  const Icon(
                     Icons.money_rounded,
                     color: Colors.black,
                   ),
                   Text(
                     'DEPOSIT MONEY',
-                    style: TextStyle(
-                        letterSpacing: 1,
-                        color: Color.fromARGB(255, 0, 0, 0),
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
+                        ),
                   ),
                 ],
               ),

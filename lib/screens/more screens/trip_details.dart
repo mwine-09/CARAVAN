@@ -5,6 +5,7 @@ import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
+import 'package:caravan/screens/more%20screens/selected_user_profile.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/services/location_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -42,7 +43,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
         ),
         title: Text(
           selectedDriverName!,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
       ),
       body: SafeArea(
@@ -57,7 +58,10 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            TripDriverCard(trip: trip, selectedDriverName: selectedDriverName),
+            TripDriverCard(
+                trip: trip,
+                selectedDriverName: selectedDriverName,
+                userProfile: widget.userProfile),
             const SizedBox(height: 5),
             const Text(
               "Trip Details",
@@ -68,7 +72,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
             ),
             const SizedBox(height: 10),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 22, 22, 22),
                 borderRadius: BorderRadius.circular(5),
@@ -130,7 +134,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(320, 50),
-                      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
@@ -246,10 +250,10 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   }
 
   void generatePolyLineFromPoints(List<LatLng> polylinePoints) {
-    final id = const PolylineId('polyline');
+    const id = PolylineId('polyline');
     final polyline = Polyline(
       polylineId: id,
-      color: Color.fromARGB(255, 68, 158, 255),
+      color: const Color.fromARGB(255, 68, 158, 255),
       points: polylinePoints,
       width: 3,
     );
@@ -274,11 +278,13 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
 
 class TripDriverCard extends StatelessWidget {
   final String selectedDriverName;
+  final UserProfile userProfile;
   const TripDriverCard({
-    Key? key,
+    super.key,
     required this.trip,
     required this.selectedDriverName,
-  }) : super(key: key);
+    required this.userProfile,
+  });
 
   final Trip trip;
 
@@ -387,6 +393,12 @@ class TripDriverCard extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   // Add navigation logic here
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SelectedDriverScreen(
+                                userProfile: userProfile,
+                              )));
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(320, 50),

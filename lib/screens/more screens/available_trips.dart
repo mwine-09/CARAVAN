@@ -12,16 +12,19 @@ class AvailableTrips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tripProvider = context.read<TripDetailsProvider>();
+    context.read<TripDetailsProvider>();
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
-        title: const Text(
-          'Available Trips',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
+        title: Text('Available Trips',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                )),
+        centerTitle: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -48,11 +51,16 @@ class AvailableTrips extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}',
-                style: const TextStyle(color: Colors.white));
+                style: const TextStyle(
+                  color: Colors.white,
+                ));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Text(
+            return Text(
               'No data available',
-              style: TextStyle(color: Colors.white),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
             );
           } else {
             // Data is available, you can use snapshot.data safely
@@ -114,38 +122,34 @@ class AvailabeTripCard extends StatelessWidget {
                   children: [
                     Text(
                       "Destination: ${trip.destination}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
                     ),
                     const SizedBox(height: 5),
                     Text(
                       "PickUp: ${trip.location}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
                     ),
                     const SizedBox(height: 5),
                     Text(
                       "Date: ${DateFormat.yMMMMd().format(trip.dateTime)}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
                     ),
                     const SizedBox(height: 5),
                     Text(
                       "Time: ${DateFormat.jm().format(trip.dateTime)}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
                     ),
                   ],
                 ),
@@ -180,13 +184,11 @@ class AvailabeTripCard extends StatelessWidget {
                     borderRadius: BorderRadius.all(Radius.circular(5)),
                   ),
                 ),
-                child: const Text(
-                  'See More About This Trip',
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 0, 0, 0),
-                    fontSize: 14,
-                  ),
-                ),
+                child: Text('See More About This Trip',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: Colors.black,
+                          fontSize: 18,
+                        )),
               ),
             ),
           ],

@@ -11,7 +11,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final tabs = <Widget>[const HistoryScreen(), const Home(), const SettingsScreen()];
+  final tabs = <Widget>[
+    const HistoryScreen(),
+    const Home(),
+    const SettingsScreen()
+  ];
 
   late PageController _pageController;
   int currentTab = 0;

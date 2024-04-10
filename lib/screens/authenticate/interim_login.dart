@@ -19,6 +19,17 @@ class _MyLoginState extends State<MyLogin> {
 
   @override
   Widget build(BuildContext context) {
+    var loginInputDecoration = InputDecoration(
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white, width: 1.0),
+      ),
+      labelText: 'Password',
+      labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+      border: const OutlineInputBorder(),
+    );
     UserProvider userProvider = Provider.of(context, listen: true);
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
@@ -42,32 +53,32 @@ class _MyLoginState extends State<MyLogin> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   "Get started!",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
                 ),
-                const SizedBox(height: 20),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                const SizedBox(height: 15),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                   child: Column(
                     children: [
                       Text(
                         "Enter your email and password",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          fontStyle: FontStyle.normal,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 SizedBox(
                   width: 280,
                   height: 50,
@@ -78,14 +89,8 @@ class _MyLoginState extends State<MyLogin> {
                         email = value;
                       });
                     },
-                    decoration: const InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      ),
-                      labelText: 'Email',
-                      labelStyle: TextStyle(color: Colors.white),
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration:
+                        loginInputDecoration.copyWith(labelText: 'Email'),
                     style: const TextStyle(
                         color: Colors.white, overflow: TextOverflow.ellipsis),
                   ),
@@ -101,18 +106,12 @@ class _MyLoginState extends State<MyLogin> {
                         password = value;
                       });
                     },
-                    decoration: const InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      ),
-                      labelText: 'Password',
-                      labelStyle: TextStyle(color: Colors.white),
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration:
+                        loginInputDecoration.copyWith(labelText: 'Password'),
                     style: myInputTextStyle,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 SizedBox(
                   width: 280,
                   child: ElevatedButton(
@@ -137,15 +136,21 @@ class _MyLoginState extends State<MyLogin> {
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
+                    ).copyWith(
+                      backgroundColor: MaterialStateProperty.all(
+                          const Color.fromARGB(255, 255, 255, 255)),
+                      foregroundColor: MaterialStateProperty.all(Colors.black),
                     ),
                     child: const Text(
-                      'Sign In',
-                      style: TextStyle(color: Colors.black, fontSize: 20),
+                      'Login',
+                      style: TextStyle(
+                          // color: Color.fromARGB(255, 252, 252, 252),
+                          fontSize: 20),
                     ),
                   ),
                 ),
                 const SizedBox(
-                  height: 10,
+                  height: 15,
                 ),
                 SizedBox(
                   child: GestureDetector(
@@ -157,13 +162,12 @@ class _MyLoginState extends State<MyLogin> {
                           MaterialPageRoute(
                               builder: (context) => const RegisterScreen()));
                     },
-                    child: const Text(
+                    child: Text(
                       'Don\'t have an account? Register',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
                     ),
                   ),
                 ),

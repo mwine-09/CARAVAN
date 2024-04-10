@@ -28,13 +28,15 @@ class MessageWidget extends StatelessWidget {
               children: [
                 Text(message.text!,
                     style: theme.textTheme.bodySmall
-                        ?.copyWith(color: Colors.white)),
+                        ?.copyWith(color: Colors.white, fontSize: 14)),
                 const SizedBox(
                   height: 4,
                 ),
                 Text(DateFormat('h:mm a').format(message.createdAt.toDate()),
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: Colors.white)),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Roboto')),
               ],
             ),
           ),
@@ -56,16 +58,16 @@ class MessageWidget extends StatelessWidget {
               children: [
                 Text(
                   message.text!,
-                  style:
-                      theme.textTheme.bodySmall?.copyWith(color: Colors.white),
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: Colors.white, fontSize: 14),
                 ),
                 const SizedBox(
                   height: 4,
                 ),
                 Text(
                   DateFormat('h:mm a').format(message.createdAt.toDate()),
-                  style:
-                      theme.textTheme.bodySmall?.copyWith(color: Colors.white),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white, fontSize: 12, fontFamily: 'Roboto'),
                 ),
               ],
             ),

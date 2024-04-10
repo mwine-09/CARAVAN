@@ -19,6 +19,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var loginInputDecoration = InputDecoration(
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white, width: 1.0),
+      ),
+      labelText: 'Password',
+      labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+      border: const OutlineInputBorder(),
+    );
     UserProvider userProvider = Provider.of(context, listen: true);
     return Scaffold(
       backgroundColor: Colors.black,
@@ -41,6 +52,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
+                Text("Get started!",
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontSize: 20,
+                        )),
                 const SizedBox(
                   height: 30,
                 ),
@@ -54,7 +71,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           email = value;
                         });
                       },
-                      decoration: myTextFieldStyle,
+                      decoration: loginInputDecoration,
                       style: myInputTextStyle),
                 ),
                 const SizedBox(height: 20),
@@ -69,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         });
                       },
                       decoration:
-                          myTextFieldStyle.copyWith(labelText: 'Password'),
+                          loginInputDecoration.copyWith(labelText: 'Password'),
                       style: myInputTextStyle),
                 ),
                 const SizedBox(height: 20),
@@ -83,7 +100,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           confirmPassword = value;
                         });
                       },
-                      decoration: myTextFieldStyle.copyWith(
+                      decoration: loginInputDecoration.copyWith(
                           labelText: 'Confirm Password'),
                       style: myInputTextStyle),
                 ),
@@ -114,32 +131,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(5)),
                     ),
+                  ).copyWith(
+                    backgroundColor: MaterialStateProperty.all(Colors.white),
                   ),
-                  child: const Text('Register',
-                      style: TextStyle(color: Colors.black, fontSize: 20)),
+                  child: Text('Register',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: Colors.black,
+                            fontSize: 18,
+                          )),
                 ),
                 const SizedBox(
                   height: 20,
                 ),
                 SizedBox(
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
+                      onTap: () {
+                        Navigator.pop(context);
 
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const MyLogin()));
-                    },
-                    child: const Text(
-                      'Already have an account? Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MyLogin()));
+                      },
+                      child: Text(
+                        'Already have an account? Login',
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                      )),
                 ),
               ],
             ),

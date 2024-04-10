@@ -10,6 +10,7 @@ import 'package:caravan/screens/wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,11 +36,37 @@ class MyRideSharingApp extends StatelessWidget {
           backgroundColor: Colors.black,
           centerTitle: true,
         ),
-
-        // primarySwatch: Colors.blue,
-
-        primaryColor: Colors.black,
-        secondaryHeaderColor: Colors.white,
+        textTheme: TextTheme(
+          headlineSmall:
+              GoogleFonts.roboto(fontSize: 24, fontWeight: FontWeight.w400),
+          titleLarge: GoogleFonts.roboto(
+              fontSize: 20, fontWeight: FontWeight.w500, letterSpacing: 0.15),
+          titleMedium: GoogleFonts.roboto(
+              fontSize: 16, fontWeight: FontWeight.w400, letterSpacing: 0.15),
+          titleSmall: GoogleFonts.roboto(
+              fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0.1),
+          bodyLarge: GoogleFonts.roboto(
+              fontSize: 16, fontWeight: FontWeight.w400, letterSpacing: 0.5),
+          bodyMedium: GoogleFonts.roboto(
+              fontSize: 14, fontWeight: FontWeight.w400, letterSpacing: 0.25),
+          labelLarge: GoogleFonts.roboto(
+              fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1.25),
+          bodySmall: GoogleFonts.roboto(
+              fontSize: 12, fontWeight: FontWeight.w400, letterSpacing: 0.4),
+          labelSmall: GoogleFonts.roboto(
+              fontSize: 10, fontWeight: FontWeight.w400, letterSpacing: 1.5),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.black,
+            minimumSize: const Size(88, 36),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(2)),
+            ),
+          ),
+        ),
       ),
 
       routes: {

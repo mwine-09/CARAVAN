@@ -100,7 +100,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         automaticallyImplyLeading: true,
         elevation: 0,
       ),
