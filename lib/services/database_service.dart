@@ -76,6 +76,7 @@ class DatabaseService {
                 destination: doc['destination'],
                 availableSeats: doc['available seats'],
                 dateTime: (doc['departure time'] as Timestamp).toDate(),
+                tripStatus: doc['trip status'],
               );
             }).toList());
   }
@@ -174,8 +175,8 @@ class DatabaseService {
   Stream<List<Message>> getMessagesStream(String receiverId) {
     return _firestore
         .collection('messages')
-        .where('sender ID', isEqualTo: user?.uid ?? '')
-        .where('receiver ID', isEqualTo: receiverId)
+        .where('sender ID', isEqualTo: receiverId)
+        .where('receiver ID', isEqualTo: user?.uid ?? '')
         // .orderBy('timestamp')
         .snapshots()
         .map((snapshot) {
@@ -190,22 +191,13 @@ class DatabaseService {
     });
   }
 
-  Future<String> getDriverName(String userId) async {
+  // return userprofile that matches the given user id
+  Future<DocumentSnapshot> getUserProfile(String userId) async {
     try {
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get();
-
-      if (userSnapshot.exists) {
-        return userSnapshot[
-            'name']; // Assuming 'name' is the field containing the driver's name
-      } else {
-        return 'Unknown'; // Or handle the case where the user does not exist
-      }
+      return await _firestore.collection('users').doc(userId).get();
     } catch (e) {
-      print('Error getting driver name: $e');
-      return 'Unknown'; // Handle the error case
+      print('Error getting user profile: $e');
+      rethrow;
     }
   }
 
@@ -247,6 +239,18 @@ class DatabaseService {
     }
   }
 
+  // add create user profile function takes userid and a map
+
+  Future<void> createUserProfile(
+      String userId, Map<String, dynamic> data) async {
+    try {
+      await _firestore.collection('users').doc(userId).set(data);
+    } catch (e) {
+      print('Error creating user profile: $e');
+      rethrow;
+    }
+  }
+
   Future<void> updateUserProfile(
       String uid, Map<String, dynamic> updatedData) async {
     try {
@@ -258,4 +262,6 @@ class DatabaseService {
       rethrow;
     }
   }
+
+  // get userProfile data, function takes userid
 }

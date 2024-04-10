@@ -78,7 +78,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 onPressed: () {
                   userProfileProvider.setEmergencyContacts(contacts);
                   // get the data in hte userprofile provider and insert into the database
-                  DatabaseService().updateUserProfile(
+                  DatabaseService().createUserProfile(
                       userProvider.getUid(), userProfileProvider.toMap());
 
                   Navigator.pushNamed(context, '/home');

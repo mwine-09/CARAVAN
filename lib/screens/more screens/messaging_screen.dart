@@ -30,7 +30,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
     messagesStream = DatabaseService().getMessagesStream(receiverID);
     messagesStream.forEach((element) {
-      print(element);
+      print(element.first.text);
     });
   }
 

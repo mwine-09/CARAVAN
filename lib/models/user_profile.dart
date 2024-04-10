@@ -11,6 +11,7 @@ class UserProfile {
   final String? phoneNumber;
   final List<String>? preferences;
   final List<EmergencyContact>? emergencyContacts;
+  final String role;
 
   UserProfile({
     this.username,
@@ -23,6 +24,7 @@ class UserProfile {
     this.phoneNumber,
     this.preferences,
     this.emergencyContacts,
+    this.role = 'passenger', // Default role is passenger
   });
 
   // to json
@@ -39,6 +41,7 @@ class UserProfile {
     data['preferences'] = preferences;
     data['emergencyContacts'] =
         emergencyContacts?.map((e) => e.toJson()).toList();
+    data['role'] = role; // Include role in JSON
 
     return data;
   }

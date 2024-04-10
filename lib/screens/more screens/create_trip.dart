@@ -1,4 +1,3 @@
-
 import 'package:caravan/components/date_time_picker.dart';
 import 'package:caravan/models/user.dart';
 import 'package:caravan/services/auth.dart';
@@ -25,7 +24,7 @@ class CreateTripScreen extends StatelessWidget {
 }
 
 class AddTripForm extends StatefulWidget {
-  const AddTripForm({super.key});
+  const AddTripForm({Key? key}) : super(key: key);
 
   @override
   _AddTripFormState createState() => _AddTripFormState();
@@ -33,8 +32,6 @@ class AddTripForm extends StatefulWidget {
 
 class _AddTripFormState extends State<AddTripForm> {
   final _formKey = GlobalKey<FormState>();
-  // set _driverId to the current user's ID
-
   String _departureLocation = '';
   String _destination = '';
   final DateTime _departureTime = DateTime.now();
@@ -42,6 +39,8 @@ class _AddTripFormState extends State<AddTripForm> {
   String _tripStatus = '';
   UserModel? user = AuthService().getCurrentUser();
   String _driverId = '';
+  String _feedback = '';
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -50,7 +49,6 @@ class _AddTripFormState extends State<AddTripForm> {
         key: _formKey,
         child: ListView(
           children: [
-            // create a trip
             Text(user?.username ?? 'No username'),
             TextFormField(
               style: myInputTextStyle,
@@ -59,7 +57,6 @@ class _AddTripFormState extends State<AddTripForm> {
               onChanged: (value) {
                 setState(() {
                   _departureLocation = value;
-                  print(user?.username);
                 });
               },
             ),
@@ -73,7 +70,7 @@ class _AddTripFormState extends State<AddTripForm> {
                 });
               },
             ),
-            //  date time picker for departure time
+            const SizedBox(height: 16),
             const DepartureTimePicker(),
             const SizedBox(height: 16),
             TextFormField(
@@ -81,8 +78,7 @@ class _AddTripFormState extends State<AddTripForm> {
               decoration:
                   myTextFieldStyle.copyWith(labelText: 'Available Seats'),
               onChanged: (value) {
-                _availableSeats = int.parse(value);
-                // Parse the value to int and assign it to _availableSeats
+                _availableSeats = int.tryParse(value) ?? 0;
               },
             ),
             const SizedBox(height: 16),
@@ -95,32 +91,24 @@ class _AddTripFormState extends State<AddTripForm> {
                 });
               },
             ),
-
             const SizedBox(height: 16),
+            Text(_feedback, style: TextStyle(color: Colors.green)),
             ElevatedButton(
-              style: ButtonStyle(
-                textStyle: MaterialStateProperty.all(
-                  const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                ),
-              ),
               onPressed: () {
-                // Validate form input
                 if (_formKey.currentState!.validate()) {
-                  // Save the trip details to FireStore
                   _driverId = user!.uid;
                   DatabaseService().addTrip(
-                      _driverId,
-                      _departureLocation,
-                      _destination,
-                      _departureTime,
-                      _availableSeats,
-                      _tripStatus);
-                  // Call your addTrip function here
-
-                  // Navigator.pop(context) to go back to the previous screen
+                    _driverId,
+                    _departureLocation,
+                    _destination,
+                    _departureTime,
+                    _availableSeats,
+                    _tripStatus,
+                  );
+                  setState(() {
+                    _feedback = 'Trip saved successfully!';
+                  });
+                  Navigator.pop(context);
                 }
               },
               child: const Text('Save Trip'),

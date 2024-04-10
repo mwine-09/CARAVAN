@@ -23,7 +23,11 @@ class _UsernameScreenState extends State<UsernameScreen> {
     UserProvider userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Choose Username'),
+        title: const Text(
+          'Choose Username',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: false,
         automaticallyImplyLeading: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),

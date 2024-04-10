@@ -12,7 +12,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-
 class GoogleMapsView extends StatefulWidget {
   const GoogleMapsView({super.key});
 
@@ -64,14 +63,6 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
       // print(places);
 
       if (places['predictions'].length > 0) {
-        var result = {
-          'places_prediction1': places['predictions'][0]['description'],
-          'places_prediction2': places['predictions'][1]['description'],
-          'places_prediction3': places['predictions'][2]['description'] ?? '',
-          'places_prediction4': places['predictions'][3]['description'] ?? '',
-        };
-
-        // print(result);
         setState(() {
           locationSuggestions = List<String>.from(places['predictions']
               .map((prediction) => prediction['description']));
@@ -109,6 +100,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.white),
         automaticallyImplyLeading: true,
         elevation: 0,
       ),

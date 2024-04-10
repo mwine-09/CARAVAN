@@ -32,8 +32,10 @@ class AvailableTrips extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.add, color: Colors.white),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const CreateTripScreen()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const CreateTripScreen()));
             },
           ),
         ],
@@ -106,7 +108,7 @@ class AvailabeTripCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 20),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

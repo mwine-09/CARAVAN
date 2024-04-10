@@ -6,10 +6,12 @@ import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/services/location_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class TripDetailsScreen extends StatefulWidget {
   const TripDetailsScreen({super.key});
@@ -280,13 +282,20 @@ class TripDriverCard extends StatelessWidget {
     String driverID = trip.driverID;
     print("The driver id is $driverID");
 
-    return FutureBuilder<String>(
-      future: DatabaseService().getDriverName(driverID),
+    return FutureBuilder<DocumentSnapshot>(
+      future: DatabaseService().getUserProfile(driverID),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: SpinKitCubeGrid(
+              color: Colors.white,
+              size: 50.0,
+            ),
+          ); // Show a loading indicator
+        } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          String driverName = snapshot.data ?? 'Unknown Driver';
+          String driverName = snapshot.data?['username'];
           return Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5),
@@ -325,7 +334,7 @@ class TripDriverCard extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  driverName,
+                                  driverName, // Use null check operator
                                   style: const TextStyle(
                                     color: Color.fromARGB(255, 255, 255, 255),
                                     fontSize: 14,

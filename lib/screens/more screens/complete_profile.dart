@@ -1,4 +1,5 @@
 import 'package:caravan/providers/user_profile.provider.dart';
+import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/more%20screens/set_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +12,7 @@ class CompleteProfile extends StatefulWidget {
 }
 
 class _CompleteProfileState extends State<CompleteProfile> {
-  final TextEditingController _usernameController = TextEditingController();
+  // final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
@@ -47,7 +48,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    // _usernameController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
     _ageController.dispose();
@@ -64,6 +65,8 @@ class _CompleteProfileState extends State<CompleteProfile> {
   Widget build(BuildContext context) {
     UserProfileProvider userProfileProvider =
         Provider.of<UserProfileProvider>(context, listen: true);
+    UserProvider userProvider = Provider.of(context, listen: true);
+    String username = userProvider.getUsername();
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
@@ -86,12 +89,16 @@ class _CompleteProfileState extends State<CompleteProfile> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextFormField(
-                  style: myInputTextStyle,
-                  controller: _usernameController,
-                  decoration: myFormtextFieldStyle.copyWith(
-                    labelText: 'Username',
-                  ),
+                // TextFormField(
+                //   style: myInputTextStyle,
+                //   controller: _usernameController,
+                //   decoration: myFormtextFieldStyle.copyWith(
+                //     labelText: 'Username',
+                //   ),
+                // ),
+                Text(
+                  "Hello $username",
+                  style: const TextStyle(color: Colors.white),
                 ),
                 TextFormField(
                   style: myInputTextStyle,
@@ -132,7 +139,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                 ElevatedButton(
                   onPressed: () {
                     userProfileProvider.completeProfile(
-                      username: _usernameController.text,
+                      username: username,
                       firstName: _firstNameController.text,
                       lastName: _lastNameController.text,
                       age: int.parse(_ageController.text),
