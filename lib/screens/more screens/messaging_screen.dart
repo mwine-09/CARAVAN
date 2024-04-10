@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:caravan/models/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,19 +21,18 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final textController = TextEditingController();
-  late Stream<List<Message>> messagesStream =
-      DatabaseService().getMessagesStream(receiverID);
-  late String receiverID;
+  late Stream<List<Message>> messagesStream;
+  late Trip trip;
+
+  final StreamController _messageStreamController = StreamController();
 
   @override
   void initState() {
     super.initState();
     final tripProvider =
         Provider.of<TripDetailsProvider>(context, listen: false);
-    final Trip trip = tripProvider.tripDetails!;
-    receiverID = trip.driverID;
+    trip = tripProvider.tripDetails!;
   }
-  // messagesStream =
 
   @override
   void dispose() {
@@ -42,7 +43,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   void sendMessage(String text) {
     Timestamp now = Timestamp.now();
     DatabaseService().sendMessage(
-      receiverId: receiverID,
+      receiverId: trip.driverID,
       messageContent: text,
       timestamp: now,
     );
@@ -56,21 +57,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    UserProvider userProvider = Provider.of(context, listen: false);
-    final TripDetailsProvider tripProvider =
-        Provider.of(context, listen: false);
-    final Trip trip = tripProvider.tripDetails!;
-    receiverID = trip.driverID;
     UserProfile selectedDriver = widget.selectedDriver;
-    print("The receiver id is $receiverID");
-
     String? username = selectedDriver.username;
     var sendMessageIconColor = Colors.grey[600];
+    messagesStream = DatabaseService().getMessagesStream(trip.driverID);
 
     return Scaffold(
       appBar: AppBar(
-        // add a trailing icon for calls
-
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         title: Row(
@@ -88,15 +81,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(width: 8),
-            Text(capitalize(username!),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            Text(
+              capitalize(username!),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 2.0)),
-
-            // add a trailing icon for calls
-
+                    letterSpacing: 2.0,
+                  ),
+            ),
             const Spacer(),
             IconButton(
               icon: const Icon(Icons.call),
@@ -120,19 +113,24 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   child: StreamBuilder<List<Message>>(
                     stream: messagesStream,
                     builder: (context, snapshot) {
-                      print("The snapshot is ${snapshot.data}");
+                      print("BUilder has ran");
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
-                            child: CircularProgressIndicator(
-                          color: Color.fromARGB(255, 198, 193, 193),
-                        ));
+                          child: CircularProgressIndicator(
+                            color: Color.fromARGB(255, 198, 193, 193),
+                          ),
+                        );
                       } else if (snapshot.hasError) {
                         return Center(
-                            child: Text('Error: ${snapshot.error}',
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 20)));
+                          child: Text(
+                            'Error: ${snapshot.error}',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 20),
+                          ),
+                        );
                       } else {
                         List<Message>? messages = snapshot.data;
+                        print(messages?.length);
                         return ListView.builder(
                           itemCount: messages?.length ?? 0,
                           itemBuilder: (context, index) {
@@ -156,13 +154,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         color: Color.fromARGB(179, 139, 139, 139)),
                     hintText: 'Type a message...',
                     border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(40))),
+                      borderRadius: BorderRadius.all(Radius.circular(40)),
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(Icons.send, color: sendMessageIconColor),
                       onPressed: () {
                         if (textController.text.isNotEmpty) {
                           sendMessage(textController.text);
-                          // change the color of the send icon
                           setState(() {
                             sendMessageIconColor =
                                 const Color.fromARGB(255, 210, 210, 210);
