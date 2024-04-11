@@ -4,7 +4,7 @@
 
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
-import 'package:caravan/screens/more%20screens/all_chats.dart';
+import 'package:caravan/screens/more%20screens/chatroom_screen.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
 
@@ -77,7 +77,7 @@ class _HomeState extends State<Home> {
               // load the notificationscreen
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AllChats()),
+                MaterialPageRoute(builder: (context) => ChatListScreen()),
               );
             },
           ),

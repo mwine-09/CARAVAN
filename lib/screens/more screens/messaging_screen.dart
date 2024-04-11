@@ -1,31 +1,27 @@
-import 'dart:async';
-
+import 'package:caravan/components/message_widget.dart';
+import 'package:caravan/models/message.dart';
+import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/services/chat_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:caravan/models/message.dart';
-import 'package:caravan/models/trip.dart';
-import 'package:caravan/providers/trips_provider.dart';
-// import 'package:caravan/providers/user_provider.dart';
-import 'package:caravan/components/message_widget.dart';
 
 class ChatScreen extends StatefulWidget {
   final UserProfile selectedDriver;
+
   const ChatScreen({super.key, required this.selectedDriver});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
+class _ChatScreenState extends State<ChatScreen> {
   final textController = TextEditingController();
-  final ChatService chatService = ChatService();
   late Trip trip;
   late ScrollController scrollController;
-  late Stream<List<Message>> messagesStream;
   late FirebaseAuth _firebaseAuth;
   late String _senderID;
 
@@ -41,16 +37,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     _senderID = _firebaseAuth.currentUser!.uid;
   }
 
-  void _animateToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 1),
-        curve: Curves.easeOut,
-      );
-    });
-  }
-
   @override
   void dispose() {
     textController.dispose();
@@ -58,13 +44,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   void sendMessage(String message) {
-    Timestamp now = Timestamp.now();
-    chatService.sendMessage(trip.driverID, message);
+    ChatService().sendMessage(trip.driverID, message);
     textController.clear();
-  }
-
-  String capitalize(String s) {
-    return s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
   }
 
   Widget _messageBuildItem(DocumentSnapshot document) {
@@ -73,7 +54,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     var alignment = data['senderID'] == _senderID
         ? Alignment.centerRight
         : Alignment.centerLeft;
-    // use the MessageWidget component
     return Container(
       alignment: alignment,
       child: MessageWidget(
@@ -87,9 +67,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
+  String capitalize(String s) {
+    return s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+  }
+
   Widget _buildMessageList() {
     return StreamBuilder(
-      stream: chatService.getMessages(trip.driverID),
+      stream: ChatService().getMessages(trip.driverID),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return Padding(
@@ -127,7 +111,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     UserProfile selectedDriver = widget.selectedDriver;
     String? username = selectedDriver.username;
     var sendMessageIconColor = Colors.grey[600];
-    // messagesStream = DatabaseService().getMessagesStream(trip.driverID);
 
     return Scaffold(
       appBar: AppBar(
@@ -169,7 +152,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       ),
       body: SafeArea(
         child: Container(
-          color: Colors.black,
           padding: const EdgeInsets.all(8),
           child: Column(
             children: [

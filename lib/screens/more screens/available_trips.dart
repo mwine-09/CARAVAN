@@ -1,5 +1,6 @@
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/trips_provider.dart';
+import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/more%20screens/create_trip.dart';
 import 'package:caravan/screens/more%20screens/trip_details.dart';
 import 'package:caravan/services/database_service.dart';
@@ -13,6 +14,9 @@ class AvailableTrips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<TripDetailsProvider>();
+
+    UserProfileProvider userProfileProvider =
+        Provider.of<UserProfileProvider>(context, listen: false);
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
