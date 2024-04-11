@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/intl.dart';
 
 import '../models/message.dart';
@@ -5,13 +7,17 @@ import 'package:flutter/material.dart';
 
 class MessageWidget extends StatelessWidget {
   final Message message;
-  const MessageWidget({super.key, required this.message});
+  MessageWidget({super.key, required this.message});
+  late FirebaseAuth _firebaseAuth;
 
   @override
   Widget build(BuildContext context) {
+    _firebaseAuth = FirebaseAuth.instance;
+    String senderID = _firebaseAuth.currentUser!.uid;
+
     final theme = Theme.of(context);
 
-    if (message.isMe) {
+    if (message.senderID == senderID) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -26,7 +32,7 @@ class MessageWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(message.text!,
+                Text(message.message,
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: Colors.white, fontSize: 14)),
                 const SizedBox(
@@ -57,7 +63,7 @@ class MessageWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  message.text!,
+                  message.message,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: Colors.white, fontSize: 14),
                 ),

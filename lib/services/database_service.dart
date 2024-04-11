@@ -157,24 +157,24 @@ class DatabaseService {
     }
   }
 
-  Future<void> sendMessage({
-    required String receiverId,
-    required String messageContent,
-    required Timestamp timestamp,
-  }) async {
-    try {
-      await _firestore.collection('messages').add({
-        'sender ID': user?.uid ?? '',
-        'receiver ID': receiverId,
-        'message content': messageContent,
-        'timestamp': timestamp,
-      });
+  // Future<void> sendMessage({
+  //   required String receiverId,
+  //   required String messageContent,
+  //   required Timestamp timestamp,
+  // }) async {
+  //   try {
+  //     await _firestore.collection('messages').add({
+  //       'sender ID': user?.uid ?? '',
+  //       'receiver ID': receiverId,
+  //       'message content': messageContent,
+  //       'timestamp': timestamp,
+  //     });
 
-      print("Message sent");
-    } catch (e) {
-      print('Error sending message: $e');
-    }
-  }
+  //     print("Message sent");
+  //   } catch (e) {
+  //     print('Error sending message: $e');
+  //   }
+  // }
 
   // Stream<List<Message>> getMessagesStream(String receiverId) {
   //   return _firestore
@@ -195,39 +195,39 @@ class DatabaseService {
   //   });
   // }
 
-  Stream<List<Message>> getMessagesStream(String receiverId) {
-    // if (kDebugMode) {
-    print("Messages are coming......");
-    // }
-    CollectionReference messages = _firestore.collection("messages");
+  // Stream<List<Message>> getMessagesStream(String receiverId) {
+  //   // if (kDebugMode) {
+  //   print("Messages are coming......");
+  //   // }
+  //   CollectionReference messages = _firestore.collection("messages");
 
-    Future<QuerySnapshot<Object?>> userToReceiver = messages
-        .where('sender ID', isEqualTo: receiverId)
-        .where('receiver ID', isEqualTo: user?.uid ?? '')
-        .get();
-    Future<QuerySnapshot<Object?>> receiverToUser = messages
-        .where('sender ID', isEqualTo: user?.uid ?? '')
-        .where('receiver ID', isEqualTo: receiverId)
-        .get();
-    // combine the two streams
-    return Future.wait([userToReceiver, receiverToUser])
-        .asStream()
-        .map((snapshot) {
-      List<Message> messages = [];
-      for (var element in snapshot) {
-        messages.addAll(element.docs.map((doc) {
-          return Message(
-            id: doc.id,
-            text: doc['message content'],
-            createdAt: doc['timestamp'],
-            isMe: doc['sender ID'] == user?.uid,
-          );
-        }).toList());
-      }
-      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      return messages;
-    });
-  }
+  //   Future<QuerySnapshot<Object?>> userToReceiver = messages
+  //       .where('sender ID', isEqualTo: receiverId)
+  //       .where('receiver ID', isEqualTo: user?.uid ?? '')
+  //       .get();
+  //   Future<QuerySnapshot<Object?>> receiverToUser = messages
+  //       .where('sender ID', isEqualTo: user?.uid ?? '')
+  //       .where('receiver ID', isEqualTo: receiverId)
+  //       .get();
+  //   // combine the two streams
+  //   return Future.wait([userToReceiver, receiverToUser])
+  //       .asStream()
+  //       .map((snapshot) {
+  //     List<Message> messages = [];
+  //     for (var element in snapshot) {
+  //       messages.addAll(element.docs.map((doc) {
+  //         return Message(
+  //           id: doc.id,
+  //           text: doc['message content'],
+  //           createdAt: doc['timestamp'],
+  //           isMe: doc['sender ID'] == user?.uid,
+  //         );
+  //       }).toList());
+  //     }
+  //     messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+  //     return messages;
+  //   });
+  // }
 
   // return userprofile that matches the given user id
   // Future<DocumentSnapshot> getUserProfile(String userId) async {

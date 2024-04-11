@@ -1,14 +1,15 @@
 import 'dart:async';
 
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/services/chat_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:caravan/models/message.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/trips_provider.dart';
-import 'package:caravan/providers/user_provider.dart';
-import 'package:caravan/services/database_service.dart';
+// import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/components/message_widget.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -21,9 +22,12 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final textController = TextEditingController();
-  late Stream<List<Message>> messagesStream;
+  final ChatService chatService = ChatService();
   late Trip trip;
   late ScrollController scrollController;
+  late Stream<List<Message>> messagesStream;
+  late FirebaseAuth _firebaseAuth;
+  late String _senderID;
 
   @override
   void initState() {
@@ -31,15 +35,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     final tripProvider =
         Provider.of<TripDetailsProvider>(context, listen: false);
     trip = tripProvider.tripDetails!;
-
     scrollController = ScrollController();
+
+    _firebaseAuth = FirebaseAuth.instance;
+    _senderID = _firebaseAuth.currentUser!.uid;
   }
 
   void _animateToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 1),
         curve: Curves.easeOut,
       );
     });
@@ -51,14 +57,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void sendMessage(String text) {
+  void sendMessage(String message) {
     Timestamp now = Timestamp.now();
-    DatabaseService().sendMessage(
-      receiverId: trip.driverID,
-      messageContent: text,
-      timestamp: now,
-    );
-
+    chatService.sendMessage(trip.driverID, message);
     textController.clear();
   }
 
@@ -66,12 +67,67 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     return s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
   }
 
+  Widget _messageBuildItem(DocumentSnapshot document) {
+    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+    var alignment = data['senderID'] == _senderID
+        ? Alignment.centerRight
+        : Alignment.centerLeft;
+    // use the MessageWidget component
+    return Container(
+      alignment: alignment,
+      child: MessageWidget(
+        message: Message(
+          message: data['message'],
+          senderID: data['senderID'],
+          receiverID: data['receiverID'],
+          createdAt: data['createdAt'],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageList() {
+    return StreamBuilder(
+      stream: chatService.getMessages(trip.driverID),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'No messages available',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Text(
+            'Error: ${snapshot.error}',
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          );
+        } else {
+          final messages = snapshot.data!.docs;
+          return ListView.builder(
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              return _messageBuildItem(messages[index]);
+            },
+          );
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     UserProfile selectedDriver = widget.selectedDriver;
     String? username = selectedDriver.username;
     var sendMessageIconColor = Colors.grey[600];
-    messagesStream = DatabaseService().getMessagesStream(trip.driverID);
+    // messagesStream = DatabaseService().getMessagesStream(trip.driverID);
 
     return Scaffold(
       appBar: AppBar(
@@ -118,41 +174,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           child: Column(
             children: [
               Expanded(
-                child: Container(
-                  color: Colors.black,
-                  padding: const EdgeInsets.all(8),
-                  child: StreamBuilder<List<Message>>(
-                    stream: messagesStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: Color.fromARGB(255, 198, 193, 193),
-                          ),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text(
-                            'Error: ${snapshot.error}',
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 20),
-                          ),
-                        );
-                      } else {
-                        List<Message>? messages = snapshot.data;
-                        _animateToBottom();
-
-                        return ListView.builder(
-                          controller: scrollController,
-                          itemCount: messages?.length ?? 0,
-                          itemBuilder: (context, index) {
-                            return MessageWidget(message: messages![index]);
-                          },
-                        );
-                      }
-                    },
-                  ),
-                ),
+                child: _buildMessageList(),
               ),
               Container(
                 height: 40,
@@ -175,7 +197,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           sendMessage(textController.text);
                           setState(() {
                             sendMessageIconColor =
-                                const Color.fromARGB(255, 210, 210, 210);
+                                const Color.fromARGB(255, 255, 255, 255);
                           });
                         }
                       },

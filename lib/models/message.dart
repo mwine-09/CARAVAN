@@ -2,43 +2,53 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
   Message({
-    required this.id,
-    required this.text,
+    required this.senderID,
+    required this.receiverID,
+    required this.message,
     required this.createdAt,
-    required this.isMe,
   });
 
-  String id;
-  String? text;
+  String senderID;
+  String receiverID;
+
+  String message;
 
   Timestamp createdAt;
-  bool isMe;
+
+  // to map
+  Map<String, dynamic> toMap() {
+    return {
+      'senderID': senderID,
+      'receiverID': receiverID,
+      'message': message,
+      'createdAt': createdAt,
+    };
+  }
 
   Message copyWith({
-    required String id,
-    String? text,
+    required String senderID,
+    required String message,
     required Timestamp createdAt,
-    required bool isMe,
-    required textColor,
+    required messageColor,
   }) =>
       Message(
-        id: id,
-        text: text,
-        isMe: isMe,
+        senderID: senderID,
+        receiverID: receiverID,
+        message: message,
         createdAt: createdAt,
       );
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
-        id: json["id"],
-        text: json["text"],
-        isMe: json["isMe"],
+        senderID: json["senderID"],
+        receiverID: json["receiverID"],
+        message: json["message"],
         createdAt: json["createdAt"],
       );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "text": text,
-        "isMe": isMe,
+        "senderID": senderID,
+        "receiverID": receiverID,
+        "message": message,
         "createdAt": createdAt,
       };
 }
