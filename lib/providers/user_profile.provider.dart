@@ -8,6 +8,7 @@ class UserProfileProvider with ChangeNotifier {
   int? age;
   String? carBrand;
   String? make;
+  String? role;
   String? numberPlate;
   String? phoneNumber;
   List<String>? preferences;
@@ -28,6 +29,7 @@ class UserProfileProvider with ChangeNotifier {
     this.lastName,
     this.age,
     this.carBrand,
+    this.role,
     this.make,
     this.numberPlate,
     this.phoneNumber,
@@ -44,6 +46,7 @@ class UserProfileProvider with ChangeNotifier {
     data['age'] = age;
     data['carBrand'] = carBrand;
     data['make'] = make;
+    data['role'] = role;
     data['numberPlate'] = numberPlate;
     data['phoneNumber'] = phoneNumber;
     data['preferences'] = preferences;
@@ -51,6 +54,12 @@ class UserProfileProvider with ChangeNotifier {
         emergencyContacts?.map((e) => e.toJson()).toList();
 
     return data;
+  }
+
+  // toString
+  @override
+  String toString() {
+    return 'UserProfileProvider{username: $username, firstName: $firstName, lastName: $lastName, age: $age, carBrand: $carBrand, make: $make, role: $role, numberPlate: $numberPlate, phoneNumber: $phoneNumber, preferences: $preferences, emergencyContacts: $emergencyContacts}';
   }
 
   Map<String, dynamic> toMap() {
@@ -61,6 +70,7 @@ class UserProfileProvider with ChangeNotifier {
       'age': age,
       'carBrand': carBrand,
       'make': make,
+      'role': role,
       'numberPlate': numberPlate,
       'phoneNumber': phoneNumber,
       'preferences': preferences,
@@ -80,6 +90,7 @@ class UserProfileProvider with ChangeNotifier {
     this.lastName = lastName;
     this.age = age;
     this.phoneNumber = phoneNumber;
+    role = 'passenger';
 
     notifyListeners();
   }

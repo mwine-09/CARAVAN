@@ -59,27 +59,25 @@ class ChatService extends ChangeNotifier {
         .snapshots();
   }
 
-  Future<List<ChatRoom>> getChatRoomsForUser() async {
-    final userID = _firebaseAuth.currentUser!.uid;
+Stream<List<ChatRoom>> getChatRoomsForUser() {
+  final userID = _firebaseAuth.currentUser!.uid;
 
-    QuerySnapshot chatRoomsSnapshot = await _firebaseFirestore
-        .collection('chats')
-        .where('members', arrayContains: userID)
-        .get();
+  return _firebaseFirestore
+      .collection('chats')
+      .where('members', arrayContains: userID)
+      .snapshots()
+      .map((querySnapshot) => querySnapshot.docs.map((doc) {
+            List<String> members = List<String>.from(doc['members']);
+            members.remove(userID); // Remove current user from the list of members
+            String title =
+                members.join(', '); // Return the remaining member as the title
 
-    List<ChatRoom> chatRooms = chatRoomsSnapshot.docs.map((doc) {
-      List<String> members = List<String>.from(doc['members']);
-      members.remove(userID); // Remove current user from the list of members
-      String title =
-          members.join(', '); // Return the remaining member as the title
+            return ChatRoom(
+              id: doc.id,
+              title: title,
+              lastMessage: doc['lastMessage'] ?? 'No messages',
+            );
+          }).toList());
+}
 
-      return ChatRoom(
-        id: doc.id,
-        title: title,
-        lastMessage: doc['lastMessage'] ?? 'No messages',
-      );
-    }).toList();
-
-    return chatRooms;
-  }
 }

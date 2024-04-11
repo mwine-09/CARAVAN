@@ -157,15 +157,24 @@ class DatabaseService {
     }
   }
 
-  Future<UserProfile> getUserProfile(String userId) async {
-    try {
-      DocumentSnapshot snapshot =
-          await _firestore.collection('users').doc(userId).get();
+  // Future<UserProfile> getUserProfile(String userId) async {
+  //   try {
+  //     DocumentSnapshot snapshot =
+  //         await _firestore.collection('users').doc(userId).get();
+  //     return UserProfile.fromSnapshot(snapshot);
+  //   } catch (e) {
+  //     print('Error getting user profile: $e');
+  //     rethrow;
+  //   }
+  // }
+  Future<UserProfile> getUserProfile(String userId) {
+    return _firestore.collection('users').doc(userId).get().then((snapshot) {
+      print(snapshot.data());
       return UserProfile.fromSnapshot(snapshot);
-    } catch (e) {
+    }).catchError((e) {
       print('Error getting user profile: $e');
-      rethrow;
-    }
+      throw e;
+    });
   }
 
   // Add a new emergency alert to the "emergency_alerts" collection

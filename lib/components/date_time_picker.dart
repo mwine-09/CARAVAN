@@ -12,31 +12,33 @@ class DepartureTimePicker extends StatefulWidget {
 class _DepartureTimePickerState extends State<DepartureTimePicker> {
   DateTime _selectedDate = DateTime.now();
 
-  Future<void> _selectDateTime(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+  void _selectDateTime(BuildContext context) {
+    showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(_selectedDate),
-      );
-      if (pickedTime != null) {
-        setState(() {
-          _selectedDate = DateTime(
-            picked.year,
-            picked.month,
-            picked.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
+    ).then((pickedDate) {
+      if (pickedDate != null) {
+        showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(_selectedDate),
+        ).then((pickedTime) {
+          if (pickedTime != null) {
+            setState(() {
+              _selectedDate = DateTime(
+                pickedDate.year,
+                pickedDate.month,
+                pickedDate.day,
+                pickedTime.hour,
+                pickedTime.minute,
+              );
+            });
+            widget.onChanged?.call(_selectedDate);
+          }
         });
-        widget.onChanged?.call(_selectedDate);
       }
-    }
+    });
   }
 
   @override
@@ -44,9 +46,12 @@ class _DepartureTimePickerState extends State<DepartureTimePicker> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+          Text(
           'Departure Time',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.displayMedium?.copyWith(
+            color: Colors.white,
+            fontSize: 16,
+          )
         ),
         const SizedBox(height: 8),
         Row(
@@ -54,10 +59,17 @@ class _DepartureTimePickerState extends State<DepartureTimePicker> {
             Expanded(
               child: Text(
                 '${_selectedDate.toLocal()}'.split(' ')[0],
-                style: const TextStyle(fontSize: 16),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.white,
+                  fontSize: 16,
+                )
               ),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white,
+              ),
               onPressed: () => _selectDateTime(context),
               child: const Text('Select Time'),
             ),

@@ -15,9 +15,6 @@ class AvailableTrips extends StatelessWidget {
   Widget build(BuildContext context) {
     context.read<TripDetailsProvider>();
 
-    UserProfileProvider userProfileProvider =
-        Provider.of<UserProfileProvider>(context, listen: false);
-
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
@@ -162,21 +159,23 @@ class AvailabeTripCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
               child: ElevatedButton(
-                onPressed: () async {
+                onPressed: () {
                   try {
                     tripProvider.setTripDetails(trip);
                     final driverID = trip.driverID;
-                    print(driverID);
-                    final userProfile =
-                        await DatabaseService().getUserProfile(driverID);
-                    print(userProfile);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            TripDetailsScreen(userProfile: userProfile),
-                      ),
-                    );
+                    print("The driver id is $driverID");
+                    DatabaseService().getUserProfile(driverID).then((value) {
+                      print("The value dasbkjdjkab;e  ;ackdsjbadsis $value");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TripDetailsScreen(userProfile: value),
+                        ),
+                      );
+                    }).catchError((e) {
+                      print('Error fetching user profile: $e');
+                    });
                   } catch (e) {
                     print('Error fetching user profile: $e');
                   }

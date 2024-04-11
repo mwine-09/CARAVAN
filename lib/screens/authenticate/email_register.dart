@@ -35,65 +35,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                    image: DecorationImage(
-                      image: AssetImage('assets/car.png'),
-                      fit: BoxFit.fitWidth,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 150,
+                    height: 150,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      image: DecorationImage(
+                        image: AssetImage('assets/car.png'),
+                        fit: BoxFit.fitWidth,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Text("Get started!",
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontSize: 20,
-                        )),
-                const SizedBox(
-                  height: 30,
-                ),
-                SizedBox(
-                  width: 280,
-                  height: 50,
-                  child: TextField(
+                  const SizedBox(height: 20),
+                  Text("Get started!",
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontSize: 20,
+                          )),
+                  const SizedBox(
+                    height: 25,
+                  ),
+                  TextField(
                       keyboardType: TextInputType.emailAddress,
                       onChanged: (value) {
                         setState(() {
                           email = value;
                         });
                       },
-                      decoration: loginInputDecoration,
+                      decoration: loginInputDecoration.copyWith(
+                          labelText: 'Email Address'),
                       style: myInputTextStyle),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: 280,
-                  height: 50,
-                  child: TextField(
+                  const SizedBox(height: 10),
+                  TextField(
                       obscureText: true,
                       onChanged: (value) {
                         setState(() {
                           password = value;
                         });
                       },
-                      decoration:
-                          loginInputDecoration.copyWith(labelText: 'Password'),
+                      decoration: loginInputDecoration.copyWith(
+                          labelText: 'Password'),
                       style: myInputTextStyle),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: 280,
-                  height: 50,
-                  child: TextField(
+                  const SizedBox(height: 10),
+                  TextField(
                       obscureText: true,
                       onChanged: (value) {
                         setState(() {
@@ -103,66 +94,67 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: loginInputDecoration.copyWith(
                           labelText: 'Confirm Password'),
                       style: myInputTextStyle),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    // Implement your registration logic here
-                    if (password == confirmPassword) {
-                      // Passwords match, proceed with registration
+                  const SizedBox(height: 15),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Implement your registration logic here
+                      if (password == confirmPassword) {
+                        // Passwords match, proceed with registration
 
-                      userProvider.setUserEmail(email);
-                      userProvider.setUserPassword(password);
+                        userProvider.setUserEmail(email);
+                        userProvider.setUserPassword(password);
 
-                      // create user with email and password
-                      // then navigate to complete profile screen
-
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const UsernameScreen()));
-                    } else {
-                      // Passwords don't match, show error message
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(280, 50),
-                    // reduce rounded corners
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                    ),
-                  ).copyWith(
-                    backgroundColor: MaterialStateProperty.all(Colors.white),
-                  ),
-                  child: Text('Register',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Colors.black,
-                            fontSize: 18,
-                          )),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
+                        // create user with email and password
+                        // then navigate to complete profile screen
 
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const MyLogin()));
-                      },
-                      child: Text(
-                        'Already have an account? Login',
+                                builder: (context) => const UsernameScreen()));
+                      } else {
+                        // Passwords don't match, show error message
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(280, 50),
+                      // reduce rounded corners
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                      ),
+                    ).copyWith(
+                      backgroundColor: MaterialStateProperty.all(Colors.white),
+                    ),
+                    child: Text('Register',
                         style:
                             Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                      )),
-                ),
-              ],
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                )),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  SizedBox(
+                    child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MyLogin()));
+                        },
+                        child: Text(
+                          'Already have an account? Login',
+                          style:
+                              Theme.of(context).textTheme.labelMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                        )),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

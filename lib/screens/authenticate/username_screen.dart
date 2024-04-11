@@ -22,21 +22,19 @@ class _UsernameScreenState extends State<UsernameScreen> {
   Widget build(BuildContext context) {
     UserProvider userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Choose Username',
-          style: TextStyle(color: Colors.white),
+        appBar: AppBar(
+          title: const Text(
+            'Choose Username',
+            style: TextStyle(color: Colors.white),
+          ),
+          centerTitle: false,
+          automaticallyImplyLeading: true,
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
-        centerTitle: false,
-        automaticallyImplyLeading: true,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+        body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+                child: Column(children: [
               const Text(
                 'Choose a username',
                 style: TextStyle(fontSize: 18, color: Colors.white),
@@ -54,7 +52,11 @@ class _UsernameScreenState extends State<UsernameScreen> {
               ),
               const SizedBox(height: 16.0),
               ElevatedButton(
-                onPressed: () async {
+                style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.white,
+                    minimumSize: const Size(280, 50)),
+                onPressed: () {
                   String username = _usernameController.text;
                   userProvider.setUsername(username);
 
@@ -63,26 +65,21 @@ class _UsernameScreenState extends State<UsernameScreen> {
                   // create account
                   AuthService()
                       .registerWithEmailAndPassword(email, password, username);
-// log the user in
-                  UserModel userCredential = await AuthService()
-                      .signInWithEmailAndPassword(email, password);
-
-                  userProvider.setUid(userCredential.uid);
-
-                  // Navigate to the home screen
+                  // log the user in
+                  AuthService()
+                      .signInWithEmailAndPassword(email, password)
+                      .then((value) => {userProvider.setUid(value)});
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => const CompleteProfile()));
-
-                  // Do something with the username, like saving it to a database
                 },
-                child: const Text('Save'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+                child: Text('Next',
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium
+                        ?.copyWith(color: Colors.black, fontSize: 18)),
+              )
+            ]))));
   }
 }

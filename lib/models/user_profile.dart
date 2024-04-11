@@ -57,13 +57,13 @@ class UserProfile {
       age: data['age'],
       carBrand: data['carBrand'],
       make: data['make'],
+      role: data['role'],
       numberPlate: data['numberPlate'],
       phoneNumber: data['phoneNumber'],
       preferences: List<String>.from(data['preferences']),
       emergencyContacts: (data['emergencyContacts'] as List<dynamic>?)
           ?.map((e) => EmergencyContact.fromMap(e))
           .toList(),
-      role: data['role'],
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:caravan/models/emergency_contact.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/services/database_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +16,7 @@ class EmergencyContactScreen extends StatefulWidget {
 }
 
 class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   List<EmergencyContact> contacts = [];
   String _dropdownValue = relationships.first;
   static final myTextFieldStyle = InputDecoration(
@@ -26,7 +28,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10.0),
       borderSide: const BorderSide(
-        color: Color.fromARGB(255, 122, 17, 17),
+        color: Color.fromARGB(255, 0, 0, 0),
         width: 2.0,
       ),
     ),
@@ -46,59 +48,75 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: contacts.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  subtitleTextStyle: const TextStyle(fontSize: 14),
-                  title: Text(
-                    contacts[index].name,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  subtitle: Text(
-                    contacts[index].relationship,
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                  trailing: Text(
-                    contacts[index].phoneNumber,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                );
-              },
-            ),
-          ),
-          if (contacts.isNotEmpty)
-            SizedBox(
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  userProfileProvider.setEmergencyContacts(contacts);
-                  // get the data in hte userprofile provider and insert into the database
-                  DatabaseService().createUserProfile(
-                      userProvider.getUid(), userProfileProvider.toMap());
-
-                  Navigator.pushNamed(context, '/home');
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: contacts.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    tileColor: const Color.fromARGB(255, 12, 12, 12),
+                    subtitleTextStyle: const TextStyle(fontSize: 14),
+                    minVerticalPadding: 5,
+                    title: Text(
+                      contacts[index].name,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                    ),
+                    subtitle: Text(contacts[index].relationship,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.white,
+                              fontSize: 14,
+                            )),
+                    trailing: Text(contacts[index].phoneNumber,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.white,
+                              fontSize: 16,
+                            )),
+                  );
                 },
-                child: const SizedBox(
-                  width: 100,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Finish"),
-                      Icon(Icons.arrow_forward),
-                    ],
-                  ),
-                ),
               ),
             ),
-          const Spacer()
-        ],
+            if (contacts.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      backgroundColor: Colors.white,
+                      minimumSize: const Size(200, 50)),
+                  onPressed: () {
+                    userProfileProvider.setEmergencyContacts(contacts);
+
+                    print(userProfileProvider.toString());
+                    // get the data in hte userprofile provider and insert into the database
+                    DatabaseService().createUserProfile(
+                        _firebaseAuth.currentUser!.uid,
+                        userProfileProvider.toMap());
+
+                    Navigator.pushNamed(context, '/home');
+                  },
+                  child: Text('Done',
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.copyWith(color: Colors.black, fontSize: 18)),
+                ),
+              ),
+            const Spacer(),
+            const Spacer(),
+            const Spacer()
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
         onPressed: () {
           if (contacts.length < 3) {
             _showAddContactDialog();
@@ -115,7 +133,14 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: const Text('OK'),
+                      child: Text(
+                        'OK',
+                        style:
+                            Theme.of(context).textTheme.displayLarge?.copyWith(
+                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                  fontSize: 16,
+                                ),
+                      ),
                     ),
                   ],
                 );
@@ -137,6 +162,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
         String phoneNumber = '';
 
         return AlertDialog(
+          backgroundColor: const Color.fromARGB(255, 238, 238, 238),
           title: const Text('Add Emergency Contact'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -163,7 +189,13 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                     relationships.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(
+                      value,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall!
+                          .copyWith(color: Colors.black, fontSize: 16),
+                    ),
                   );
                 }).toList(),
               ),
@@ -171,6 +203,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 height: 16,
               ),
               TextField(
+                keyboardType: TextInputType.phone,
                 decoration:
                     myTextFieldStyle.copyWith(labelText: "Phone Number"),
                 onChanged: (value) {
@@ -191,14 +224,25 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 });
                 Navigator.of(context).pop();
               },
-              child: const Text('Add'),
+              child: Text(
+                'Add',
+                style: Theme.of(context)
+                    .textTheme
+                    .displayLarge
+                    ?.copyWith(color: Colors.black, fontSize: 16),
+              ),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  'Cancel',
+                  style: Theme.of(context)
+                      .textTheme
+                      .displayLarge
+                      ?.copyWith(color: Colors.black, fontSize: 16),
+                )),
           ],
         );
       },

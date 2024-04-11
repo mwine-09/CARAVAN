@@ -57,87 +57,109 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Select your preferences',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            // mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                  textAlign: TextAlign.center,
+                  'Select your preferences',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      )
+                  // textAlign: TextAlign.start,
+                  ),
+              const SizedBox(
+                height: 10,
               ),
-              // textAlign: TextAlign.start,
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            const Text(
-              'Select as many as you can to improve your experience',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-                color: Color.fromARGB(255, 214, 214, 214),
+              Text('Choose as many to improve your experience!',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: const Color.fromARGB(171, 255, 255, 255),
+                        fontSize: 16,
+                      )
+                  // textAlign: TextAlign.start,
+                  ),
+              const SizedBox(
+                height: 16,
               ),
-              // textAlign: TextAlign.start,
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            Wrap(
-              spacing: 10,
-              runSpacing: 25,
-              children: preferences
-                  .map(
-                    (preference) => GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          if (selectedPreferences.contains(preference)) {
-                            selectedPreferences.remove(preference);
-                          } else {
-                            selectedPreferences.add(preference);
-                          }
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 6.0),
-                        decoration: BoxDecoration(
-                          color: selectedPreferences.contains(preference)
-                              ? Colors.blue
-                              : Colors.grey[300],
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        child: Text(
-                          preference,
-                          style: TextStyle(
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: preferences
+                    .map(
+                      (preference) => GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (selectedPreferences.contains(preference)) {
+                              selectedPreferences.remove(preference);
+                            } else {
+                              selectedPreferences.add(preference);
+                            }
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12.0, vertical: 12),
+                          decoration: BoxDecoration(
                             color: selectedPreferences.contains(preference)
-                                ? Colors.white
-                                : Colors.black,
+                                ? Colors.blue
+                                : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          child: Text(
+                            preference,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
+                                    color:
+                                        selectedPreferences.contains(preference)
+                                            ? Colors.white
+                                            : Colors.black,
+                                    fontSize: 14),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ],
+                    )
+                    .toList(),
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        shape: ShapeBorder.lerp(
+            RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+                side: const BorderSide(color: Colors.white)),
+            RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+                side: const BorderSide(color: Colors.white)),
+            0.5),
         onPressed: () {
           // Save selected preferences
           userProfileProvider.preferences = selectedPreferences;
 
-          print(selectedPreferences);
+          print(userProfileProvider.toString());
           Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => const EmergencyContactScreen()));
         },
-        child: const Icon(Icons.check),
+        child: Text(
+          "Next",
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Colors.black,
+                fontSize: 18,
+              ),
+        ),
       ),
     );
   }

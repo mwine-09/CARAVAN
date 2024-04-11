@@ -13,7 +13,13 @@ class CreateTripScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: const Text('Add Trip'),
+    title: Text('Add Trip',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                )),
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
@@ -44,12 +50,11 @@ class _AddTripFormState extends State<AddTripForm> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       child: Form(
         key: _formKey,
         child: ListView(
           children: [
-            Text(user?.username ?? 'No username'),
             TextFormField(
               style: myInputTextStyle,
               decoration:
@@ -74,6 +79,7 @@ class _AddTripFormState extends State<AddTripForm> {
             const DepartureTimePicker(),
             const SizedBox(height: 16),
             TextFormField(
+              keyboardType: TextInputType.number,
               style: myInputTextStyle,
               decoration:
                   myTextFieldStyle.copyWith(labelText: 'Available Seats'),
@@ -94,6 +100,11 @@ class _AddTripFormState extends State<AddTripForm> {
             const SizedBox(height: 16),
             Text(_feedback, style: TextStyle(color: Colors.green)),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white,
+                minimumSize: const Size(280, 50)
+              ),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   _driverId = user!.uid;
@@ -111,7 +122,11 @@ class _AddTripFormState extends State<AddTripForm> {
                   Navigator.pop(context);
                 }
               },
-              child: const Text('Save Trip'),
+ child: Text('Post Trip',
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium
+                        ?.copyWith(color: Colors.black, fontSize: 18)),
             ),
           ],
         ),

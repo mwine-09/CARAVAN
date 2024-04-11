@@ -86,74 +86,95 @@ class _CompleteProfileState extends State<CompleteProfile> {
           padding: const EdgeInsets.all(16.0),
           child: SizedBox(
             height: MediaQuery.of(context).size.height - 320,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // TextFormField(
-                //   style: myInputTextStyle,
-                //   controller: _usernameController,
-                //   decoration: myFormtextFieldStyle.copyWith(
-                //     labelText: 'Username',
-                //   ),
-                // ),
-                Text(
-                  "Hello $username",
-                  style: const TextStyle(color: Colors.white),
-                ),
-                TextFormField(
-                  style: myInputTextStyle,
-                  controller: _firstNameController,
-                  decoration: myFormtextFieldStyle.copyWith(
-                    labelText: 'First Name',
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Hello $username!",
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                        ),
                   ),
-                ),
-                TextFormField(
-                  style: myInputTextStyle,
-                  controller: _lastNameController,
-                  decoration: myFormtextFieldStyle.copyWith(
-                    labelText: 'Last Name',
+                  const SizedBox(height: 40),
+                  TextFormField(
+                    style: myInputTextStyle,
+                    cursorColor: Colors.white,
+                    controller: _firstNameController,
+                    decoration: myFormtextFieldStyle.copyWith(
+                      labelText: 'First Name',
+                    ),
                   ),
-                ),
-                // age field for numbers
+                  const SizedBox(height: 20),
 
-                TextFormField(
-                  style: myInputTextStyle,
-                  controller: _ageController,
-                  decoration: myFormtextFieldStyle.copyWith(
-                    labelText: 'Age',
+                  TextFormField(
+                    style: myInputTextStyle,
+                    cursorColor: Colors.white,
+                    controller: _lastNameController,
+                    decoration: myFormtextFieldStyle.copyWith(
+                      labelText: 'Last Name',
+                    ),
                   ),
-                  keyboardType: TextInputType.number,
-                ),
-                TextFormField(
-                  style: myInputTextStyle,
-                  controller: _phoneNumberController,
-                  decoration: myFormtextFieldStyle.copyWith(
-                    labelText: 'Phone Number',
+                  // age field for numbers
+                  const SizedBox(height: 20),
+
+                  TextFormField(
+                    style: myInputTextStyle,
+                    cursorColor: Colors.white,
+                    controller: _ageController,
+                    decoration: myFormtextFieldStyle.copyWith(
+                      labelText: 'Age',
+                    ),
+                    keyboardType: TextInputType.number,
                   ),
-                  keyboardType: TextInputType.phone,
-                ),
+                  const SizedBox(height: 20),
 
-                const SizedBox(
-                  height: 16,
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    userProfileProvider.completeProfile(
-                      username: username,
-                      firstName: _firstNameController.text,
-                      lastName: _lastNameController.text,
-                      age: int.parse(_ageController.text),
-                      phoneNumber: _phoneNumberController.text,
-                    );
+                  TextFormField(
+                    style: myInputTextStyle,
+                    cursorColor: Colors.white,
+                    controller: _phoneNumberController,
+                    decoration: myFormtextFieldStyle.copyWith(
+                      labelText: 'Phone Number',
+                    ),
+                    keyboardType: TextInputType.phone,
+                  ),
 
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const PreferencesScreen()));
-                  },
-                  child: const Text('Next'),
-                ),
-              ],
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: Colors.white,
+                        minimumSize: const Size(280, 50)),
+                    onPressed: () {
+                      userProfileProvider.completeProfile(
+                        username: username,
+                        firstName: _firstNameController.text,
+                        lastName: _lastNameController.text,
+                        age: int.parse(_ageController.text),
+                        phoneNumber: _phoneNumberController.text,
+                      );
+
+                      print(userProfileProvider.toString());
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PreferencesScreen()));
+                    },
+                    child: Text('Next',
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(color: Colors.black, fontSize: 18)),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -1,10 +1,9 @@
 import 'package:caravan/models/chat_room.dart';
+import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/services/database_service.dart';
-// import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:caravan/services/chat_service.dart';
-// import 'package:caravan/models/chat_room.dart';
 
 class ChatListScreen extends StatelessWidget {
   final ChatService _chatService = ChatService();
@@ -16,17 +15,19 @@ class ChatListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: Text('Chats',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
-                )),
+        title: Text(
+          'Chats',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
+        ),
       ),
-      body: FutureBuilder(
-        future: _chatService.getChatRoomsForUser(),
-        builder: (context, AsyncSnapshot<List<ChatRoom>> snapshot) {
+      body: StreamBuilder<List<ChatRoom>>(
+        stream: _chatService.getChatRoomsForUser(),
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(
@@ -35,10 +36,22 @@ class ChatListScreen extends StatelessWidget {
             );
           } else if (snapshot.hasError) {
             return Center(
-              child: Text('Error: ${snapshot.error}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white,
-                      )),
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
+            );
+          } else if (snapshot.data!.isEmpty) {
+            return Center(
+              child: Text(
+                'No chat rooms available',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Colors.white, fontSize: 18),
+              ),
             );
           } else {
             List<ChatRoom> chatRooms = snapshot.data!;
@@ -64,17 +77,23 @@ class ChatListScreen extends StatelessWidget {
                       const Icon(Icons.arrow_forward_ios, color: Colors.white),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  onTap: () async {
-                    final userProfile = await DatabaseService()
-                        .getUserProfile(chatRooms[index].title);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatScreen(
-                          selectedDriver: userProfile,
-                        ),
-                      ),
-                    );
+                  onTap: () {
+                    UserProfile userProfile;
+                    DatabaseService()
+                        .getUserProfile(chatRooms[index].title)
+                        .then(
+                          (value) => {
+                            userProfile = value,
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChatScreen(
+                                  selectedDriver: userProfile,
+                                ),
+                              ),
+                            )
+                          },
+                        );
                   },
                 );
               },

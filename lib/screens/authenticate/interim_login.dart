@@ -1,3 +1,4 @@
+import 'package:caravan/components/loading_screen.dart';
 import 'package:caravan/models/user.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
@@ -35,54 +36,61 @@ class _MyLoginState extends State<MyLogin> {
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              children: [
-                const Spacer(),
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                    image: DecorationImage(
-                      image: AssetImage('assets/car.png'),
-                      fit: BoxFit.fitWidth,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Caravan",
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          color: Colors.white,
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0)),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Container(
+                    width: 150,
+                    height: 150,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      image: DecorationImage(
+                        image: AssetImage('assets/car.png'),
+                        fit: BoxFit.fitWidth,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  "Get started!",
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
-                ),
-                const SizedBox(height: 15),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Enter your email and password",
-                        style:
-                            Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                      ),
-                    ],
+                  const SizedBox(height: 20),
+                  Text(
+                    "Get started!",
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
+                        ),
                   ),
-                ),
-                const SizedBox(height: 15),
-                SizedBox(
-                  width: 280,
-                  height: 50,
-                  child: TextField(
+                  const SizedBox(height: 15),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Enter your email and password",
+                          style:
+                              Theme.of(context).textTheme.labelMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
                     keyboardType: TextInputType.emailAddress,
                     onChanged: (value) {
                       setState(() {
@@ -94,12 +102,8 @@ class _MyLoginState extends State<MyLogin> {
                     style: const TextStyle(
                         color: Colors.white, overflow: TextOverflow.ellipsis),
                   ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: 280,
-                  height: 50,
-                  child: TextField(
+                  const SizedBox(height: 20),
+                  TextField(
                     obscureText: true,
                     onChanged: (value) {
                       setState(() {
@@ -110,29 +114,37 @@ class _MyLoginState extends State<MyLogin> {
                         loginInputDecoration.copyWith(labelText: 'Password'),
                     style: myInputTextStyle,
                   ),
-                ),
-                const SizedBox(height: 15),
-                SizedBox(
-                  width: 280,
-                  child: ElevatedButton(
-                    onPressed: () async {
+                  const SizedBox(height: 15),
+                  ElevatedButton(
+                    onPressed: () {
                       try {
-                        UserModel userCredential = await AuthService()
-                            .signInWithEmailAndPassword(email, password);
-
-                        userProvider.setUsername(userCredential.username);
-                        userProvider.setUid(userCredential.uid);
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/home');
-                        print('Signed in: ${userCredential.username}');
+                        AuthService()
+                            .signInWithEmailAndPassword(email, password)
+                            .then((value) {
+                          userProvider.setUsername(value.username);
+                          userProvider.setUid(value.uid);
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/home');
+                          print('Signed in: ${value.username}');
+                        }).onError((error, stackTrace) {
+                          // tell the user that the email or password is incorrect on the screen
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LoadingScreen(durationtime: 20,)));
+                        });
                       } catch (e) {
                         // tell the user that the email or password is incorrect
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LoadingScreen(durationtime: 10000,)));
 
                         print('Error signing in: $e');
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(280, 50),
+                      minimumSize: const Size(300, 50),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
@@ -148,12 +160,10 @@ class _MyLoginState extends State<MyLogin> {
                           fontSize: 20),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                SizedBox(
-                  child: GestureDetector(
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
 
@@ -170,9 +180,8 @@ class _MyLoginState extends State<MyLogin> {
                           ),
                     ),
                   ),
-                ),
-                const Spacer(),
-              ],
+                ],
+              ),
             ),
           ),
         ),
