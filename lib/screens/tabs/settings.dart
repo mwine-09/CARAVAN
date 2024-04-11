@@ -17,7 +17,7 @@ class SettingsScreen extends StatelessWidget {
                 letterSpacing: 1.5,
               ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        // iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView(
         children: [

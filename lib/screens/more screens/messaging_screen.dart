@@ -161,15 +161,21 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: _buildMessageList(),
               ),
               Container(
-                height: 40,
+                // height: 50,
                 margin: const EdgeInsets.all(8),
                 child: TextField(
-                  textAlignVertical: TextAlignVertical.center,
-                  style: const TextStyle(color: Colors.white),
+                  cursorColor: Colors.black,
+                  // cursorHeight: 10,
+                  maxLines: 4,
+                  minLines: 1,
+                  // textAlignVertical: TextAlignVertical.center,
+                  style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                   controller: textController,
                   decoration: InputDecoration(
-                    hintStyle: const TextStyle(
-                        color: Color.fromARGB(179, 139, 139, 139)),
+                    filled: true,
+                    fillColor: const Color.fromARGB(255, 226, 226, 226),
+                    hintStyle:
+                        const TextStyle(color: Color.fromARGB(179, 0, 0, 0)),
                     hintText: 'Type a message...',
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(40)),

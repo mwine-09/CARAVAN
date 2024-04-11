@@ -51,7 +51,7 @@ class _HomeState extends State<Home> {
     UserProvider userProvider = Provider.of(context, listen: true);
     String username = userProvider.getUsername();
     return Scaffold(
-      backgroundColor: Colors.black,
+      // backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
         centerTitle: false,
         automaticallyImplyLeading: false,
@@ -66,7 +66,7 @@ class _HomeState extends State<Home> {
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
-        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+        // backgroundColor: const Color.fromARGB(255, 20, 20, 20),
         actions: [
           IconButton(
             icon: const Icon(

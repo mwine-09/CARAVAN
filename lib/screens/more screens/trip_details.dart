@@ -48,146 +48,151 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
         ),
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Driver details",
-              style: TextStyle(
-                color: Color.fromARGB(255, 255, 255, 255),
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TripDriverCard(
-                trip: trip,
-                selectedDriverName: selectedDriverName,
-                userProfile: widget.userProfile),
-            const SizedBox(height: 5),
-            const Text(
-              "Trip Details",
-              style: TextStyle(
-                  color: Color.fromARGB(255, 249, 249, 249),
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 22, 22, 22),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Driver details",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TripDriverCard(
+                    trip: trip,
+                    selectedDriverName: selectedDriverName,
+                    userProfile: widget.userProfile),
+                const SizedBox(height: 5),
+                const Text(
+                  "Trip Details",
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 249, 249, 249),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 22, 22, 22),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Column(
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Text(
-                            "From: ${trip.location}",
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 14),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "From: ${trip.location}",
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                              ),
+                              Text(
+                                "To: ${trip.destination}",
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                              ),
+                              Text(
+                                "Number of stops: ${trip.availableSeats}",
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                              ),
+                            ],
                           ),
-                          Text(
-                            "To: ${trip.destination}",
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 14),
-                          ),
-                          Text(
-                            "Number of stops: ${trip.availableSeats}",
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 14),
+                          // message button
+                          ElevatedButton(
+                            onPressed: () {
+                              // Add navigation logic here
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                            selectedDriver: selectedDriver,
+                                            receiverID: trip.driverID,
+                                          )));
+                            },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(100, 50),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 255, 255, 255),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(5)),
+                              ),
+                            ),
+                            child: const Text(
+                              'Message',
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 0, 0, 0),
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      // message button
+                      const SizedBox(height: 10),
                       ElevatedButton(
-                        onPressed: () {
-                          // Add navigation logic here
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ChatScreen(
-                                        selectedDriver: selectedDriver,
-                                        receiverID: trip.driverID,
-                                      )));
-                        },
+                        onPressed: () {},
                         style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(100, 50),
-                          backgroundColor:
-                              const Color.fromARGB(255, 255, 255, 255),
+                          minimumSize: const Size(320, 50),
+                          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(5)),
                           ),
                         ),
                         child: const Text(
-                          'Message',
+                          'Send request',
                           style: TextStyle(
                             color: Color.fromARGB(255, 0, 0, 0),
                             fontSize: 16,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(320, 50),
-                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                      const SizedBox(height: 10),
+                      const Row(
+                        children: [
+                          Text(
+                            "Route Map",
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    child: const Text(
-                      'Send request',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 0, 0, 0),
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Row(
-                    children: [
-                      Text(
-                        "Route Map",
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(5),
+                        child: SizedBox(
+                          width: 380,
+                          height: 220,
+                          child: GoogleMap(
+                            onMapCreated: (controller) {
+                              mapController = controller;
+                              initializeMap(trip);
+                            },
+                            initialCameraPosition: CameraPosition(
+                              target: _center,
+                              zoom: 20,
+                            ),
+                            markers: markers.values.toSet(),
+                            polylines: polylines.values.toSet(),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: SizedBox(
-                      width: 380,
-                      height: 220,
-                      child: GoogleMap(
-                        onMapCreated: (controller) {
-                          mapController = controller;
-                          initializeMap(trip);
-                        },
-                        initialCameraPosition: CameraPosition(
-                          target: _center,
-                          zoom: 20,
-                        ),
-                        markers: markers.values.toSet(),
-                        polylines: polylines.values.toSet(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );

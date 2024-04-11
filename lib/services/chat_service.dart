@@ -89,4 +89,21 @@ class ChatService extends ChangeNotifier {
               );
             }).toList());
   }
+
+  Future getUsername(String userId) {
+    return _firebaseFirestore
+        .collection('users')
+        .doc(userId)
+        .get()
+        .then((snapshot) {
+      if (snapshot.exists) {
+        return snapshot.data()!['username'];
+      } else {
+        return 'Unknown User';
+      }
+    }).catchError((e) {
+      print('Error getting username: $e');
+      throw e;
+    });
+  }
 }

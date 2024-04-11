@@ -19,7 +19,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   )),
-          backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+          // backgroundColor: const Color.fromARGB(255, 20, 20, 20),
         ),
         body: Center(
             child: Text("No records found",

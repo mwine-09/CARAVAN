@@ -98,7 +98,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                     DatabaseService().createUserProfile(
                         _firebaseAuth.currentUser!.uid,
                         userProfileProvider.toMap());
-
+                    Navigator.pop(context);
                     Navigator.pushNamed(context, '/home');
                   },
                   child: Text('Done',
