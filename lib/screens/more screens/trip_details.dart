@@ -111,7 +111,9 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => ChatScreen(
-                                      selectedDriver: selectedDriver,)));
+                                        selectedDriver: selectedDriver,
+                                        receiverID: trip.driverID,
+                                      )));
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(100, 50),

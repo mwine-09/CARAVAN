@@ -128,17 +128,10 @@ class _MyLoginState extends State<MyLogin> {
                           print('Signed in: ${value.username}');
                         }).onError((error, stackTrace) {
                           // tell the user that the email or password is incorrect on the screen
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LoadingScreen(durationtime: 20,)));
+                        
                         });
                       } catch (e) {
                         // tell the user that the email or password is incorrect
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const LoadingScreen(durationtime: 10000,)));
 
                         print('Error signing in: $e');
                       }

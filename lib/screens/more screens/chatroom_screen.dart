@@ -55,17 +55,14 @@ class ChatListScreen extends StatelessWidget {
             );
           } else {
             List<ChatRoom> chatRooms = snapshot.data!;
-            print(chatRooms.length);
             return ListView.builder(
               itemCount: chatRooms.length,
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(
                     chatRooms[index].title,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: Colors.white),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: const Color.fromARGB(255, 171, 39, 39)),
                   ),
                   subtitle: Text(chatRooms[index].lastMessage,
                       style: Theme.of(context)
@@ -78,22 +75,30 @@ class ChatListScreen extends StatelessWidget {
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   onTap: () {
+                    // print(
+                    // "We are now at index $index and we are passing user id ${chatRooms[index].title}");
                     UserProfile userProfile;
                     DatabaseService()
                         .getUserProfile(chatRooms[index].title)
                         .then(
-                          (value) => {
-                            userProfile = value,
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ChatScreen(
-                                  selectedDriver: userProfile,
-                                ),
-                              ),
-                            )
-                          },
+                      (value) {
+                        userProfile = value;
+
+                        print(
+                            "We are getting a userprofile for id ${chatRooms[index].title}");
+                        print(
+                            "We are passing the userprofile ${chatRooms[index].title} to the chat screen");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatScreen(
+                              selectedDriver: userProfile,
+                              receiverID: chatRooms[index].title,
+                            ),
+                          ),
                         );
+                      },
+                    );
                   },
                 );
               },

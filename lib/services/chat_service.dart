@@ -22,6 +22,9 @@ class ChatService extends ChangeNotifier {
     List<String> ids = [senderID, receiverID];
     ids.sort();
     String chatID = ids.join('_');
+    print("$senderID is sending a message to $receiverID");
+
+    print("We are adding a message to $chatID");
 
     try {
       // Add the message to the chat
@@ -47,9 +50,14 @@ class ChatService extends ChangeNotifier {
   Stream<QuerySnapshot> getMessages(String receiverID) {
     final senderID = _firebaseAuth.currentUser!.uid;
 
+    print("The receiver id is $receiverID");
+    print("The sender id is $senderID");
+
     List<String> ids = [senderID, receiverID];
     ids.sort();
+    print("This the list of the $ids"); // Debugging (Optional
     String chatID = ids.join('_');
+    print("Getting messages for chatroom $chatID");
 
     return _firebaseFirestore
         .collection('chats')
@@ -59,25 +67,26 @@ class ChatService extends ChangeNotifier {
         .snapshots();
   }
 
-Stream<List<ChatRoom>> getChatRoomsForUser() {
-  final userID = _firebaseAuth.currentUser!.uid;
+  Stream<List<ChatRoom>> getChatRoomsForUser() {
+    final userID = _firebaseAuth.currentUser!.uid;
+    print("getting chat rooms for user id $userID");
 
-  return _firebaseFirestore
-      .collection('chats')
-      .where('members', arrayContains: userID)
-      .snapshots()
-      .map((querySnapshot) => querySnapshot.docs.map((doc) {
-            List<String> members = List<String>.from(doc['members']);
-            members.remove(userID); // Remove current user from the list of members
-            String title =
-                members.join(', '); // Return the remaining member as the title
+    return _firebaseFirestore
+        .collection('chats')
+        .where('members', arrayContains: userID)
+        .snapshots()
+        .map((querySnapshot) => querySnapshot.docs.map((doc) {
+              List<String> members = List<String>.from(doc['members']);
+              members.remove(
+                  userID); // Remove current user from the list of members
+              String title = members
+                  .join(', '); // Return the remaining member as the title
 
-            return ChatRoom(
-              id: doc.id,
-              title: title,
-              lastMessage: doc['lastMessage'] ?? 'No messages',
-            );
-          }).toList());
-}
-
+              return ChatRoom(
+                id: doc.id,
+                title: title,
+                lastMessage: doc['lastMessage'] ?? 'No messages',
+              );
+            }).toList());
+  }
 }

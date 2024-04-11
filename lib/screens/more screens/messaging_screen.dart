@@ -11,8 +11,10 @@ import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
   final UserProfile selectedDriver;
+  final String receiverID;
 
-  const ChatScreen({super.key, required this.selectedDriver});
+  const ChatScreen(
+      {super.key, required this.selectedDriver, required this.receiverID});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -44,7 +46,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void sendMessage(String message) {
-    ChatService().sendMessage(trip.driverID, message);
+    ChatService().sendMessage(widget.receiverID, message);
     textController.clear();
   }
 
@@ -73,7 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMessageList() {
     return StreamBuilder(
-      stream: ChatService().getMessages(trip.driverID),
+      stream: ChatService().getMessages(widget.receiverID),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return Padding(
