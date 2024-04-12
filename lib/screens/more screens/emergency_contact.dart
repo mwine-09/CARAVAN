@@ -1,6 +1,7 @@
 import 'package:caravan/models/emergency_contact.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/providers/user_provider.dart';
+import 'package:caravan/screens/tabs/home.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -99,7 +100,8 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                         _firebaseAuth.currentUser!.uid,
                         userProfileProvider.toMap());
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, '/home');
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => const Home()));
                   },
                   child: Text('Done',
                       style: Theme.of(context)
