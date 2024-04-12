@@ -111,7 +111,6 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 ),
               ),
             const Spacer(),
-            const Spacer(),
             const Spacer()
           ],
         ),
