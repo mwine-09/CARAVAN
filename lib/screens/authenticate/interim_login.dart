@@ -1,5 +1,3 @@
-import 'package:caravan/components/loading_screen.dart';
-import 'package:caravan/models/user.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
 import 'package:caravan/services/auth.dart';
@@ -11,6 +9,7 @@ class MyLogin extends StatefulWidget {
   const MyLogin({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MyLoginState createState() => _MyLoginState();
 }
 
@@ -128,7 +127,6 @@ class _MyLoginState extends State<MyLogin> {
                           print('Signed in: ${value.username}');
                         }).onError((error, stackTrace) {
                           // tell the user that the email or password is incorrect on the screen
-                        
                         });
                       } catch (e) {
                         // tell the user that the email or password is incorrect
