@@ -60,7 +60,20 @@ dependencies:
   http: ^0.13.6
   rxdart: ^0.27.7
   google_fonts: ^4.0.4
+  flutter_launcher_icons: ^0.13.1
   # google_sign_in: ^6.2.1
+
+
+flutter_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/car.png"
+  adaptive_icon_background: "assets/car.png"
+  adaptive_icon_foreground: "assets/car.png"
+
+ 
+
 
 dev_dependencies:
   flutter_test:
