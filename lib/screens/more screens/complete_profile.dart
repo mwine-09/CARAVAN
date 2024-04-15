@@ -1,3 +1,4 @@
+import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/more%20screens/set_preferences.dart';
@@ -5,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CompleteProfile extends StatefulWidget {
-  const CompleteProfile({super.key});
+  final UserProfile userProfile;
+  const CompleteProfile({super.key, required this.userProfile});
 
   @override
   _CompleteProfileState createState() => _CompleteProfileState();
@@ -63,8 +65,6 @@ class _CompleteProfileState extends State<CompleteProfile> {
 
   @override
   Widget build(BuildContext context) {
-    UserProfileProvider userProfileProvider =
-        Provider.of<UserProfileProvider>(context, listen: true);
     UserProvider userProvider = Provider.of(context, listen: true);
     String username = userProvider.getUsername();
     return Scaffold(
@@ -92,7 +92,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Hello $username!",
+                    "Hello ${widget.userProfile.username}",
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                           fontSize: 20,
@@ -152,20 +152,30 @@ class _CompleteProfileState extends State<CompleteProfile> {
                         backgroundColor: Colors.white,
                         minimumSize: const Size(280, 50)),
                     onPressed: () {
-                      userProfileProvider.completeProfile(
-                        username: username,
+                      // widget.userProfile.firstName = _firstNameController.text;
+                      // widget.userProfile.lastName = _lastNameController.text;
+                      // widget.userProfile.age = int.parse(_ageController.text);
+                      // widget.userProfile.phoneNumber =
+                      //     _phoneNumberController.text;
+                      widget.userProfile.completeProfile(
                         firstName: _firstNameController.text,
                         lastName: _lastNameController.text,
                         age: int.parse(_ageController.text),
                         phoneNumber: _phoneNumberController.text,
+                        // carBrand: _carBrandController.text,
+                        // make: _makeController.text,
+                        // numberPlate: _numberPlateController.text,
+                        // preferences: _preferencesController.text,
+                        // emergencyContacts: _emergencyContactsController.text,
                       );
 
-                      print(userProfileProvider.toString());
+                      print(widget.userProfile.toJson());
 
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const PreferencesScreen()));
+                              builder: (context) => PreferencesScreen(
+                                  userProfile: widget.userProfile)));
                     },
                     child: Text('Next',
                         style: Theme.of(context)

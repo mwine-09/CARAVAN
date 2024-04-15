@@ -1,26 +1,22 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:caravan/models/user.dart';
-import 'package:caravan/providers/user_provider.dart';
+import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/screens/more%20screens/complete_profile.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/shared/constants/text_field.dart';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-class UsernameScreen extends StatefulWidget {
-  const UsernameScreen({super.key});
+class UsernameScreen extends StatelessWidget {
+  final UserProfile userProfile;
+  final String password;
+  UsernameScreen(
+      {super.key, required this.userProfile, required this.password});
 
-  @override
-  _UsernameScreenState createState() => _UsernameScreenState();
-}
-
-class _UsernameScreenState extends State<UsernameScreen> {
   final TextEditingController _usernameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    UserProvider userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -56,23 +52,58 @@ class _UsernameScreenState extends State<UsernameScreen> {
                     foregroundColor: Colors.black,
                     backgroundColor: Colors.white,
                     minimumSize: const Size(280, 50)),
-                onPressed: () {
+                onPressed: () async {
                   String username = _usernameController.text;
-                  userProvider.setUsername(username);
 
-                  String email = userProvider.getEmail();
-                  String password = userProvider.getPassword();
-                  // create account
-                  AuthService()
-                      .registerWithEmailAndPassword(email, password, username);
-                  // log the user in
-                  AuthService()
-                      .signInWithEmailAndPassword(email, password)
-                      .then((value) => {userProvider.setUid(value)});
-                  Navigator.push(
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    },
+                  );
+
+                  print(userProfile.username);
+
+                  try {
+                    // Register the user
+                    await AuthService().registerWithEmailAndPassword(
+                      userProfile.email!,
+                      password,
+                      username,
+                    );
+
+                    // Log the user in
+                    var user = await AuthService().signInWithEmailAndPassword(
+                      userProfile.email!,
+                      password,
+                    );
+
+                    // Complete the user profile
+                    userProfile.completeProfile(
+                      userID: user.uid,
+                      username: username,
+                      email: userProfile.email,
+                    );
+
+                    print(
+                        "${userProfile.username} ${userProfile.email} ${userProfile.userID}");
+                    print("User logged in successfully");
+
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const CompleteProfile()));
+                        builder: (context) => CompleteProfile(
+                          userProfile: userProfile,
+                        ),
+                      ),
+                    );
+                  } catch (e) {
+                    // Handle any errors that occur during registration or login
+                    print("Error: $e");
+                  }
                 },
                 child: Text('Next',
                     style: Theme.of(context)

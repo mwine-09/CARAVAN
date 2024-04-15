@@ -1,6 +1,6 @@
 import 'package:caravan/models/emergency_contact.dart';
+import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
-import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/tabs/home.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,7 +10,8 @@ import 'package:provider/provider.dart';
 List<String> relationships = <String>['Father', 'Mother', 'Sister', 'Brother'];
 
 class EmergencyContactScreen extends StatefulWidget {
-  const EmergencyContactScreen({super.key});
+  final UserProfile userProfile;
+  const EmergencyContactScreen({super.key, required this.userProfile});
 
   @override
   _EmergencyContactScreenState createState() => _EmergencyContactScreenState();
@@ -40,7 +41,6 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
     UserProfileProvider userProfileProvider =
         Provider.of(context, listen: true);
 
-    UserProvider userProvider = Provider.of(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
@@ -92,13 +92,17 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                       backgroundColor: Colors.white,
                       minimumSize: const Size(200, 50)),
                   onPressed: () {
-                    userProfileProvider.setEmergencyContacts(contacts);
+                    print(
+                        "This is the length of the contacts: ${contacts.length}");
+                    widget.userProfile
+                        .completeProfile(emergencyContacts: contacts);
+                    userProfileProvider.setUserProfile(widget.userProfile);
 
                     print(userProfileProvider.toString());
                     // get the data in hte userprofile provider and insert into the database
                     DatabaseService().createUserProfile(
                         _firebaseAuth.currentUser!.uid,
-                        userProfileProvider.toMap());
+                        widget.userProfile.toMap());
                     Navigator.pop(context);
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (context) => const Home()));

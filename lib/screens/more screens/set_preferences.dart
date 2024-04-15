@@ -1,11 +1,11 @@
-import 'package:caravan/providers/user_profile.provider.dart';
+import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/screens/more%20screens/emergency_contact.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 @override
 class PreferencesScreen extends StatefulWidget {
-  const PreferencesScreen({super.key});
+  final UserProfile userProfile;
+  const PreferencesScreen({super.key, required this.userProfile});
 
   @override
   _PreferencesScreenState createState() => _PreferencesScreenState();
@@ -46,8 +46,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    UserProfileProvider userProfileProvider =
-        Provider.of(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -145,13 +143,14 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
             0.5),
         onPressed: () {
           // Save selected preferences
-          userProfileProvider.preferences = selectedPreferences;
+          widget.userProfile.preferences = selectedPreferences;
 
-          print(userProfileProvider.toString());
+          print(widget.userProfile.toString());
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const EmergencyContactScreen()));
+                  builder: (context) =>
+                      EmergencyContactScreen(userProfile: widget.userProfile)));
         },
         child: Text(
           "Next",
@@ -163,10 +162,4 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(const MaterialApp(
-    home: PreferencesScreen(),
-  ));
 }

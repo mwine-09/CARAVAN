@@ -2,15 +2,15 @@
 
 // import 'dart:html';
 
+import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
-import 'package:caravan/screens/more%20screens/chatroom_screen.dart';
-import 'package:caravan/screens/more%20screens/available_trips.dart';
+import 'package:caravan/screens/more%20screens/chats/chatroom_screen.dart';
+import 'package:caravan/screens/more%20screens/trip_management/available_trips.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
 
-import 'package:caravan/screens/tabs/history.dart';
 // import 'package:caravan/screens/more%20screens/notifications.dart';
-import 'package:caravan/screens/more%20screens/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,33 +23,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  String uid = FirebaseAuth.instance.currentUser!.uid;
   // ViewScreens
-  final List<Widget> viewScreens = [
-    const HistoryScreen(),
-    const ProfileScreen(),
-  ];
-  late PageController _pageController;
-  int currentTab = 1;
-
-  goToTab(int page) {
-    setState(() {
-      currentTab = page;
-    });
-
-    _pageController.jumpToPage(page);
-  }
-
-  @override
-  void initState() {
-    _pageController = PageController(initialPage: 1);
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
-    UserProvider userProvider = Provider.of(context, listen: true);
-    String username = userProvider.getUsername();
+    UserProfileProvider userProfileProvider =
+        Provider.of(context, listen: true);
+    String username = userProfileProvider.userProfile.username!;
     return Scaffold(
       // backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
@@ -77,7 +58,7 @@ class _HomeState extends State<Home> {
               // load the notificationscreen
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ChatListScreen()),
+                MaterialPageRoute(builder: (context) => const ChatListScreen()),
               );
             },
           ),

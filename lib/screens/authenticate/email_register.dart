@@ -1,3 +1,4 @@
+import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/authenticate/username_screen.dart';
@@ -16,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String email = '';
   String password = '';
   String confirmPassword = '';
+  UserProfile userProfile = UserProfile();
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +82,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           password = value;
                         });
                       },
-                      decoration: loginInputDecoration.copyWith(
-                          labelText: 'Password'),
+                      decoration:
+                          loginInputDecoration.copyWith(labelText: 'Password'),
                       style: myInputTextStyle),
                   const SizedBox(height: 10),
                   TextField(
@@ -100,17 +102,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       // Implement your registration logic here
                       if (password == confirmPassword) {
                         // Passwords match, proceed with registration
-
-                        userProvider.setUserEmail(email);
-                        userProvider.setUserPassword(password);
-
-                        // create user with email and password
-                        // then navigate to complete profile screen
+                        userProfile.completeProfile(
+                          email: email,
+                        );
+                        print('User Profile: ${userProfile.email}');
 
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const UsernameScreen()));
+                                builder: (context) => UsernameScreen(
+                                      userProfile: userProfile,
+                                      password: password,
+                                    )));
                       } else {
                         // Passwords don't match, show error message
                       }

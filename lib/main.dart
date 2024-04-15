@@ -1,7 +1,11 @@
+// import 'dart:js';
+
 import 'package:caravan/firebase_options.dart';
+import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/providers/user_provider.dart';
+import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/tabs/history.dart';
 import 'package:caravan/screens/more%20screens/welcome_screen.dart';
 import 'package:caravan/screens/main_scaffold.dart';
@@ -18,7 +22,8 @@ Future<void> main() async {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => TripDetailsProvider()),
     ChangeNotifierProvider(create: (context) => UserProvider()),
-    ChangeNotifierProvider(create: (context) => UserProfileProvider())
+    ChangeNotifierProvider(
+        create: (context) => UserProfileProvider(UserProfile()))
   ], child: const MyRideSharingApp()));
 }
 
@@ -26,6 +31,8 @@ class MyRideSharingApp extends StatelessWidget {
   const MyRideSharingApp({super.key});
   @override
   Widget build(BuildContext context) {
+    UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const Wrapper(),
@@ -71,9 +78,10 @@ class MyRideSharingApp extends StatelessWidget {
 
       routes: {
         '/home': (context) => const HomePage(),
-        '/profile': (context) => const ProfileScreen(),
+        '/profile': (context) => ProfileScreen(uid: userProvider.getUid()),
         '/history': (context) => const HistoryScreen(),
         '/index': (context) => const Welcome(),
+        '/login': (context) => const MyLogin()
       },
       // initialRoute: '/index',
     );
