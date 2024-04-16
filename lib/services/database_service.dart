@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart' as p;
 
 class DatabaseService {
   // create a variable that store the user
@@ -250,5 +254,33 @@ class DatabaseService {
     }
   }
 
-  // get userProfile data, function takes userid
+  Future<String> uploadImageToStorage(File file, String userID) async {
+    try {
+      String downloadUrl = '';
+      print("Method for uploading has been called");
+      String fileExtension = p.extension(file.path).replaceFirst('.', '');
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference ref =
+          storage.ref().child('profile_images').child('$userID.$fileExtension');
+      print("We have created a reference");
+      UploadTask uploadTask = ref.putFile(file);
+      print("We are waiting for the upload to complete");
+      TaskSnapshot snapshot = await uploadTask;
+      print("Upload completed");
+      downloadUrl = await snapshot.ref.getDownloadURL();
+      print("Image was uploaded successfully");
+      print(downloadUrl);
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateUserProfilePicture(String userId, String imageUrl) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    await firestore.collection('users').doc(userId).update({
+      'profilePicture': imageUrl,
+    });
+  }
 }

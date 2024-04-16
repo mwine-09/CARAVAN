@@ -1,5 +1,4 @@
 import 'package:caravan/models/user_profile.dart';
-import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/authenticate/username_screen.dart';
 import 'package:caravan/shared/constants/text_field.dart';
@@ -32,7 +31,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
       border: const OutlineInputBorder(),
     );
-    UserProvider userProvider = Provider.of(context, listen: true);
+    Provider.of(context, listen: true);
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(

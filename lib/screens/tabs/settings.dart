@@ -42,8 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               radius: 50,
               backgroundImage: userProfile.photoUrl != null
                   ? NetworkImage(userProfile.photoUrl!)
-                  : const AssetImage('assets/default_profile.jpg')
-                      as ImageProvider,
+                  : null,
               child: Stack(
                 children: [
                   if (userProfile.photoUrl == null)
@@ -53,18 +52,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: IconButton(
                         icon: const Icon(
                           Icons.edit,
-                          color: Colors.white,
+                          color: Color.fromARGB(255, 0, 0, 0),
                         ),
-                        onPressed: () async {
-                          FilePickerResult? result =
-                              await FilePicker.platform.pickFiles();
+                        onPressed: () {
+                          showModalBottomSheet(
+                            showDragHandle: true,
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SizedBox(
+                                height: 200,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ListTile(
+                                      leading: const Icon(Icons.camera),
+                                      title: const Text('Take a Photo'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: const Icon(Icons.photo_library),
+                                      title: const Text('Choose a Photo'),
+                                      onTap: () async {
+                                        // Handle choose photo action
+                                        FilePickerResult? result =
+                                            await FilePicker.platform
+                                                .pickFiles();
 
-                          if (result != null) {
-                            File file = File(result.files.single.path!);
-                          } else {
-                            // User canceled the picker
-                          }
+                                        if (result != null) {
+                                          File file =
+                                              File(result.files.single.path!);
+                                          DatabaseService()
+                                              .uploadImageToStorage(
+                                                  file, userProfile.userID!)
+                                              .then((value) => DatabaseService()
+                                                  .updateUserProfilePicture(
+                                                      userProfile.userID!,
+                                                      value))
+                                              .whenComplete(() =>
+                                                  print("Future has complete"));
+
+                                          // Handle file upload
+                                        } else {
+                                          // User canceled the picker
+                                        }
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
                         },
+                      ),
+                    ),
+                  if (userProfile.photoUrl == null)
+                    const Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Text(
+                        'Add Photo',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                 ],

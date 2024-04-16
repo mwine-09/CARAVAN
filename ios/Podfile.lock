@@ -876,11 +876,14 @@ PODS:
   - Firebase/Messaging (10.22.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 10.22.0)
+  - Firebase/Storage (10.22.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 10.22.0)
   - firebase_auth (4.17.9):
     - Firebase/Auth (= 10.22.0)
     - firebase_core
     - Flutter
-  - firebase_core (2.28.0):
+  - firebase_core (2.29.0):
     - Firebase/CoreOnly (= 10.22.0)
     - Flutter
   - firebase_dynamic_links (5.4.18):
@@ -891,6 +894,10 @@ PODS:
     - Firebase/Messaging (= 10.22.0)
     - firebase_core
     - Flutter
+  - firebase_storage (11.7.1):
+    - Firebase/Storage (= 10.22.0)
+    - firebase_core
+    - Flutter
   - FirebaseAppCheckInterop (10.23.0)
   - FirebaseAuth (10.22.0):
     - FirebaseAppCheckInterop (~> 10.17)
@@ -899,6 +906,7 @@ PODS:
     - GoogleUtilities/Environment (~> 7.8)
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
     - RecaptchaInterop (~> 100.0)
+  - FirebaseAuthInterop (10.23.0)
   - FirebaseCore (10.22.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.12)
@@ -944,6 +952,12 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 7.8)
     - nanopb (< 2.30911.0, >= 2.30908.0)
   - FirebaseSharedSwift (10.23.0)
+  - FirebaseStorage (10.22.0):
+    - FirebaseAppCheckInterop (~> 10.0)
+    - FirebaseAuthInterop (~> 10.0)
+    - FirebaseCore (~> 10.0)
+    - FirebaseCoreExtension (~> 10.0)
+    - GTMSessionFetcher/Core (< 4.0, >= 2.1)
   - Flutter (1.0.0)
   - geocoding_ios (1.0.5):
     - Flutter
@@ -1089,6 +1103,7 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_dynamic_links (from `.symlinks/plugins/firebase_dynamic_links/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
+  - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
   - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
@@ -1104,6 +1119,7 @@ SPEC REPOS:
     - Firebase
     - FirebaseAppCheckInterop
     - FirebaseAuth
+    - FirebaseAuthInterop
     - FirebaseCore
     - FirebaseCoreExtension
     - FirebaseCoreInternal
@@ -1113,6 +1129,7 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseMessaging
     - FirebaseSharedSwift
+    - FirebaseStorage
     - GoogleDataTransport
     - GoogleMaps
     - GoogleUtilities
@@ -1141,6 +1158,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_dynamic_links/ios"
   firebase_messaging:
     :path: ".symlinks/plugins/firebase_messaging/ios"
+  firebase_storage:
+    :path: ".symlinks/plugins/firebase_storage/ios"
   Flutter:
     :path: Flutter
   geocoding_ios:
@@ -1162,11 +1181,13 @@ SPEC CHECKSUMS:
   file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   Firebase: 797fd7297b7e1be954432743a0b3f90038e45a71
   firebase_auth: 610184b4f624545f81e0416bca60642b6818f27f
-  firebase_core: d955499180c3c8ef355adf46b8752c4c01d09e0a
+  firebase_core: aaadbddb3cb2ee3792b9804f9dbb63e5f6f7b55c
   firebase_dynamic_links: 9129abba70e20f931bac9c2d630ab8a68cacb591
   firebase_messaging: f97062a3a7644703ba4892859183c0a59e08d25f
+  firebase_storage: 8d42f27f702499161335b5075aa67bf6f2d821fb
   FirebaseAppCheckInterop: a1955ce8c30f38f87e7d091630e871e91154d65d
   FirebaseAuth: bbe4c68f958504ba9e54aee181adbdf5b664fbc6
+  FirebaseAuthInterop: a458e398bb1e9b71b9b42d46e54acc666b021d0f
   FirebaseCore: 0326ec9b05fbed8f8716cddbf0e36894a13837f7
   FirebaseCoreExtension: cb88851781a24e031d1b58e0bd01eb1f46b044b5
   FirebaseCoreInternal: 6a292e6f0bece1243a737e81556e56e5e19282e3
@@ -1176,6 +1197,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 42d6ead4605d6eafb3b6683674e80e18eb6f2c35
   FirebaseMessaging: 9f71037fd9db3376a4caa54e5a3949d1027b4b6e
   FirebaseSharedSwift: c92645b392db3c41a83a0aa967de16f8bad25568
+  FirebaseStorage: bc7bddc743548a89cfb896843a77cf4bdde2c231
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   geocoding_ios: d7460f56e80e118d57678efe5c2cdc888739ff18
   google_maps_flutter_ios: f135b968a67c05679e0a53538e900b5c174b0d99

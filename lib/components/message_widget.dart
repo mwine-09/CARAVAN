@@ -4,9 +4,15 @@ import 'package:intl/intl.dart';
 import '../models/message.dart';
 import 'package:flutter/material.dart';
 
-class MessageWidget extends StatelessWidget {
+class MessageWidget extends StatefulWidget {
   final Message message;
-  MessageWidget({super.key, required this.message});
+  const MessageWidget({super.key, required this.message});
+
+  @override
+  State<MessageWidget> createState() => _MessageWidgetState();
+}
+
+class _MessageWidgetState extends State<MessageWidget> {
   late FirebaseAuth _firebaseAuth;
 
   @override
@@ -16,7 +22,7 @@ class MessageWidget extends StatelessWidget {
 
     final theme = Theme.of(context);
 
-    if (message.senderID == senderID) {
+    if (widget.message.senderID == senderID) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -31,13 +37,15 @@ class MessageWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(message.message,
+                Text(widget.message.message,
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: Colors.white, fontSize: 14)),
                 const SizedBox(
                   height: 4,
                 ),
-                Text(DateFormat('h:mm a').format(message.createdAt.toDate()),
+                Text(
+                    DateFormat('h:mm a')
+                        .format(widget.message.createdAt.toDate()),
                     style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.white,
                         fontSize: 12,
@@ -62,7 +70,7 @@ class MessageWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  message.message,
+                  widget.message.message,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: Colors.white, fontSize: 14),
                 ),
@@ -70,7 +78,8 @@ class MessageWidget extends StatelessWidget {
                   height: 4,
                 ),
                 Text(
-                  DateFormat('h:mm a').format(message.createdAt.toDate()),
+                  DateFormat('h:mm a')
+                      .format(widget.message.createdAt.toDate()),
                   style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.white, fontSize: 12, fontFamily: 'Roboto'),
                 ),

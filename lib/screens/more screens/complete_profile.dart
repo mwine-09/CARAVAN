@@ -1,8 +1,7 @@
 import 'package:caravan/models/user_profile.dart';
-import 'package:caravan/providers/user_provider.dart';
+
 import 'package:caravan/screens/more%20screens/set_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class CompleteProfile extends StatefulWidget {
   final UserProfile userProfile;
@@ -64,8 +63,6 @@ class _CompleteProfileState extends State<CompleteProfile> {
 
   @override
   Widget build(BuildContext context) {
-    UserProvider userProvider = Provider.of(context, listen: true);
-    String username = userProvider.getUsername();
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
