@@ -240,5 +240,17 @@ class DatabaseService {
     }
   }
 
+  // function that toggles isDriver in the database
+  Future<void> toggleIsDriver(String userId, bool isDriver) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'isDriver': isDriver,
+      });
+    } catch (e) {
+      print('Error toggling isDriver: $e');
+      rethrow;
+    }
+  }
+
   // get userProfile data, function takes userid
 }

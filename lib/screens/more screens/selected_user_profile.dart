@@ -58,7 +58,7 @@ class SelectedDriverScreen extends StatelessWidget {
                     }).toList() ??
                     [],
               ),
-            Text('Role: ${userProfile.role}', style: myTextStyle),
+            Text('Driver: ${userProfile.isDriver}', style: myTextStyle),
           ],
         ),
       ),

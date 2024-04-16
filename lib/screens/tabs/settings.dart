@@ -1,15 +1,27 @@
+import 'dart:io';
+
+import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/more%20screens/profile.dart';
+import 'package:caravan/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  @override
   Widget build(BuildContext context) {
-    UserProvider userProvider = Provider.of(context);
-    String username = userProvider.getUsername();
+    UserProfileProvider userProfileProvider = Provider.of(context);
+    UserProfile userProfile = userProfileProvider.userProfile;
+    String username = userProfileProvider.userProfile.username!;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -28,10 +40,13 @@ class SettingsScreen extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 50,
-              backgroundImage: const AssetImage('assets/default_profile.jpg'),
+              backgroundImage: userProfile.photoUrl != null
+                  ? NetworkImage(userProfile.photoUrl!)
+                  : const AssetImage('assets/default_profile.jpg')
+                      as ImageProvider,
               child: Stack(
                 children: [
-                  if (userProvider.getUid() == userProvider.getUid)
+                  if (userProfile.photoUrl == null)
                     Positioned(
                       bottom: 0,
                       right: 0,
@@ -40,8 +55,15 @@ class SettingsScreen extends StatelessWidget {
                           Icons.edit,
                           color: Colors.white,
                         ),
-                        onPressed: () {
-                          // use file picker
+                        onPressed: () async {
+                          FilePickerResult? result =
+                              await FilePicker.platform.pickFiles();
+
+                          if (result != null) {
+                            File file = File(result.files.single.path!);
+                          } else {
+                            // User canceled the picker
+                          }
                         },
                       ),
                     ),
@@ -51,14 +73,16 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(
               height: 15,
             ),
-            Text(
-              userProvider.getUsername(),
-              style: const TextStyle(color: Colors.white),
-            ),
-            Text(
-              userProvider.getEmail(),
-              style: const TextStyle(color: Colors.white),
-            ),
+            Text(username,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white,
+                      fontSize: 16,
+                    )),
+            Text(userProfile.email!,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white,
+                      fontSize: 16,
+                    )),
             const SizedBox(
               height: 15,
             ),
@@ -103,10 +127,18 @@ class SettingsScreen extends StatelessWidget {
                           ),
                     ),
                     trailing: Switch(
-                        value: false,
-                        onChanged: (value) {
-                          value = true;
-                        }),
+                      value: userProfile.isDriver,
+                      onChanged: (newValue) {
+                        setState(() {
+                          userProfile.isDriver = newValue;
+                          DatabaseService()
+                              .toggleIsDriver(userProfile.userID!, newValue);
+                        });
+                      },
+                      activeColor: Colors.green,
+                      inactiveThumbColor: Colors.grey,
+                      inactiveTrackColor: Colors.grey[300],
+                    ),
                   ),
                   ListTile(
                     leading: const Icon(Icons.delete, color: Colors.white),

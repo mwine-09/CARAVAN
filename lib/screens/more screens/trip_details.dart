@@ -76,7 +76,8 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                 ),
                 const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 22, 22, 22),
                     borderRadius: BorderRadius.circular(5),
@@ -123,7 +124,8 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                               backgroundColor:
                                   const Color.fromARGB(255, 255, 255, 255),
                               shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(5)),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5)),
                               ),
                             ),
                             child: const Text(
@@ -141,7 +143,8 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(320, 50),
-                          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                          backgroundColor:
+                              const Color.fromARGB(255, 255, 255, 255),
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(5)),
                           ),
@@ -211,31 +214,34 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
       destinationCoordinates,
     );
 
-    setState(() {
-      _center = LatLng(
-          (pickupCoordinates.latitude + destinationCoordinates.latitude) / 2,
-          (pickupCoordinates.longitude + destinationCoordinates.longitude) / 2);
-      print("The center is $_center");
-      polylines.clear();
-      generatePolyLineFromPoints(polylinePoints);
+    if (mounted) {
+      setState(() {
+        _center = LatLng(
+            (pickupCoordinates.latitude + destinationCoordinates.latitude) / 2,
+            (pickupCoordinates.longitude + destinationCoordinates.longitude) /
+                2);
+        print("The center is $_center");
+        polylines.clear();
+        generatePolyLineFromPoints(polylinePoints);
 
-      markers.clear();
-      final destinationMarker = Marker(
-        markerId: const MarkerId('destination'),
-        position: destinationCoordinates,
-        infoWindow: const InfoWindow(title: 'Destination'),
-      );
-      final pickupMarker = Marker(
-        markerId: const MarkerId('pickup'),
-        position: pickupCoordinates,
-        infoWindow: const InfoWindow(title: 'Pickup'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      );
+        markers.clear();
+        final destinationMarker = Marker(
+          markerId: const MarkerId('destination'),
+          position: destinationCoordinates,
+          infoWindow: const InfoWindow(title: 'Destination'),
+        );
+        final pickupMarker = Marker(
+          markerId: const MarkerId('pickup'),
+          position: pickupCoordinates,
+          infoWindow: const InfoWindow(title: 'Pickup'),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        );
 
-      markers[destinationMarker.markerId] = destinationMarker;
-      markers[pickupMarker.markerId] = pickupMarker;
-    });
-
+        markers[destinationMarker.markerId] = destinationMarker;
+        markers[pickupMarker.markerId] = pickupMarker;
+      });
+    }
     animateToBounds(pickupCoordinates, destinationCoordinates);
   }
 
@@ -266,9 +272,11 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
       points: polylinePoints,
       width: 3,
     );
-    setState(() {
-      polylines[id] = polyline;
-    });
+    if (mounted) {
+      setState(() {
+        polylines[id] = polyline;
+      });
+    }
   }
 
   void animateToBounds(LatLng pickup, LatLng destination) {

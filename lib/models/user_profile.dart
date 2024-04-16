@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:caravan/models/emergency_contact.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -14,7 +16,7 @@ class UserProfile {
   String? phoneNumber;
   List<String>? preferences;
   List<EmergencyContact>? emergencyContacts;
-  String role;
+  bool isDriver;
   String? photoUrl;
 
   UserProfile({
@@ -31,7 +33,7 @@ class UserProfile {
     this.preferences,
     this.emergencyContacts,
     this.photoUrl,
-    this.role = 'passenger', // Default role is passenger
+    this.isDriver = false, // Default role is passenger
   });
 
   // to json
@@ -46,12 +48,12 @@ class UserProfile {
     data['carBrand'] = carBrand;
     data['photoUrl'] = photoUrl;
     data['make'] = make;
+    data['isDriver'] = isDriver;
     data['numberPlate'] = numberPlate;
     data['phoneNumber'] = phoneNumber;
     data['preferences'] = preferences;
     data['emergencyContacts'] =
         emergencyContacts?.map((e) => e.toJson()).toList();
-    data['role'] = role; // Include role in JSON
 
     return data;
   }
@@ -69,7 +71,7 @@ class UserProfile {
       carBrand: data['carBrand'],
       make: data['make'],
       photoUrl: data['photoUrl'],
-      role: data['role'],
+      isDriver: data['isDriver'],
       numberPlate: data['numberPlate'],
       phoneNumber: data['phoneNumber'],
       preferences: List<String>.from(data['preferences']),
@@ -94,7 +96,6 @@ class UserProfile {
     List<String>? preferences,
     List<EmergencyContact>? emergencyContacts,
     String? photoUrl,
-    String? role,
   }) {
     if (userID != null) this.userID = userID;
     if (username != null) this.username = username;
@@ -109,7 +110,6 @@ class UserProfile {
     if (preferences != null) this.preferences = preferences;
     if (emergencyContacts != null) this.emergencyContacts = emergencyContacts;
     if (photoUrl != null) this.photoUrl = photoUrl;
-    if (role != null) this.role = role;
   }
 
   Map<String, dynamic> toMap() {
@@ -126,13 +126,13 @@ class UserProfile {
       'phoneNumber': phoneNumber,
       'preferences': preferences,
       'emergencyContacts': emergencyContacts?.map((e) => e.toMap()).toList(),
-      'role': role,
+      'isDriver': isDriver,
       'photoUrl': photoUrl,
     };
   }
 
   @override
   String toString() {
-    return 'UserProfile(userID: $userID, username: $username, firstName: $firstName, lastName: $lastName, email: $email, age: $age, carBrand: $carBrand, make: $make, numberPlate: $numberPlate, phoneNumber: $phoneNumber, preferences: $preferences, emergencyContacts: $emergencyContacts, role: $role, photoUrl: $photoUrl)';
+    return 'UserProfile(userID: $userID, username: $username, firstName: $firstName, lastName: $lastName, email: $email, age: $age, carBrand: $carBrand, make: $make, numberPlate: $numberPlate, phoneNumber: $phoneNumber, preferences: $preferences, emergencyContacts: $emergencyContacts, isDriver: $isDriver, photoUrl: $photoUrl)';
   }
 }
