@@ -4,15 +4,12 @@
 
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
-import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/chatroom_screen.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
 
-import 'package:caravan/screens/tabs/history.dart';
 // import 'package:caravan/screens/more%20screens/notifications.dart';
-import 'package:caravan/screens/more%20screens/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

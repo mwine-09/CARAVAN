@@ -1,5 +1,4 @@
 import 'package:caravan/models/user_profile.dart';
-import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/more%20screens/set_preferences.dart';
 import 'package:flutter/material.dart';

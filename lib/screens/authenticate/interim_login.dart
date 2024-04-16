@@ -1,5 +1,4 @@
 import 'package:caravan/providers/user_profile.provider.dart';
-import 'package:caravan/providers/user_provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';

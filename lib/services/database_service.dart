@@ -1,9 +1,7 @@
-import 'package:caravan/models/message.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 
 class DatabaseService {
   // create a variable that store the user

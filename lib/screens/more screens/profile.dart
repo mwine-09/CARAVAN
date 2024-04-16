@@ -1,9 +1,7 @@
 import 'package:caravan/components/editable_textfield.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
-import 'package:caravan/services/database_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {

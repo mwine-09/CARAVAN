@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:caravan/models/emergency_contact.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

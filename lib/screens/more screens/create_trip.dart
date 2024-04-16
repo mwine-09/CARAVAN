@@ -30,7 +30,7 @@ class CreateTripScreen extends StatelessWidget {
 }
 
 class AddTripForm extends StatefulWidget {
-  const AddTripForm({Key? key}) : super(key: key);
+  const AddTripForm({super.key});
 
   @override
   _AddTripFormState createState() => _AddTripFormState();
@@ -98,7 +98,7 @@ class _AddTripFormState extends State<AddTripForm> {
               },
             ),
             const SizedBox(height: 16),
-            Text(_feedback, style: TextStyle(color: Colors.green)),
+            Text(_feedback, style: const TextStyle(color: Colors.green)),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.black,
