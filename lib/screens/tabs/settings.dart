@@ -39,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           children: [
             CircleAvatar(
+              backgroundColor: Colors.white60,
               radius: 50,
               backgroundImage: userProfile.photoUrl != null
                   ? NetworkImage(userProfile.photoUrl!)
@@ -74,29 +75,64 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ListTile(
                                       leading: const Icon(Icons.photo_library),
                                       title: const Text('Choose a Photo'),
-                                      onTap: () async {
+                                      onTap: () {
                                         // Handle choose photo action
-                                        FilePickerResult? result =
-                                            await FilePicker.platform
-                                                .pickFiles();
+                                        // FilePickerResult? result;
+                                        FilePicker.platform
+                                            .pickFiles()
+                                            .then((value) {
+                                          // result = value;
+                                          if (value != null) {
+                                            File file =
+                                                File(value.files.single.path!);
+                                            print(file);
+                                            // DatabaseService()
+                                            //     .uploadImageToStorage(
+                                            //         file, userProfile.userID!)
+                                            //     .then((value) => DatabaseService()
+                                            //         .updateUserProfilePicture(
+                                            //             userProfile.userID!,
+                                            //             value))
+                                            //     .whenComplete(() =>
+                                            //         print("Future has complete"));
 
-                                        if (result != null) {
-                                          File file =
-                                              File(result.files.single.path!);
-                                          DatabaseService()
-                                              .uploadImageToStorage(
-                                                  file, userProfile.userID!)
-                                              .then((value) => DatabaseService()
-                                                  .updateUserProfilePicture(
-                                                      userProfile.userID!,
-                                                      value))
-                                              .whenComplete(() =>
-                                                  print("Future has complete"));
+                                            // Handle file upload
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: const Text('Preview'),
+                                                  content: Image.file(file),
+                                                  actions: [
+                                                    TextButton(
+                                                      child:
+                                                          const Text('Cancel'),
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                    ),
+                                                    TextButton(
+                                                      child: const Text(
+                                                          'Upload',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .green)),
+                                                      onPressed: () {
+                                                        // Handle image upload
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          } else {
+                                            // User canceled the picker
+                                          }
+                                        });
 
-                                          // Handle file upload
-                                        } else {
-                                          // User canceled the picker
-                                        }
                                         Navigator.pop(context);
                                       },
                                     ),

@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
+
 import 'package:caravan/constants.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -21,6 +23,28 @@ class LocationService {
 
     // print("THis is the place id $placeId");
     return placeId;
+  }
+
+  Future<List<String>> getLocationSuggestions(String query) async {
+    var key = LocationService().key;
+    var url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$query&key=$key&components=country:UG');
+
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final places = json.decode(response.body);
+      // print(places);
+
+      if (places['predictions'].length > 0) {
+        return List<String>.from(places['predictions']
+            .map((prediction) => prediction['description'])).take(3).toList();
+      } else {
+        return [];
+      }
+    } else {
+      throw Exception('Failed to load predictions');
+    }
   }
 
   Future<Map<String, dynamic>> getPlace(String input) async {
@@ -95,6 +119,30 @@ class LocationService {
       return const LatLng(
           0, 0); // Return a default value or handle the error as needed
     }
+  }
+
+// function to fetch polylines
+  Future<List<LatLng>> fetchPolylines(String origin, String destination) async {
+    final String url =
+        "https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$key";
+
+    var response = await http.get(Uri.parse(url));
+    var json = convert.jsonDecode(response.body);
+    if (json['routes'] == null || json['routes'].isEmpty) {
+      throw Exception('No routes found.');
+    }
+    var route = json['routes'][0];
+    var legs = route['legs'];
+    if (legs == null || legs.isEmpty) {
+      throw Exception('No legs found.');
+    }
+    var leg = legs[0];
+    var polyline = route['overview_polyline']['points'];
+    var polylineDecoded = PolylinePoints().decodePolyline(polyline);
+    var polylines = polylineDecoded
+        .map((point) => LatLng(point.latitude, point.longitude))
+        .toList();
+    return polylines;
   }
 
   // import 'package:google_maps_flutter/google_maps_flutter.dart';

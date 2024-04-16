@@ -4,6 +4,7 @@ import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/shared/constants/text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
 
 class MyLogin extends StatefulWidget {
@@ -12,6 +13,8 @@ class MyLogin extends StatefulWidget {
   @override
   _MyLoginState createState() => _MyLoginState();
 }
+
+Logger logger = Logger();
 
 class _MyLoginState extends State<MyLogin> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -237,7 +240,8 @@ class _MyLoginState extends State<MyLogin> {
                               errorMessage =
                                   'An error occurred while signing in. Please try again.';
                             });
-                            print('Error signing in: $error');
+
+                            logger.i('Error signing in: $error');
                           });
                         }
                       },

@@ -46,22 +46,22 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+
+	 <key>NSLocationWhenInUseUsageDescription</key>
+<string>Your location is used to provide relevant information based on your current location.</string>
+
 	<key>UISupportedInterfaceOrientations</key>
-	<string>NSLocationWhenInUseUsageDescription</string>
-	<key>To display and track location</key>
-	<string>NSLocationAlwaysAndWhenInUseUsageDescription</string>
-	<key>To display and track location</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
+		<!-- <string>UIInterfaceOrientationLandscapeLeft</string> -->
+		<!-- <string>UIInterfaceOrientationLandscapeRight</string> -->
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
+		<!-- <string>UIInterfaceOrientationPortraitUpsideDown</string> -->
+		<!-- <string>UIInterfaceOrientationLandscapeLeft</string> -->
+		<!-- <string>UIInterfaceOrientationLandscapeRight</string> -->
 	</array>
 </dict>
 </plist>

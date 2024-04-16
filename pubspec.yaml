@@ -65,6 +65,7 @@ dependencies:
   file_picker: ^8.0.0+1
   firebase_storage: ^11.7.1
   path_to_regexp: ^0.4.0
+  logger: ^2.2.0
   # google_sign_in: ^6.2.1
 
 
@@ -103,8 +104,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/car.png
-    - assets/default_profile.jpg
+    - assets/
+
+    # - assets/default_profile.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
