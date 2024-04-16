@@ -32,7 +32,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   List<String> locationSuggestions = [];
   static final Set<Marker> _markers = {};
 
-  Map<PolylineId, Polyline> polylines = {};
+  static Map<PolylineId, Polyline> polylines = {};
 
   final pickupController = TextEditingController();
   final destinationController = TextEditingController();
@@ -129,8 +129,11 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
                   // mapType: MapType.hybrid,
                   initialCameraPosition:
                       CameraPosition(target: currentPosition, zoom: 15),
-                  onMapCreated: (GoogleMapController controller) {},
+                  onMapCreated: (GoogleMapController controller) {
+                    _mapController = controller;
+                  },
                   markers: _markers,
+                  polylines: polylines.values.toSet(),
                 ),
                 Positioned(
                   bottom: 0,
@@ -273,6 +276,22 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
                                         await generatePolyLineFromPoints(
                                             _routes);
 
+                                        _mapController!.animateCamera(
+                                            CameraUpdate.newLatLngBounds(
+                                                LatLngBounds(
+                                                  southwest: LatLng(
+                                                      pickupLocationCoordinates
+                                                          .latitude,
+                                                      pickupLocationCoordinates
+                                                          .longitude),
+                                                  northeast: LatLng(
+                                                      destinationCoordinates
+                                                          .latitude,
+                                                      destinationCoordinates
+                                                          .longitude),
+                                                ),
+                                                50));
+
                                         // Animate the camera to fit the bounds of the markers and polylines
 
                                         animateToBounds(
@@ -361,7 +380,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
           position: currentPosition,
           icon: await BitmapDescriptor.fromAssetImage(
               const ImageConfiguration(size: Size(48, 48)),
-              'assets/customMarker.png',
+              'assets/customMarkerNew.png',
               mipmaps: true),
           infoWindow: const InfoWindow(title: 'My Location'),
         ),
@@ -380,30 +399,12 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
     });
   }
 
-  Future<List<LatLng>> fetchPolylinePoints(
-      LatLng pickup, LatLng destinationAddress) async {
-    final polylinePoints = PolylinePoints();
-    final result = await polylinePoints.getRouteBetweenCoordinates(
-      googleMapsApiKey,
-      PointLatLng(pickup.latitude, pickup.longitude),
-      PointLatLng(destinationAddress.latitude, destinationAddress.longitude),
-    );
-    if (result.points.isNotEmpty) {
-      return result.points
-          .map((point) => LatLng(point.latitude, point.longitude))
-          .toList();
-    } else {
-      logger.e('No points found');
-      return [];
-    }
-  }
-
   // generatePolyLinefromPoints
   Future<void> generatePolyLineFromPoints(List<LatLng> polylinePoints) async {
     const id = PolylineId('polyline');
     final polyline = Polyline(
         polylineId: id,
-        color: const Color.fromARGB(255, 239, 68, 255),
+        color: Colors.blueAccent,
         points: polylinePoints,
         width: 4);
     if (mounted) {
@@ -459,7 +460,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
           position: currentPosition,
           icon: await BitmapDescriptor.fromAssetImage(
               const ImageConfiguration(size: Size(48, 48)),
-              'assets/customMarker.png',
+              'assets/customMarkerNew.png',
               mipmaps: true),
           infoWindow: const InfoWindow(title: 'My Location'),
         ),
@@ -492,7 +493,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
     }
   }
 
-  void animateToBounds(LatLng pickup, LatLng destination) {
+  void animateToBounds(LatLng pickup, LatLng destination) async {
     LatLngBounds bounds = LatLngBounds(
       southwest: LatLng(min(pickup.latitude, destination.latitude),
           min(pickup.longitude, destination.longitude)),
@@ -505,5 +506,8 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
 
     _mapController
         ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, padding));
+
+    // Add markers for pickup and destination
+    updateMarkers(pickup, destination);
   }
 }
