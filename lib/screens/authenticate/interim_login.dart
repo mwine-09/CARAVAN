@@ -1,9 +1,11 @@
+import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/shared/constants/text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
 
@@ -30,6 +32,8 @@ class _MyLoginState extends State<MyLogin> {
 
   @override
   Widget build(BuildContext context) {
+    LocationProvider locationProvider =
+        Provider.of<LocationProvider>(context, listen: true);
     var loginInputDecoration = InputDecoration(
       focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Colors.white, width: 1.0),

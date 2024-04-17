@@ -42,7 +42,7 @@ class LocationService {
 
       if (places['predictions'].length > 0) {
         return List<String>.from(places['predictions']
-            .map((prediction) => prediction['description'])).take(8).toList();
+            .map((prediction) => prediction['description'])).take(12).toList();
       } else {
         return [];
       }
@@ -76,29 +76,20 @@ class LocationService {
     return {"lat": lat, "lng": lng};
   }
 
-  Future<String> getPlaceName(double latitude, double longitude) async {
-    logger.i('Getting place name for coordinates: $latitude, $longitude');
-    final String url =
-        "https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$key&components=country:UG";
+  Future<String> getPlaceName(double lat, double lng) async {
+    final url =
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$key';
 
-    var response = await http.get(Uri.parse(url));
-    var json = convert.jsonDecode(response.body);
-    var results = json['results'] as List<dynamic>;
-    if (results.isNotEmpty) {
-      var placeName = results[0]['formatted_address'] as String;
-      var addressComponents = results[0]['address_components'] as List<dynamic>;
-      var specificPlace = '';
-      for (var component in addressComponents) {
-        var types = component['types'] as List<dynamic>;
-        if (types.contains('locality')) {
-          specificPlace = component['long_name'] as String;
-          break;
-        }
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final results = data['results'] as List<dynamic>;
+      if (results.isNotEmpty) {
+        // logger.e('Results: $results');
+        return results[0]['formatted_address'];
       }
-      return specificPlace;
-    } else {
-      throw Exception('No place found for the given coordinates.');
     }
+    throw Exception('No place found for the given coordinates.');
   }
 
   Future<Map<String, dynamic>> getDirection(

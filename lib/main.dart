@@ -2,6 +2,7 @@
 
 import 'package:caravan/firebase_options.dart';
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/providers/user_provider.dart';
@@ -20,6 +21,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (context) => LocationProvider()),
     ChangeNotifierProvider(create: (context) => TripDetailsProvider()),
     ChangeNotifierProvider(create: (context) => UserProvider()),
     ChangeNotifierProvider(
@@ -31,18 +33,20 @@ class MyRideSharingApp extends StatelessWidget {
   const MyRideSharingApp({super.key});
   @override
   Widget build(BuildContext context) {
-    UserProvider userProvider =
-        Provider.of<UserProvider>(context, listen: false);
+    UserProfileProvider userProfileProvider =
+        Provider.of<UserProfileProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const Wrapper(),
+
       theme: ThemeData(
-        pageTransitionsTheme: const PageTransitionsTheme(),
-        scaffoldBackgroundColor: Colors.black,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.black,
-          centerTitle: true,
+          elevation: 0,
         ),
+        primarySwatch: Colors.yellow,
+        pageTransitionsTheme: const PageTransitionsTheme(),
+        scaffoldBackgroundColor: Colors.black,
         textTheme: TextTheme(
           headlineSmall:
               GoogleFonts.roboto(fontSize: 24, fontWeight: FontWeight.w400),
@@ -70,7 +74,7 @@ class MyRideSharingApp extends StatelessWidget {
             minimumSize: const Size(88, 36),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(2)),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
           ),
         ),
@@ -78,7 +82,8 @@ class MyRideSharingApp extends StatelessWidget {
 
       routes: {
         '/home': (context) => const HomePage(),
-        '/profile': (context) => ProfileScreen(uid: userProvider.getUid()),
+        '/profile': (context) =>
+            ProfileScreen(uid: userProfileProvider.getUserProfile().userID!),
         '/history': (context) => const HistoryScreen(),
         '/index': (context) => const Welcome(),
         '/login': (context) => const MyLogin()
