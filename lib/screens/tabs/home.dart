@@ -7,7 +7,6 @@ import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/chatroom_screen.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
-import 'package:caravan/screens/more%20screens/map_view.dart';
 import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
 
 // import 'package:caravan/screens/more%20screens/notifications.dart';
