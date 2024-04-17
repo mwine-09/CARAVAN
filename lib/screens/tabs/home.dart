@@ -8,6 +8,7 @@ import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/chatroom_screen.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/map_view.dart';
+import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
 
 // import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -99,7 +100,7 @@ class _HomeState extends State<Home> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const GoogleMapsView()),
+                            builder: (context) => const DestinationScreen()),
                       );
                     },
                   ),

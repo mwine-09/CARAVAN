@@ -8,6 +8,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import "package:http/http.dart" as http;
 import 'dart:convert' as convert;
 
+import 'package:logger/web.dart';
+
+var logger = Logger();
+
 class LocationService {
   final String key = googleMapsApiKey;
 
@@ -38,7 +42,7 @@ class LocationService {
 
       if (places['predictions'].length > 0) {
         return List<String>.from(places['predictions']
-            .map((prediction) => prediction['description'])).take(3).toList();
+            .map((prediction) => prediction['description'])).take(8).toList();
       } else {
         return [];
       }
@@ -70,6 +74,31 @@ class LocationService {
     double lng = placeDetails["geometry"]["location"]["lng"];
 
     return {"lat": lat, "lng": lng};
+  }
+
+  Future<String> getPlaceName(double latitude, double longitude) async {
+    logger.i('Getting place name for coordinates: $latitude, $longitude');
+    final String url =
+        "https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$key&components=country:UG";
+
+    var response = await http.get(Uri.parse(url));
+    var json = convert.jsonDecode(response.body);
+    var results = json['results'] as List<dynamic>;
+    if (results.isNotEmpty) {
+      var placeName = results[0]['formatted_address'] as String;
+      var addressComponents = results[0]['address_components'] as List<dynamic>;
+      var specificPlace = '';
+      for (var component in addressComponents) {
+        var types = component['types'] as List<dynamic>;
+        if (types.contains('locality')) {
+          specificPlace = component['long_name'] as String;
+          break;
+        }
+      }
+      return specificPlace;
+    } else {
+      throw Exception('No place found for the given coordinates.');
+    }
   }
 
   Future<Map<String, dynamic>> getDirection(
