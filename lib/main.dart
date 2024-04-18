@@ -2,6 +2,7 @@
 
 import 'package:caravan/firebase_options.dart';
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
@@ -24,6 +25,7 @@ Future<void> main() async {
     ChangeNotifierProvider(create: (context) => LocationProvider()),
     ChangeNotifierProvider(create: (context) => TripDetailsProvider()),
     ChangeNotifierProvider(create: (context) => UserProvider()),
+    ChangeNotifierProvider(create: (context) => ChatProvider()),
     ChangeNotifierProvider(
         create: (context) => UserProfileProvider(UserProfile()))
   ], child: const MyRideSharingApp()));
@@ -35,6 +37,7 @@ class MyRideSharingApp extends StatelessWidget {
   Widget build(BuildContext context) {
     UserProfileProvider userProfileProvider =
         Provider.of<UserProfileProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const Wrapper(),

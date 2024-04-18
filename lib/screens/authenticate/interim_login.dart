@@ -1,3 +1,4 @@
+import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
@@ -34,6 +35,7 @@ class _MyLoginState extends State<MyLogin> {
   Widget build(BuildContext context) {
     LocationProvider locationProvider =
         Provider.of<LocationProvider>(context, listen: true);
+
     var loginInputDecoration = InputDecoration(
       focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Colors.white, width: 1.0),
@@ -204,6 +206,11 @@ class _MyLoginState extends State<MyLogin> {
                                 userProfileProvider.setUserProfile(value);
                                 userProfileProvider.userProfile.email = email;
                               });
+
+                              final chatProvider = Provider.of<ChatProvider>(
+                                  context,
+                                  listen: false);
+                              logger.i('Chat provider: $chatProvider');
                               Navigator.pop(context);
                               Navigator.pushNamed(context, '/home');
                               print('Signed in: ${value.username}');
@@ -211,6 +218,7 @@ class _MyLoginState extends State<MyLogin> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
+                                    backgroundColor: Colors.white,
                                     title: const Text("Success"),
                                     content: Text(
                                       "Signed in as ${value.username}",

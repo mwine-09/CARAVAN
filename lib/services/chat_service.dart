@@ -67,43 +67,35 @@ class ChatService extends ChangeNotifier {
         .snapshots();
   }
 
-  Stream<List<ChatRoom>> getChatRoomsForUser() {
-    final userID = _firebaseAuth.currentUser!.uid;
-    print("getting chat rooms for user id $userID");
+  // Stream<List<ChatRoom>> getChatRoomsForUser() {
+  //   final userID = _firebaseAuth.currentUser!.uid;
+  //   print("getting chat rooms for user id $userID");
 
-    return _firebaseFirestore
-        .collection('chats')
-        .where('members', arrayContains: userID)
-        .snapshots()
-        .map((querySnapshot) => querySnapshot.docs.map((doc) {
-              List<String> members = List<String>.from(doc['members']);
-              members.remove(
-                  userID); // Remove current user from the list of members
-              String title = members
-                  .join(', '); // Return the remaining member as the title
+  //   return _firebaseFirestore
+  //       .collection('chats')
+  //       .where('members', arrayContains: userID)
+  //       .snapshots()
+  //       .map((querySnapshot) => querySnapshot.docs.map((doc) {
+  //             List<String> members = List<String>.from(doc['members']);
+  //             members.remove(
+  //                 userID); // Remove current user from the list of members
+  //             String title = members
+  //                 .join(', '); // Return the remaining member as the title
 
-              return ChatRoom(
-                id: doc.id,
-                title: title,
-                lastMessage: doc['lastMessage'] ?? 'No messages',
-              );
-            }).toList());
-  }
+  //             return ChatRoom(
+  //               id: doc.id,
+  //               title: title,
+  //               lastMessage: doc['lastMessage'] ?? 'No messages',
+  //               lastMessageSenderID: doc['lastMessageSenderID'],
+  //               lastMessageTime: doc['lastMessageTime'].toDate(),
+  //               messages: doc['messages'] ?? [],
+  //               members: doc['members'],
+  //             );
+  //           }).toList());
+  // }
 
-  Future getUsername(String userId) {
-    return _firebaseFirestore
-        .collection('users')
-        .doc(userId)
-        .get()
-        .then((snapshot) {
-      if (snapshot.exists) {
-        return snapshot.data()!['username'];
-      } else {
-        return 'Unknown User';
-      }
-    }).catchError((e) {
-      print('Error getting username: $e');
-      throw e;
-    });
+  Stream<DocumentSnapshot<Map<String, dynamic>>> getChatsDocument(
+      String userID) {
+    return _firebaseFirestore.collection('chats').doc(userID).snapshots();
   }
 }
