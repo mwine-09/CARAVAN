@@ -183,38 +183,18 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  // Stream<List<Message>> getMessagesStream(String chatRoomId) {
-  //   logger.i('Getting messages for chatroom: $chatRoomId');
-  //   return _firebaseFirestore
-  //       .collection('chats')
-  //       .doc(chatRoomId)
-  //       .collection('messages')
-  //       // .orderBy('timestamp', descending: true)
-  //       .snapshots()
-  //       .map((snapshot) {
-  //     return snapshot.docs.map((doc) {
-  //       return Message.fromDocumentSnapshot(doc);
-  //     }).toList();
-  //   });
-  // }
-
   Stream<List<Message>> getMessagesStream(String chatRoomId) {
-    logger.i('Retrieving messages for chat room $chatRoomId');
-
+    logger.i('Getting messages for chatroom: $chatRoomId');
     return _firebaseFirestore
         .collection('chats')
         .doc(chatRoomId)
         .collection('messages')
+        .orderBy('createdAt')
         .snapshots()
         .map((snapshot) {
-      List<Message> messages = snapshot.docs
-          .map((doc) => Message.fromDocumentSnapshot(doc))
-          .toList();
-
-      // Sort the messages by timestamp in descending order
-      messages.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      return messages;
+      return snapshot.docs.map((doc) {
+        return Message.fromDocumentSnapshot(doc);
+      }).toList();
     });
   }
 
