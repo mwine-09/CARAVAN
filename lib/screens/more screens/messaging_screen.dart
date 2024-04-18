@@ -1,7 +1,9 @@
 import 'package:caravan/components/message_widget.dart';
+import 'package:caravan/models/chat_room.dart';
 import 'package:caravan/models/message.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/services/chat_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,11 +12,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
-  final UserProfile selectedDriver;
-  final String receiverID;
+  // final UserProfile selectedDriver;
+  final ChatRoom chatRoom;
 
-  const ChatScreen(
-      {super.key, required this.selectedDriver, required this.receiverID});
+  const ChatScreen({super.key, required this.chatRoom});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -26,17 +27,18 @@ class _ChatScreenState extends State<ChatScreen> {
   late ScrollController scrollController;
   late FirebaseAuth _firebaseAuth;
   late String _senderID;
+  late ChatProvider chatProvider;
+  late Stream<List<Message>> messagesStream;
 
   @override
   void initState() {
     super.initState();
-    final tripProvider =
-        Provider.of<TripDetailsProvider>(context, listen: false);
-    trip = tripProvider.tripDetails!;
-    scrollController = ScrollController();
 
+    scrollController = ScrollController();
+    chatProvider = Provider.of<ChatProvider>(context, listen: false);
     _firebaseAuth = FirebaseAuth.instance;
     _senderID = _firebaseAuth.currentUser!.uid;
+    messagesStream = chatProvider.getMessagesStream(widget.chatRoom.id);
   }
 
   @override
@@ -46,25 +48,19 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void sendMessage(String message) {
-    ChatService().sendMessage(widget.receiverID, message);
+    ChatService()
+        .sendMessage(chatProvider.getOtherUserId(widget.chatRoom.id), message);
     textController.clear();
   }
 
-  Widget _messageBuildItem(DocumentSnapshot document) {
-    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-    var alignment = data['senderID'] == _senderID
+  Widget _messageBuildItem(Message message) {
+    var alignment = message.senderID == _senderID
         ? Alignment.centerRight
         : Alignment.centerLeft;
     return Container(
       alignment: alignment,
       child: MessageWidget(
-        message: Message(
-          message: data['message'],
-          senderID: data['senderID'],
-          receiverID: data['receiverID'],
-          createdAt: data['createdAt'],
-        ),
+        message: message,
       ),
     );
   }
@@ -74,10 +70,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessageList() {
-    return StreamBuilder(
-      stream: ChatService().getMessages(widget.receiverID),
-      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+    return StreamBuilder<List<Message>>(
+      stream: messagesStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
@@ -96,8 +92,17 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           );
         } else {
-          final messages = snapshot.data!.docs;
+          final messages = snapshot.data!;
+          logger.i('Messages: $messages');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            // Scroll to the bottom of the list after the frame is built
+            if (scrollController.hasClients) {
+              scrollController
+                  .jumpTo(scrollController.position.maxScrollExtent);
+            }
+          });
           return ListView.builder(
+            controller: scrollController,
             itemCount: messages.length,
             itemBuilder: (context, index) {
               return _messageBuildItem(messages[index]);
@@ -110,8 +115,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    UserProfile selectedDriver = widget.selectedDriver;
-    String? username = selectedDriver.username;
     var sendMessageIconColor = Colors.grey[600];
 
     return Scaffold(
@@ -134,7 +137,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              capitalize(username!),
+              capitalize(widget.chatRoom.title!),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontSize: 16,

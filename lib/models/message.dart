@@ -1,19 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
-  Message({
-    required this.senderID,
-    required this.receiverID,
-    required this.message,
-    required this.createdAt,
-  });
-
   String senderID;
   String receiverID;
 
   String message;
 
   Timestamp createdAt;
+  Message({
+    required this.senderID,
+    required this.receiverID,
+    required this.message,
+    required this.createdAt,
+  });
+  // Getters
+  String get getSenderID => senderID;
+  String get getReceiverID => receiverID;
+  String get getMessage => message;
+  Timestamp get getCreatedAt => createdAt;
+
+  // Setters
+  set setSenderID(String senderID) => this.senderID = senderID;
+  set setReceiverID(String receiverID) => this.receiverID = receiverID;
+  set setMessage(String message) => this.message = message;
+  set setCreatedAt(Timestamp createdAt) => this.createdAt = createdAt;
 
   // to map
   Map<String, dynamic> toMap() {
@@ -51,4 +61,14 @@ class Message {
         "message": message,
         "createdAt": createdAt,
       };
+
+  factory Message.fromDocumentSnapshot(DocumentSnapshot snapshot) {
+    final data = snapshot.data() as Map<String, dynamic>;
+    return Message(
+      senderID: data['senderID'],
+      receiverID: data['receiverID'],
+      message: data['message'],
+      createdAt: data['createdAt'],
+    );
+  }
 }

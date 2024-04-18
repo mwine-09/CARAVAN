@@ -1,12 +1,16 @@
 import 'dart:math';
 
 import 'package:caravan/constants.dart';
+import 'package:caravan/models/chat_room.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
+import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/screens/more%20screens/selected_user_profile.dart';
 import 'package:caravan/services/location_service.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -28,7 +32,9 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    UserProfile selectedDriver = widget.userProfile;
+    ChatProvider chatProvider = Provider.of<ChatProvider>(context);
+    UserProfileProvider userProfileProvider =
+        Provider.of<UserProfileProvider>(context);
     final tripProvider = Provider.of<TripDetailsProvider>(context);
     final Trip trip = tripProvider.tripDetails!;
     String? selectedDriverName = widget.userProfile.username;
@@ -105,34 +111,56 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                             ],
                           ),
                           // message button
-                          ElevatedButton(
-                            onPressed: () {
-                              // Add navigation logic here
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
+                          if (trip.driverID !=
+                              userProfileProvider.userProfile.userID)
+                            ElevatedButton(
+                              onPressed: () async {
+                                String driverId = trip.driverID;
+
+                                if (chatProvider.hasChatroom(driverId)) {
+                                  ChatRoom? chatroom =
+                                      chatProvider.getChatroom(driverId);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
                                       builder: (context) => ChatScreen(
-                                            selectedDriver: selectedDriver,
-                                            receiverID: trip.driverID,
-                                          )));
-                            },
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(100, 50),
-                              backgroundColor:
-                                  const Color.fromARGB(255, 255, 255, 255),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)),
+                                        chatRoom: chatroom!,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  await chatProvider.createChatroom(
+                                    driverId,
+                                  );
+                                  ChatRoom? chatroom =
+                                      chatProvider.getChatroom(driverId);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                        chatRoom: chatroom!,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(100, 50),
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 255, 255),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)),
+                                ),
+                              ),
+                              child: const Text(
+                                'Message',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
-                            child: const Text(
-                              'Message',
-                              style: TextStyle(
-                                color: Color.fromARGB(255, 0, 0, 0),
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 10),
