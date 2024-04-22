@@ -22,7 +22,7 @@ class DestinationScreen extends StatefulWidget {
 
 class _DestinationScreenState extends State<DestinationScreen> {
   TripRequest tripRequest = TripRequest();
-  GoogleMapController? mapController;
+  late GoogleMapController mapController;
   late LocationService locationService;
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
@@ -37,7 +37,7 @@ class _DestinationScreenState extends State<DestinationScreen> {
 
   TextEditingController destinationController = TextEditingController();
   var initialCameraPosition = const LatLng(0, 0);
-  late LatLng currentPosition;
+  late LatLng? currentPosition;
   Set<Marker> markers = {};
   bool isLoading = true;
 
@@ -48,15 +48,15 @@ class _DestinationScreenState extends State<DestinationScreen> {
     locationProvider = Provider.of<LocationProvider>(context, listen: false);
     currentPositionName = locationProvider.currentPositionName ?? '';
 
-    currentPosition = locationProvider.currentPosition ?? initialCameraPosition;
-    markers.add(
-      Marker(
-        markerId: const MarkerId('current'),
-        position: currentPosition,
-      ),
-    );
-
-    isLoading = false;
+    currentPosition = locationProvider.currentPosition;
+    if (currentPosition != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('current'),
+          position: currentPosition!,
+        ),
+      );
+    }
   }
 
   @override
@@ -105,15 +105,15 @@ class _DestinationScreenState extends State<DestinationScreen> {
                   child: IgnorePointer(
                     ignoring: false,
                     child: GoogleMap(
-                      onMapCreated: (GoogleMapController controller) {
-                        setState(() {
-                          mapController = controller;
-                        });
-                      },
                       initialCameraPosition: CameraPosition(
-                        target: locationProvider.currentPosition!,
+                        target: LatLng(
+                            locationProvider.currentPosition!.latitude,
+                            locationProvider.currentPosition!.longitude),
                         zoom: 14.4746,
                       ),
+                      onMapCreated: (GoogleMapController controller) {
+                        mapController = controller;
+                      },
                       markers: markers,
                     ),
                   ),

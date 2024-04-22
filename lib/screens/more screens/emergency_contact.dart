@@ -1,7 +1,7 @@
 import 'package:caravan/models/emergency_contact.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
-import 'package:caravan/screens/tabs/home.dart';
+import 'package:caravan/screens/main_scaffold.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -54,11 +54,33 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (contacts.isEmpty)
+              const Center(
+                child: Text(
+                  ' Click the Add button to add a contact',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
             Expanded(
               child: ListView.builder(
                 itemCount: contacts.length,
                 itemBuilder: (context, index) {
                   return ListTile(
+                    leading: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          contacts.remove(contacts[index]);
+                        });
+                      },
+                      child: const Icon(
+                        Icons.delete_forever,
+                        size: 30,
+                        color: Colors.red,
+                      ),
+                    ),
                     tileColor: const Color.fromARGB(255, 12, 12, 12),
                     subtitleTextStyle: const TextStyle(fontSize: 14),
                     minVerticalPadding: 5,
@@ -97,14 +119,18 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                     widget.userProfile
                         .completeProfile(emergencyContacts: contacts);
 
-                    print(userProfileProvider.toString());
+                    // print(userProfileProvider.toString());
                     // get the data in hte userprofile provider and insert into the database
                     DatabaseService().createUserProfile(
                         _firebaseAuth.currentUser!.uid,
                         widget.userProfile.toMap());
+
+                    userProfileProvider.userProfile = widget.userProfile;
                     Navigator.pop(context);
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => const Home()));
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomePage()));
                   },
                   child: Text('Done',
                       style: Theme.of(context)
@@ -187,6 +213,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 onChanged: (String? value) {
                   setState(() {
                     _dropdownValue = value!;
+                    relationship = value;
                   });
                 },
                 items:

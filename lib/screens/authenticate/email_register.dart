@@ -3,7 +3,6 @@ import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/authenticate/username_screen.dart';
 import 'package:caravan/shared/constants/text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -17,6 +16,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String password = '';
   String confirmPassword = '';
   UserProfile userProfile = UserProfile();
+  bool passwdObsecure = true;
+  bool passwdConfirmObsecure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
       border: const OutlineInputBorder(),
     );
-    Provider.of(context, listen: true);
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -75,25 +76,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: myInputTextStyle),
                   const SizedBox(height: 10),
                   TextField(
-                      obscureText: true,
+                      obscureText: passwdObsecure,
                       onChanged: (value) {
                         setState(() {
                           password = value;
                         });
                       },
-                      decoration:
-                          loginInputDecoration.copyWith(labelText: 'Password'),
+                      decoration: loginInputDecoration.copyWith(
+                        labelText: 'Password',
+                        suffixIcon: GestureDetector(
+                          child: Icon(
+                            passwdObsecure
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onTap: () {
+                            setState(() {
+                              passwdObsecure = !passwdObsecure;
+                            });
+                          },
+                        ),
+                      ),
                       style: myInputTextStyle),
                   const SizedBox(height: 10),
                   TextField(
-                      obscureText: true,
+                      obscureText: passwdConfirmObsecure,
                       onChanged: (value) {
                         setState(() {
                           confirmPassword = value;
                         });
                       },
                       decoration: loginInputDecoration.copyWith(
-                          labelText: 'Confirm Password'),
+                        labelText: 'Confirm Password',
+                        suffixIcon: GestureDetector(
+                          child: Icon(
+                            passwdConfirmObsecure
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onTap: () {
+                            setState(() {
+                              passwdConfirmObsecure = !passwdConfirmObsecure;
+                            });
+                          },
+                        ),
+                      ),
                       style: myInputTextStyle),
                   const SizedBox(height: 15),
                   ElevatedButton(

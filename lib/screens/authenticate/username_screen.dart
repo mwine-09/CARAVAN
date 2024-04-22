@@ -59,8 +59,27 @@ class UsernameScreen extends StatelessWidget {
                     context: context,
                     barrierDismissible: false,
                     builder: (BuildContext context) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
+                      return Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                            const SizedBox(height: 16.0),
+                            Text(
+                              'Creating account...',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayMedium!
+                                  .copyWith(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                            ),
+                          ],
+                        ),
                       );
                     },
                   );

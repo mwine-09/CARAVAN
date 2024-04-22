@@ -3,7 +3,6 @@
 // import 'dart:html';
 
 import 'package:caravan/models/user_profile.dart';
-import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/chatroom_screen.dart';
@@ -46,7 +45,7 @@ class _HomeState extends State<Home> {
         actions: [
           IconButton(
             icon: const Icon(
-              Icons.notifications,
+              Icons.mail,
               color: Colors.white,
             ),
             onPressed: () {

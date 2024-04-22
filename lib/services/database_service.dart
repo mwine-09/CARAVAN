@@ -180,6 +180,17 @@ class DatabaseService {
     });
   }
 
+  Future<bool> checkIfUserExists(String userId) async {
+    try {
+      DocumentSnapshot snapshot =
+          await _firestore.collection('users').doc(userId).get();
+      return snapshot.exists;
+    } catch (e) {
+      print('Error checking if user exists: $e');
+      rethrow;
+    }
+  }
+
   // Add a new emergency alert to the "emergency_alerts" collection
   Future<void> addEmergencyAlert(
       String alertId,

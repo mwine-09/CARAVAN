@@ -1,8 +1,6 @@
 import 'package:caravan/models/chat_room.dart';
-import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
-import 'package:caravan/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

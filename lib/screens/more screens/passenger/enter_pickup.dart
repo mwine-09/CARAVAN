@@ -3,13 +3,9 @@ import 'dart:math';
 import 'package:caravan/models/request.dart';
 import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/services/location_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart' as location;
 import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
 

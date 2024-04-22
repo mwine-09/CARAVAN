@@ -39,7 +39,7 @@ class MyRideSharingApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Wrapper(),
+      home: const Wrapper(),
 
       theme: ThemeData(
         appBarTheme: const AppBarTheme(

@@ -1,5 +1,4 @@
 import 'package:caravan/components/date_time_picker.dart';
-import 'package:caravan/models/user.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/shared/constants/text_field.dart';

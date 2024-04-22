@@ -1,10 +1,11 @@
+import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/chat_provider.dart';
 
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
+import 'package:caravan/screens/more%20screens/complete_profile.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
-import 'package:caravan/shared/constants/text_field.dart';
 import 'package:flutter/material.dart';
 
 import 'package:logger/web.dart';
@@ -21,6 +22,7 @@ Logger logger = Logger();
 
 class _MyLoginState extends State<MyLogin> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _obscureText = true;
   late String email;
   late String password;
   String errorMessage = ''; // Add this variable to hold the error message
@@ -137,16 +139,40 @@ class _MyLoginState extends State<MyLogin> {
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
+                      obscureText: _obscureText,
+                      // obscuringCharacter: '9',
+                      style: const TextStyle(
+                          color: Colors.white, letterSpacing: 2),
                       cursorColor: Colors.white,
-                      obscureText: true,
+
                       onChanged: (value) {
                         setState(() {
                           password = value;
                         });
                       },
-                      decoration:
-                          loginInputDecoration.copyWith(labelText: 'Password'),
-                      style: myInputTextStyle,
+
+                      decoration: loginInputDecoration.copyWith(
+                        labelText: 'Password',
+                        suffixIcon: GestureDetector(
+                          child: Icon(
+                            _obscureText
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                        ),
+                      ),
+
+                      // validator: (value) {
+                      //   if (value == null || value.isEmpty) {
+                      //     return 'Please enter a password';
+                      //   }
+                      //   return null;
+                      // },
                     ),
                     const SizedBox(height: 15),
                     // Display error message if it is not empty
@@ -162,7 +188,7 @@ class _MyLoginState extends State<MyLogin> {
                         : const SizedBox(),
                     const SizedBox(height: 15),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           showDialog(
                             context: context,
@@ -193,10 +219,26 @@ class _MyLoginState extends State<MyLogin> {
 
                           AuthService()
                               .signInWithEmailAndPassword(email, password)
-                              .then((value) {
+                              .then((value) async {
                             Navigator.pop(context); // Close the loading dialog
                             if (value != null) {
                               // get email
+                              final userProfile = UserProfile();
+                              final userExists = await DatabaseService()
+                                  .checkIfUserExists(value.uid);
+                              if (!userExists) {
+                                userProfile.completeProfile(
+                                    userID: value.uid,
+                                    email: email,
+                                    username: value.displayName);
+
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => CompleteProfile(
+                                            userProfile: userProfile)));
+                                return;
+                              }
 
                               DatabaseService()
                                   .getUserProfile(value.uid)
@@ -207,6 +249,7 @@ class _MyLoginState extends State<MyLogin> {
                                 chatProvider.reset();
                                 chatProvider.listenToChatrooms(value.userID!);
                               });
+                              Future.delayed(const Duration(seconds: 2));
 
                               logger.i(
                                   'Chat provider: ${chatProvider.chatrooms.length}');

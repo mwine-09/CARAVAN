@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:caravan/providers/chat_provider.dart';
-import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logger/logger.dart';
 

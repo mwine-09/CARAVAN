@@ -65,15 +65,25 @@ class _CompleteProfileState extends State<CompleteProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
         title: const Text(
           'Complete Profile',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,
+          ),
+        ),
+        centerTitle: false,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        leading: IconButtonTheme(
+          data: const IconButtonThemeData(),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
         ),
       ),
@@ -88,12 +98,12 @@ class _CompleteProfileState extends State<CompleteProfile> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Hello ${widget.userProfile.username}",
+                    "Hello ${widget.userProfile.username}, Complete your profile to continue!",
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Colors.white,
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          letterSpacing: 1.5,
+                          // letterSpacing: 1.5,
                         ),
                   ),
                   const SizedBox(height: 40),
