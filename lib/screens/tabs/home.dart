@@ -24,8 +24,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    UserProfileProvider userProfileProvider = Provider.of(context);
-    UserProfile userProfile = userProfileProvider.userProfile;
+    final userProfile = context.watch<UserProfileProvider>().userProfile;
     String username = userProfile.username ?? 'User';
     return Scaffold(
       appBar: AppBar(

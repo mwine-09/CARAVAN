@@ -28,7 +28,7 @@ class _DestinationScreenState extends State<DestinationScreen> {
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];
   late Set<Polyline> polylines = {};
-  late String destinationText = '';
+  late String destinationText;
   var locationSuggestions = [];
   static Widget _textFieldIcon = const Icon(Icons.search);
 
@@ -41,22 +41,27 @@ class _DestinationScreenState extends State<DestinationScreen> {
   Set<Marker> markers = {};
   bool isLoading = true;
 
-  String currentPositionName = '';
+  String? currentPositionName;
   @override
   void initState() {
     super.initState();
-    locationProvider = Provider.of<LocationProvider>(context, listen: false);
-    currentPositionName = locationProvider.currentPositionName ?? '';
 
-    currentPosition = locationProvider.currentPosition;
-    if (currentPosition != null) {
-      markers.add(
-        Marker(
-          markerId: const MarkerId('current'),
-          position: currentPosition!,
-        ),
-      );
-    }
+    // }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    currentPosition = context.watch<LocationProvider>().currentPosition;
+    currentPositionName = context.watch<LocationProvider>().currentPositionName;
+
+    // if (currentPosition != null) {
+    markers.add(
+      Marker(
+        markerId: const MarkerId('current'),
+        position: currentPosition!,
+      ),
+    );
   }
 
   @override
@@ -106,9 +111,7 @@ class _DestinationScreenState extends State<DestinationScreen> {
                     ignoring: false,
                     child: GoogleMap(
                       initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                            locationProvider.currentPosition!.latitude,
-                            locationProvider.currentPosition!.longitude),
+                        target: currentPosition!,
                         zoom: 14.4746,
                       ),
                       onMapCreated: (GoogleMapController controller) {

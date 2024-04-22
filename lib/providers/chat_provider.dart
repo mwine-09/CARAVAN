@@ -12,7 +12,12 @@ class ChatProvider with ChangeNotifier {
   static final firebaseFirestore = FirebaseFirestore.instance;
   static List<ChatRoom> _chatrooms = [];
 
-  List<ChatRoom> get chatrooms => _chatrooms;
+  List<ChatRoom> get chatrooms {
+    _chatrooms.sort((a, b) {
+      return b.lastMessageTime.compareTo(a.lastMessageTime);
+    });
+    return _chatrooms;
+  }
 
   void listenToChatrooms(String uid) {
     final userID = uid;
