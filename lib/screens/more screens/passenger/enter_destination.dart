@@ -8,8 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:location/location.dart' as location;
 import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +22,7 @@ class DestinationScreen extends StatefulWidget {
 
 class _DestinationScreenState extends State<DestinationScreen> {
   TripRequest tripRequest = TripRequest();
-  late GoogleMapController _googleMapController;
+  GoogleMapController? mapController;
   late LocationService locationService;
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
@@ -48,34 +46,21 @@ class _DestinationScreenState extends State<DestinationScreen> {
   void initState() {
     super.initState();
     locationProvider = Provider.of<LocationProvider>(context, listen: false);
+    currentPositionName = locationProvider.currentPositionName ?? '';
 
-    LocationService()
-        .getPlaceName(
-      locationProvider.currentPosition!.latitude,
-      locationProvider.currentPosition!.longitude,
-    )
-        .then((value) {
-      setState(() {
-        currentPositionName = value;
-        locationProvider.setCurrentPositionName(value);
-      });
-    });
-    setState(() {
-      currentPosition = locationProvider.currentPosition!;
-      markers.add(
-        Marker(
-          markerId: const MarkerId('current'),
-          position: currentPosition,
-        ),
-      );
+    currentPosition = locationProvider.currentPosition ?? initialCameraPosition;
+    markers.add(
+      Marker(
+        markerId: const MarkerId('current'),
+        position: currentPosition,
+      ),
+    );
 
-      isLoading = false;
-    });
+    isLoading = false;
   }
 
   @override
   Widget build(BuildContext context) {
-    ThemeData localTheme = Theme.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -109,21 +94,28 @@ class _DestinationScreenState extends State<DestinationScreen> {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: Colors.black,
+              ),
             )
           : Stack(
               children: [
                 SizedBox(
                   height: MediaQuery.of(context).size.height,
-                  child: GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: locationProvider.currentPosition!,
-                      zoom: 14.4746,
+                  child: IgnorePointer(
+                    ignoring: false,
+                    child: GoogleMap(
+                      onMapCreated: (GoogleMapController controller) {
+                        setState(() {
+                          mapController = controller;
+                        });
+                      },
+                      initialCameraPosition: CameraPosition(
+                        target: locationProvider.currentPosition!,
+                        zoom: 14.4746,
+                      ),
+                      markers: markers,
                     ),
-                    onMapCreated: (GoogleMapController controller) {
-                      _googleMapController = controller;
-                    },
-                    markers: markers,
                   ),
                 ),
                 Container(
@@ -152,22 +144,17 @@ class _DestinationScreenState extends State<DestinationScreen> {
                           const SizedBox(
                             height: 20,
                           ),
-                          Row(
+                          const Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.car_rental,
                                 color: Colors.black,
                               ),
-                              const SizedBox(
+                              SizedBox(
                                 width: 10,
                               ),
                               Text(
                                 'Where are you going?',
-                                style:
-                                    localTheme.textTheme.titleLarge!.copyWith(
-                                  color: Colors.black,
-                                  letterSpacing: 0.5,
-                                ),
                               ),
                             ],
                           ),
@@ -270,11 +257,12 @@ class _DestinationScreenState extends State<DestinationScreen> {
 
                                                           tripRequest.source =
                                                               locationProvider
-                                                                  .currentPositionName!;
+                                                                  .currentPositionName;
                                                           tripRequest
                                                                   .pickupCoordinates =
                                                               locationProvider
-                                                                  .currentPosition!;
+                                                                      .currentPosition ??
+                                                                  initialCameraPosition;
                                                         });
 
                                                         logger.e(tripRequest

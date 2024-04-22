@@ -110,7 +110,7 @@ class ChatProvider with ChangeNotifier {
 
     await firebaseFirestore.collection('chats').doc(chatroomId).set({
       'members': userIds,
-      'lastMessage': '',
+      'lastMessage': 'Send a message to chat!',
       'lastMessageSenderID': '',
       'lastMessageTime': Timestamp.now(),
     });
