@@ -3,6 +3,7 @@
 // import 'dart:html';
 
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/chatroom_screen.dart';
@@ -24,9 +25,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    UserProfileProvider userProfileProvider =
-        Provider.of(context, listen: true);
-    UserProfile userProfile = userProfileProvider.getUserProfile();
+    UserProfileProvider userProfileProvider = Provider.of(context);
+    UserProfile userProfile = userProfileProvider.userProfile;
     String username = userProfile.username ?? 'User';
     return Scaffold(
       appBar: AppBar(
@@ -57,17 +57,16 @@ class _HomeState extends State<Home> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.power_settings_new,
-                color: Colors.white, weight: 0.8),
-            onPressed: () {
-              // Handle settings icon press
-              FirebaseAuth.instance.signOut();
-// redirect to login
-              Navigator.pop(context);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const MyLogin()));
-            },
-          ),
+              icon: const Icon(Icons.power_settings_new,
+                  color: Colors.white, weight: 0.8),
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyLogin()),
+                    (route) => false);
+              })
         ],
       ),
       body: SafeArea(

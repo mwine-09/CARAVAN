@@ -1,178 +1,82 @@
-// ignore_for_file: avoid_print
-
 import 'dart:async';
-
+import 'package:caravan/providers/chat_provider.dart';
+import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:caravan/models/user.dart';
+import 'package:logger/logger.dart';
+
+final logger = Logger();
 
 class AuthService {
-  // _auth is an instance of FirebaseAuth class and it is a private variable
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  // create a user based on the firebase user
-  UserModel _userFromFireBase(User user) {
-    return UserModel(
-        uid: user.uid, email: user.email, username: user.displayName!);
+  static final AuthService _instance = AuthService._internal();
+
+  factory AuthService() {
+    return _instance;
   }
 
-  //
-  // sign in anonymously
-  Future signInAnon() async {
-    try {
-      UserCredential result = await _auth.signInAnonymously();
+  AuthService._internal();
 
-      UserModel? user = _userFromFireBase(result.user!);
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // get current user
+  User getCurrentUser() {
+    try {
+      User user = _auth.currentUser!;
       return user;
     } catch (e) {
-      print(e.toString());
-      // print the error message
-      return null;
-      // return null
+      logger.i(e.toString());
+      rethrow;
     }
   }
 
-// Stream <User> get user{
-//   return _auth
-// }
-// sign in with phone number
-  Future signInWithPhoneNumber(String phoneNumber) async {
-    try {
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) {},
-        verificationFailed: (FirebaseAuthException e) {},
-        codeSent: (String verificationId, int? resendToken) {},
-        codeAutoRetrievalTimeout: (String verificationId) {},
-      );
-      // await _auth.verifyPhoneNumber(
-      //   phoneNumber: phoneNumber,
-      //   verificationCompleted: (PhoneAuthCredential credential) async {
-      //     UserCredential result = await _auth.signInWithCredential(credential);
-      //     UserModel? user = _userFromFireBase(result.user!);
-      //     print(user);
-      //   },
-      //   verificationFailed: (FirebaseAuthException e) {
-      //     print(e.message);
-      //   },
-      //   codeSent: (String verificationId, int? resendToken) {
-      //     print('Verification ID: $verificationId');
-      //     print('Resend Token: $resendToken');
-      //   },
-      //   codeAutoRetrievalTimeout: (String verificationId) {
-      //     // Auto-resolution timed out
-      //     // You can handle this case by prompting the user to enter the code manually
-      //     // or by automatically retrying with a new verification request
-      //     print('Verification ID: $verificationId');
-      //   },
-      // );
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
-  }
-
-  // getCurrentUser function as a base user
-  UserModel? getCurrentUser() {
-    User? user = _auth.currentUser;
-    return _userFromFireBase(user!);
-  }
-
-  // register with email and password
-  Future registerWithEmailAndPassword(
+  // Register with email and password
+  Future<User?> registerWithEmailAndPassword(
       String email, String password, String name) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-
       User? user = result.user;
 
-      await user!.sendEmailVerification();
-      await user.updateDisplayName(name);
+      if (user != null) {
+        await user.sendEmailVerification();
+        await user.updateDisplayName(name);
+      } else {
+        logger.i('User is null');
+        return null;
+      }
 
-      return _userFromFireBase(user);
+      return user;
     } catch (e) {
-      print(e.toString());
+      logger.i(e.toString());
       return null;
     }
   }
 
-  // Future registerWithEmailAndPassword(
-  //     String email, String password, String name,
-  //     {String? username,
-  //     String? firstName,
-  //     String? lastName,
-  //     int? age,
-  //     String? carBrand,
-  //     String? make,
-  //     String? numberPlate,
-  //     String? phoneNumber,
-  //     List<String>? preferences,
-  //     List<EmergencyContact>? emergencyContacts}) async {
-  //   try {
-  //     UserCredential result = await _auth.createUserWithEmailAndPassword(
-  //         email: email, password: password);
-
-  //     User? user = result.user;
-
-  //     await user!.sendEmailVerification();
-  //     await user.updateDisplayName(name);
-
-  //     // Create user document in Firestore
-  //     Map<String, dynamic> userData = {
-  //       'name': name,
-  //       'email': email,
-  //     };
-
-  //     if (username != null) userData['username'] = username;
-  //     if (firstName != null) userData['firstName'] = firstName;
-  //     if (lastName != null) userData['lastName'] = lastName;
-  //     if (age != null) userData['age'] = age;
-  //     if (carBrand != null) userData['carBrand'] = carBrand;
-  //     if (make != null) userData['make'] = make;
-  //     if (numberPlate != null) userData['numberPlate'] = numberPlate;
-  //     if (phoneNumber != null) userData['phoneNumber'] = phoneNumber;
-  //     if (preferences != null) userData['preferences'] = preferences;
-  //     if (emergencyContacts != null) {
-  //       userData['emergencyContacts'] =
-  //           emergencyContacts.map((e) => e.toJson()).toList();
-  //     }
-
-  //     await FirebaseFirestore.instance
-  //         .collection('users')
-  //         .doc(user.uid)
-  //         .set(userData);
-
-  //     return _userFromFireBase(user);
-  //   } catch (e) {
-  //     print(e.toString());
-  //     return null;
-  //   }
-  // }
-
-  // sign in with email and password
-  Future signInWithEmailAndPassword(String email, String password) async {
+  // Sign in with email and password
+  Future<User?> signInWithEmailAndPassword(
+      String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
-
-      result.toString();
-      // print(result.user);
-      print("MWine mwinewine");
       User? user = result.user;
-      print(user!.displayName);
-      return _userFromFireBase(user);
+
+      if (user == null) {
+        logger.i('User is null');
+        return null;
+      }
+
+      return user;
     } catch (e) {
-      print(e.toString());
+      logger.i(e.toString());
       return null;
     }
   }
 
-  // sign out
-  Future signOut() async {
+  // Sign out
+  Future<void> signOut() async {
     try {
-      return await _auth.signOut();
+      await _auth.signOut();
     } catch (e) {
-      print(e.toString());
-      return null;
+      logger.i(e.toString());
     }
   }
 }

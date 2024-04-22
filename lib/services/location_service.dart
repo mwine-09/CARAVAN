@@ -6,6 +6,8 @@ import 'package:caravan/constants.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import "package:http/http.dart" as http;
+import 'package:location/location.dart' as location;
+
 import 'dart:convert' as convert;
 
 import 'package:logger/web.dart';
@@ -14,6 +16,51 @@ var logger = Logger();
 
 class LocationService {
   final String key = googleMapsApiKey;
+  static LatLng? currentPosition;
+  static String currentLocationName = '';
+
+  Future<void> initLocation() async {
+    final location.Location locationController = location.Location();
+    bool serviceEnabled;
+    location.PermissionStatus permissionGranted;
+
+    serviceEnabled = await locationController.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await locationController.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    permissionGranted = await locationController.hasPermission();
+    if (permissionGranted == location.PermissionStatus.denied) {
+      permissionGranted = await locationController.requestPermission();
+      if (permissionGranted != location.PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    locationController.onLocationChanged.listen(
+      (location.LocationData currentLocation) {
+        if (currentLocation.latitude != null &&
+            currentLocation.longitude != null) {
+          currentPosition =
+              LatLng(currentLocation.latitude!, currentLocation.longitude!);
+        }
+      },
+      onError: (error) {
+        print("An error occurred while listening for location changes: $error");
+        // Handle the error as needed
+      },
+    );
+
+    location.LocationData? initialLocation =
+        await locationController.getLocation();
+    if (initialLocation.latitude != null && initialLocation.longitude != null) {
+      currentPosition =
+          LatLng(initialLocation.latitude!, initialLocation.longitude!);
+    }
+  }
 
   Future<String> getPlaceId(String input) async {
     final String url =
@@ -164,92 +211,4 @@ class LocationService {
         .toList();
     return polylines;
   }
-
-  // import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-  // Future<Map<String, dynamic>> getDirection(
-  //   String origin,
-  //   String destination,
-  // ) async {
-  //   final String url =
-  //       "https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$key";
-
-  //   var response = await http.get(Uri.parse(url));
-  //   var json = convert.jsonDecode(response.body);
-
-  //   if (json['routes'] == null || json['routes'].isEmpty) {
-  //     throw Exception('No routes found.');
-  //   }
-
-  //   var route = json['routes'][0];
-  //   var legs = route['legs'];
-
-  //   if (legs == null || legs.isEmpty) {
-  //     throw Exception('No legs found.');
-  //   }
-
-  //   var leg = legs[0];
-
-  //   var results = {
-  //     'distance_km': leg['distance'],
-  //     'bounds_ne': route['bounds']['northeast'],
-  //     'bounds_sw': route['bounds']['southwest'],
-  //     'start_location': leg['start_location'],
-  //     'end_location': leg['end_location'],
-  //     'polyline': route['overview_polyline']['points'],
-  //     'polyline_decoded':
-  //         PolylinePoints().decodePolyline(route['overview_polyline']['points']),
-  //   };
-
-  //   print(results);
-
-  //   List<PointLatLng> polylineDecoded = results['polyline_decoded'];
-  //   for (var point in polylineDecoded) {
-  //     print('Latitude: ${point.latitude}, Longitude: ${point.longitude}');
-  //   }
-
-  //   return results;
-  // }
-
-//   Future<Map<String, dynamic>> getDirection(
-//       String origin, String destination) async {
-//     final String url =
-//         "https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$key";
-
-//     var response = await http.get(Uri.parse(url));
-//     var json = convert.jsonDecode(response.body);
-
-//     if (json['status'] == 'OK' &&
-//         json['routes'] != null &&
-//         json['routes'].isNotEmpty) {
-//       var route = json['routes'][0];
-//       var legs = route['legs'];
-
-//       if (legs != null && legs.isNotEmpty) {
-//         var leg = legs[0];
-
-//         var results = {
-//           'distance_km': leg['distance'],
-//           'bounds_ne': route['bounds']['northeast'],
-//           'bounds_sw': route['bounds']['southwest'],
-//           'start_location': leg['start_location'],
-//           'end_location': leg['end_location'],
-//           'polyline': route['overview_polyline']['points'],
-//           'polyline_decoded': PolylinePoints()
-//               .decodePolyline(route['overview_polyline']['points']),
-//         };
-
-//         print(results);
-
-//         List<PointLatLng> polylineDecoded = results['polyline_decoded'];
-//         for (var point in polylineDecoded) {
-//           print('Latitude: ${point.latitude}, Longitude: ${point.longitude}');
-//         }
-
-//         return results;
-//       }
-//     }
-
-//     throw Exception('No routes found.');
-//   }
 }

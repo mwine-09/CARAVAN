@@ -1,12 +1,12 @@
 import 'package:caravan/providers/chat_provider.dart';
-import 'package:caravan/providers/location_provider.dart';
+
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/shared/constants/text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
+
 import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
 
@@ -33,9 +33,6 @@ class _MyLoginState extends State<MyLogin> {
 
   @override
   Widget build(BuildContext context) {
-    LocationProvider locationProvider =
-        Provider.of<LocationProvider>(context, listen: true);
-
     var loginInputDecoration = InputDecoration(
       focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Colors.white, width: 1.0),
@@ -49,6 +46,7 @@ class _MyLoginState extends State<MyLogin> {
     );
     UserProfileProvider userProfileProvider =
         Provider.of(context, listen: true);
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       body: SafeArea(
@@ -203,17 +201,18 @@ class _MyLoginState extends State<MyLogin> {
                               DatabaseService()
                                   .getUserProfile(value.uid)
                                   .then((value) {
-                                userProfileProvider.setUserProfile(value);
+                                userProfileProvider.userProfile = value;
                                 userProfileProvider.userProfile.email = email;
+
+                                chatProvider.reset();
+                                chatProvider.listenToChatrooms(value.userID!);
                               });
 
-                              final chatProvider = Provider.of<ChatProvider>(
-                                  context,
-                                  listen: false);
-                              logger.i('Chat provider: $chatProvider');
+                              logger.i(
+                                  'Chat provider: ${chatProvider.chatrooms.length}');
                               Navigator.pop(context);
                               Navigator.pushNamed(context, '/home');
-                              print('Signed in: ${value.username}');
+                              print('Signed in: ${value.displayName}');
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -221,7 +220,7 @@ class _MyLoginState extends State<MyLogin> {
                                     backgroundColor: Colors.white,
                                     title: const Text("Success"),
                                     content: Text(
-                                      "Signed in as ${value.username}",
+                                      "Signed in as ${value.displayName}",
                                     ),
                                     actions: <Widget>[
                                       TextButton(

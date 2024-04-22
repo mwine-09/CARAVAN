@@ -200,9 +200,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           MaterialPageRoute(
                             builder:
                                 (context) => // Initialize userProfile variable
-                                    ProfileScreen(
-                              uid: uid,
-                            ),
+                                    const ProfileScreen(),
                           ));
                     },
                   ),

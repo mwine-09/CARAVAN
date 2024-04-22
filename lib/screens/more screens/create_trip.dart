@@ -3,6 +3,7 @@ import 'package:caravan/models/user.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/shared/constants/text_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CreateTripScreen extends StatelessWidget {
@@ -13,7 +14,7 @@ class CreateTripScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-    title: Text('Add Trip',
+        title: Text('Add Trip',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Colors.white,
                   fontSize: 20,
@@ -37,13 +38,15 @@ class AddTripForm extends StatefulWidget {
 }
 
 class _AddTripFormState extends State<AddTripForm> {
+  final AuthService _auth = AuthService();
+
   final _formKey = GlobalKey<FormState>();
   String _departureLocation = '';
   String _destination = '';
   final DateTime _departureTime = DateTime.now();
   int _availableSeats = 0;
   String _tripStatus = '';
-  UserModel? user = AuthService().getCurrentUser();
+  User user = AuthService().getCurrentUser();
   String _driverId = '';
   String _feedback = '';
 
@@ -101,13 +104,12 @@ class _AddTripFormState extends State<AddTripForm> {
             Text(_feedback, style: const TextStyle(color: Colors.green)),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: Colors.white,
-                minimumSize: const Size(280, 50)
-              ),
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.white,
+                  minimumSize: const Size(280, 50)),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  _driverId = user!.uid;
+                  _driverId = user.uid;
                   DatabaseService().addTrip(
                     _driverId,
                     _departureLocation,
@@ -122,11 +124,11 @@ class _AddTripFormState extends State<AddTripForm> {
                   Navigator.pop(context);
                 }
               },
- child: Text('Post Trip',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium
-                        ?.copyWith(color: Colors.black, fontSize: 18)),
+              child: Text('Post Trip',
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: Colors.black, fontSize: 18)),
             ),
           ],
         ),

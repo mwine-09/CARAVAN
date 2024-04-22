@@ -96,7 +96,6 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                         "This is the length of the contacts: ${contacts.length}");
                     widget.userProfile
                         .completeProfile(emergencyContacts: contacts);
-                    userProfileProvider.setUserProfile(widget.userProfile);
 
                     print(userProfileProvider.toString());
                     // get the data in hte userprofile provider and insert into the database

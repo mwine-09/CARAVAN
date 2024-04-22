@@ -172,10 +172,10 @@ class DatabaseService {
   Future<UserProfile> getUserProfile(String userId) {
     print("The receiver id supplied to the getUserProfile is $userId");
     return _firestore.collection('users').doc(userId).get().then((snapshot) {
-      print("${snapshot.data()} is the snapshot data");
+      // print("${snapshot.data()} is the snapshot data");
       return UserProfile.fromSnapshot(snapshot);
     }).catchError((e) {
-      print('Error getting user profile: $e');
+      // print('Error getting user profile: $e');
       throw e;
     });
   }

@@ -8,20 +8,16 @@ import 'package:logger/logger.dart';
 final logger = Logger();
 
 class ChatProvider with ChangeNotifier {
-  final _firebaseAuth = FirebaseAuth.instance;
-  final _firebaseFirestore = FirebaseFirestore.instance;
-  List<ChatRoom> _chatrooms = [];
+  static final firebaseAuth = FirebaseAuth.instance;
+  static final firebaseFirestore = FirebaseFirestore.instance;
+  static List<ChatRoom> _chatrooms = [];
 
   List<ChatRoom> get chatrooms => _chatrooms;
 
-  ChatProvider() {
-    _listenToChatrooms();
-  }
+  void listenToChatrooms(String uid) {
+    final userID = uid;
 
-  void _listenToChatrooms() {
-    final userID = _firebaseAuth.currentUser!.uid;
-
-    _firebaseFirestore
+    firebaseFirestore
         .collection('chats')
         .where('members', arrayContains: userID)
         .snapshots()
@@ -61,6 +57,11 @@ class ChatProvider with ChangeNotifier {
     }, onError: (error) {
       logger.e('Error listening to chatrooms: $error');
     });
+  }
+
+  void stopListeningToChatrooms() {
+    _chatrooms = [];
+    notifyListeners();
   }
 
   ChatRoom? getChatroom(String otherUserId) {
@@ -107,8 +108,11 @@ class ChatProvider with ChangeNotifier {
     // Join the user IDs with an underscore to create the chatroom ID
     String chatroomId = userIds.join('_');
 
-    await _firebaseFirestore.collection('chats').doc(chatroomId).set({
+    await firebaseFirestore.collection('chats').doc(chatroomId).set({
       'members': userIds,
+      'lastMessage': '',
+      'lastMessageSenderID': '',
+      'lastMessageTime': Timestamp.now(),
     });
   }
 
@@ -119,7 +123,7 @@ class ChatProvider with ChangeNotifier {
   }
 
   void _listenToMessages(String chatRoomId) {
-    _firebaseFirestore
+    firebaseFirestore
         .collection('chats')
         .doc(chatRoomId)
         .collection('messages')
@@ -148,7 +152,7 @@ class ChatProvider with ChangeNotifier {
   Future<String> getUsername(String userId) async {
     try {
       final snapshot =
-          await _firebaseFirestore.collection('users').doc(userId).get();
+          await firebaseFirestore.collection('users').doc(userId).get();
       if (snapshot.exists) {
         return snapshot.data()!['username'];
       } else {
@@ -162,7 +166,7 @@ class ChatProvider with ChangeNotifier {
 
   Future<void> fetchMessages(ChatRoom chatRoom) async {
     try {
-      final querySnapshot = await _firebaseFirestore
+      final querySnapshot = await firebaseFirestore
           .collection('chats')
           .doc(chatRoom.id)
           .collection('messages')
@@ -185,7 +189,7 @@ class ChatProvider with ChangeNotifier {
 
   Stream<List<Message>> getMessagesStream(String chatRoomId) {
     logger.i('Getting messages for chatroom: $chatRoomId');
-    return _firebaseFirestore
+    return firebaseFirestore
         .collection('chats')
         .doc(chatRoomId)
         .collection('messages')
@@ -199,8 +203,14 @@ class ChatProvider with ChangeNotifier {
   }
 
   String getOtherUserId(String chatId) {
-    final userId = _firebaseAuth.currentUser!.uid;
+    final userId = firebaseAuth.currentUser!.uid;
     List<String> userIds = chatId.split('_');
     return userIds.firstWhere((id) => id != userId);
+  }
+
+  void reset() {
+    _chatrooms = [];
+
+    notifyListeners();
   }
 }

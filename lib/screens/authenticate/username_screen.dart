@@ -83,7 +83,7 @@ class UsernameScreen extends StatelessWidget {
 
                     // Complete the user profile
                     userProfile.completeProfile(
-                      userID: user.uid,
+                      userID: user!.uid,
                       username: username,
                       email: userProfile.email,
                     );

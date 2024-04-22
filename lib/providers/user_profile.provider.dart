@@ -1,34 +1,28 @@
-import 'package:caravan/models/emergency_contact.dart';
-import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/services/database_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:caravan/models/user_profile.dart';
 
-class UserProfileProvider with ChangeNotifier {
-  UserProfile _userProfile;
-  UserProfileProvider(this._userProfile);
+class UserProfileProvider extends ChangeNotifier {
+  static UserProfile _userProfile = UserProfile();
+
+  void initialize(String uid) {
+    DatabaseService().getUserProfile(uid).then((value) {
+      userProfile = value;
+    });
+  }
 
   UserProfile get userProfile => _userProfile;
 
+  set userProfile(UserProfile value) {
+    _userProfile = value;
+    notifyListeners();
+  }
+
   void updateUserProfile(UserProfile newProfile) {
-    _userProfile = newProfile;
-    notifyListeners();
+    userProfile = newProfile;
   }
 
-  // Add your methods and logic here
-
-  // set emergency contacts
-  void setEmergencyContacts(List<EmergencyContact> emergencyContacts) {
-    _userProfile.emergencyContacts = emergencyContacts;
-    notifyListeners();
-  }
-
-// get user profile function
-  UserProfile getUserProfile() {
-    return _userProfile;
-  }
-
-  // set user profile function
-  void setUserProfile(UserProfile userProfile) {
-    _userProfile = userProfile;
-    notifyListeners();
+  void reset() {
+    userProfile = UserProfile();
   }
 }
