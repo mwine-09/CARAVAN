@@ -1,28 +1,33 @@
+import 'package:caravan/models/user_profile.dart';
+
 class Trip {
-  final String id;
-  final String location;
-  final String destination;
-  final int availableSeats;
-  final DateTime dateTime;
-  final String tripStatus;
-  final String driverID;
+  String id;
+  String location;
+  String destination;
+  int availableSeats;
+  DateTime dateTime;
+  String tripStatus;
+  UserProfile? createdBy;
+  String driverID;
 
   Trip.empty()
       : id = '',
-        driverID = '',
+        createdBy = UserProfile(),
         location = '',
         destination = '',
         tripStatus = '',
         availableSeats = 0,
+        driverID = '',
         dateTime = DateTime.now();
 
   Trip({
     required this.id,
-    required this.driverID,
+    this.createdBy,
     required this.location,
     required this.destination,
     required this.availableSeats,
     required this.dateTime,
     required this.tripStatus,
+    required this.driverID,
   });
 }

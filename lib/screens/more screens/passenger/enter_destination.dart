@@ -53,16 +53,6 @@ class _DestinationScreenState extends State<DestinationScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    locationProvider = Provider.of<LocationProvider>(context);
-    currentPositionName = locationProvider.currentPositionName ?? '';
-
-    currentPosition = locationProvider.currentPosition ?? initialCameraPosition;
-    markers.add(
-      Marker(
-        markerId: const MarkerId('current'),
-        position: currentPosition,
-      ),
-    );
 
     if (mapController != null && currentPosition != initialCameraPosition) {
       mapController!.animateCamera(
@@ -74,12 +64,21 @@ class _DestinationScreenState extends State<DestinationScreen> {
         ),
       );
     }
-
-    isLoading = false;
   }
 
   @override
   Widget build(BuildContext context) {
+    locationProvider = Provider.of<LocationProvider>(context);
+    currentPositionName = locationProvider.currentPositionName ?? '';
+
+    currentPosition = locationProvider.currentPosition ?? initialCameraPosition;
+    markers.add(
+      Marker(
+        markerId: const MarkerId('current'),
+        position: currentPosition,
+      ),
+    );
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(

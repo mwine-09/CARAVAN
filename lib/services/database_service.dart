@@ -5,12 +5,14 @@ import 'package:caravan/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:logger/logger.dart';
+
 import 'package:path/path.dart' as p;
 
 class DatabaseService {
   // create a variable that store the user
   User? user = FirebaseAuth.instance.currentUser;
-
+  final logger = Logger();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Add a new user to the "users" collection
@@ -72,17 +74,26 @@ class DatabaseService {
     return FirebaseFirestore.instance
         .collection('/trips')
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) {
-              return Trip(
-                id: doc.id,
-                driverID: doc['driver ID'],
-                location: doc['departure location'],
-                destination: doc['destination'],
-                availableSeats: doc['available seats'],
-                dateTime: (doc['departure time'] as Timestamp).toDate(),
-                tripStatus: doc['trip status'],
-              );
-            }).toList());
+        .asyncMap((snapshot) async {
+      List<Trip> trips = [];
+      for (var doc in snapshot.docs) {
+        Trip trip = Trip(
+          id: doc.id,
+          driverID: doc['driver ID'],
+          location: doc['departure location'],
+          destination: doc['destination'],
+          availableSeats: doc['available seats'],
+          dateTime: (doc['departure time'] as Timestamp).toDate(),
+          tripStatus: doc['trip status'],
+        );
+        UserProfile userProfile = await getUserProfile(doc['driver ID']);
+
+        logger.i('The photourl is ${userProfile.photoUrl}');
+        trip.createdBy = userProfile;
+        trips.add(trip);
+      }
+      return trips;
+    });
   }
 
   // Add a new booking to the "bookings" collection

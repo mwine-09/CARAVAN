@@ -49,6 +49,11 @@
 
 	 <key>NSLocationWhenInUseUsageDescription</key>
 <string>Your location is used to provide relevant information based on your current location.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Caravan requires access to your photo library to upload and share photos</string>
+
+<key>NSCameraUsageDescription</key>
+<string>Caravan requires access to your camera to capture and upload photos.</string>
 
 	<key>UISupportedInterfaceOrientations</key>
 	<array>

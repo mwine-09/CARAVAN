@@ -50,7 +50,20 @@ class AvailableTrips extends StatelessWidget {
         stream: DatabaseService().fetchTrips(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+                SizedBox(height: 10),
+                Text('Loading trips...',
+                    style: TextStyle(
+                      color: Colors.white,
+                    )),
+              ],
+            ));
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}',
                 style: const TextStyle(
@@ -112,9 +125,12 @@ class AvailabeTripCard extends StatelessWidget {
                 Container(
                   width: 100,
                   height: 100,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/default_profile.jpg'),
+                      image: trip.createdBy?.photoUrl != null
+                          ? NetworkImage(trip.createdBy!.photoUrl!)
+                          : const AssetImage('assets/default_profile.jpg')
+                              as ImageProvider<Object>,
                     ),
                   ),
                 ),

@@ -333,6 +333,7 @@ class TripDriverCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String driverID = trip.driverID;
+
     print("The driver id is $driverID");
     return Card(
       shape: RoundedRectangleBorder(
@@ -351,9 +352,12 @@ class TripDriverCard extends StatelessWidget {
                   Container(
                     width: 100,
                     height: 100,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage('assets/default_profile.jpg'),
+                        image: userProfile.photoUrl != null
+                            ? NetworkImage(userProfile.photoUrl!)
+                            : const AssetImage('assets/default_profile.jpg')
+                                as ImageProvider<Object>,
                       ),
                     ),
                   ),

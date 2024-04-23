@@ -68,7 +68,7 @@ class UserProfile {
       age: data['age'],
       carBrand: data['carBrand'],
       make: data['make'],
-      photoUrl: data['photoUrl'],
+      photoUrl: data['profilePicture'],
       isDriver: data['isDriver'],
       numberPlate: data['numberPlate'],
       phoneNumber: data['phoneNumber'],
