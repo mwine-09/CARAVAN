@@ -39,7 +39,6 @@ class MyRideSharingApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const Wrapper(),
 
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
@@ -89,6 +88,9 @@ class MyRideSharingApp extends StatelessWidget {
         '/index': (context) => const Welcome(),
         '/login': (context) => const MyLogin()
       },
+
+      home: const Wrapper(),
+
       // initialRoute: '/index',
     );
   }

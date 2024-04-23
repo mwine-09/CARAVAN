@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:caravan/models/chat_room.dart';
 import 'package:caravan/models/message.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final logger = Logger();
 
@@ -57,6 +60,7 @@ class ChatProvider with ChangeNotifier {
       for (var chatRoom in _chatrooms) {
         await fetchMessages(chatRoom);
       }
+      saveChatrooms();
 
       notifyListeners();
     }, onError: (error) {
@@ -211,6 +215,35 @@ class ChatProvider with ChangeNotifier {
     final userId = firebaseAuth.currentUser!.uid;
     List<String> userIds = chatId.split('_');
     return userIds.firstWhere((id) => id != userId);
+  }
+
+  Future<void> saveChatrooms() async {
+    logger.e("Saving chatrooms to shared preferences  ");
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('chatrooms',
+        jsonEncode(_chatrooms.map((chatroom) => chatroom.toJson()).toList()));
+
+    logger.e("Done saving chatrooms to shared preferences");
+  }
+
+  Future<void> loadChatrooms(String uid) async {
+    logger.e('Loading chatrooms from shared preferences');
+    listenToChatrooms(uid);
+    final prefs = await SharedPreferences.getInstance();
+    String? chatroomsString = prefs.getString('chatrooms');
+    if (chatroomsString != null) {
+      _chatrooms = (jsonDecode(chatroomsString) as List)
+          .map((i) => ChatRoom.fromJson(i))
+          .toList();
+
+      for (var chatroom in _chatrooms) {
+        logger.i(
+            'Chatroom: ${chatroom.id} ${chatroom.lastMessage} ${chatroom.lastMessageSenderID} ${chatroom.lastMessageTime} ${chatroom.members} ${chatroom.messages}');
+      }
+
+      logger.e('Chatrooms loaded from shared preferences: $_chatrooms');
+      notifyListeners();
+    }
   }
 
   void reset() {

@@ -3,7 +3,6 @@ import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +23,17 @@ class ChatListScreen extends StatelessWidget {
           )),
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
+          if (chatProvider.chatrooms.isEmpty) {
+            chatProvider.loadChatrooms(userProfileProvider.userProfile.userID!);
+
+            if (chatProvider.chatrooms.isEmpty) {
+              return Center(
+                child: Text('No chats yet',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Colors.white, fontWeight: FontWeight.bold)),
+              );
+            }
+          }
           return ListView.builder(
             itemCount: chatProvider.chatrooms.length,
             itemBuilder: (context, index) {
@@ -37,7 +47,7 @@ class ChatListScreen extends StatelessWidget {
                       backgroundImage: AssetImage('assets/default_profile.jpg'),
                     ),
                     title: Text(
-                      chatRoom.title!,
+                      chatRoom.title ?? 'No title',
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Row(

@@ -1,4 +1,3 @@
-
 import 'package:caravan/models/emergency_contact.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -128,6 +127,27 @@ class UserProfile {
       'isDriver': isDriver,
       'photoUrl': photoUrl,
     };
+  }
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      userID: json['userID'],
+      username: json['username'],
+      firstName: json['firstName'],
+      lastName: json['lastName'],
+      email: json['email'],
+      age: json['age'],
+      carBrand: json['carBrand'],
+      make: json['make'],
+      numberPlate: json['numberPlate'],
+      phoneNumber: json['phoneNumber'],
+      preferences: List<String>.from(json['preferences']),
+      emergencyContacts: (json['emergencyContacts'] as List<dynamic>?)
+          ?.map((e) => EmergencyContact.fromJson(e))
+          .toList(),
+      photoUrl: json['photoUrl'],
+      isDriver: json['isDriver'],
+    );
   }
 
   @override

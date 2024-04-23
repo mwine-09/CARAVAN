@@ -52,8 +52,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       right: 0,
                       child: IconButton(
                         icon: const Icon(
-                          Icons.edit,
-                          color: Color.fromARGB(255, 0, 0, 0),
+                          Icons.add_a_photo,
+                          color: Color.fromARGB(255, 255, 255, 255),
                         ),
                         onPressed: () {
                           showModalBottomSheet(
@@ -142,18 +142,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             },
                           );
                         },
-                      ),
-                    ),
-                  if (userProfile.photoUrl == null)
-                    const Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Text(
-                        'Add Photo',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
                       ),
                     ),
                 ],

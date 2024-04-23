@@ -134,7 +134,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              capitalize(widget.chatRoom.title!),
+              capitalize(widget.chatRoom.title ?? 'No title'),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontSize: 16,
@@ -145,9 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
             const Spacer(),
             IconButton(
               icon: const Icon(Icons.call),
-              onPressed: () {
-                // Implement call functionality
-              },
+              onPressed: () {},
             ),
           ],
         ),

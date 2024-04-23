@@ -23,4 +23,30 @@ class ChatRoom {
   set setMessages(List<Message> newMessages) {
     messages = newMessages;
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'lastMessage': lastMessage,
+      'lastMessageSenderID': lastMessageSenderID,
+      'lastMessageTime': lastMessageTime.toDate().toIso8601String(),
+      'members': members,
+      'messages': messages.map((message) => message.toJson()).toList(),
+    };
+  }
+
+  factory ChatRoom.fromJson(Map<String, dynamic> json) {
+    return ChatRoom(
+      id: json['id'],
+      title: json['title'],
+      lastMessage: json['lastMessage'],
+      lastMessageSenderID: json['lastMessageSenderID'],
+      lastMessageTime:
+          Timestamp.fromDate(DateTime.parse(json['lastMessageTime'])),
+      members: List<String>.from(json['members']),
+      messages: List<Message>.from(
+          json['messages'].map((message) => Message.fromJson(message))),
+    );
+  }
 }

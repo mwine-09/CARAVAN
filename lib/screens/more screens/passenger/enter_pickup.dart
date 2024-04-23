@@ -105,113 +105,62 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                   maxChildSize: 0.8,
                   builder: (BuildContext context,
                           ScrollController scrollController) =>
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.8,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 0, horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      isChooseCustomPickUp = true;
-                                    });
-                                  },
-                                  child: const Text(
-                                    'Edit',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                )
-                              ],
+                      Expanded(
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.8,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
                             ),
-                            Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 0, horizontal: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  const Row(
-                                    children: [
-                                      Text(
-                                        'Pickup Location',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        isChooseCustomPickUp = true;
+                                      });
+                                    },
+                                    child: const Text(
+                                      'Edit',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.9,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
+                                  )
+                                ],
+                              ),
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Row(
                                       children: [
-                                        const Icon(
-                                          Icons.location_on,
-                                          color: Colors.black,
-                                        ),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        Flexible(
-                                          child: Text(
-                                            pickupLocation,
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            softWrap: true,
-                                            overflow: TextOverflow.visible,
+                                        Text(
+                                          'Pickup Location',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  const Row(
-                                    children: [
-                                      Text(
-                                        'Destination',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        softWrap: true,
-                                        overflow: TextOverflow.visible,
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
                                       width: MediaQuery.of(context).size.width *
                                           0.9,
                                       padding: const EdgeInsets.symmetric(
@@ -228,11 +177,11 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                                             color: Colors.black,
                                           ),
                                           const SizedBox(
-                                            width: 16,
+                                            width: 10,
                                           ),
                                           Flexible(
                                             child: Text(
-                                              'Destination: ${widget.tripRequest.destination}',
+                                              pickupLocation,
                                               style: const TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
@@ -242,31 +191,86 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                                             ),
                                           ),
                                         ],
-                                      )),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  Align(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.black,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 20, vertical: 16),
-                                      ),
-                                      onPressed: () {},
-                                      child: Text(
-                                        'Request Ride',
-                                        style: theme.textTheme.titleLarge!
-                                            .copyWith(
-                                                color: Colors.white,
-                                                letterSpacing: 0.5),
                                       ),
                                     ),
-                                  )
-                                ],
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    const Row(
+                                      children: [
+                                        Text(
+                                          'Destination',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          softWrap: true,
+                                          overflow: TextOverflow.visible,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.9,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 20, vertical: 10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.location_on,
+                                              color: Colors.black,
+                                            ),
+                                            const SizedBox(
+                                              width: 16,
+                                            ),
+                                            Flexible(
+                                              child: Text(
+                                                'Destination: ${widget.tripRequest.destination}',
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                softWrap: true,
+                                                overflow: TextOverflow.visible,
+                                              ),
+                                            ),
+                                          ],
+                                        )),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    Align(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.black,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20, vertical: 16),
+                                        ),
+                                        onPressed: () {},
+                                        child: Text(
+                                          'Request Ride',
+                                          style: theme.textTheme.titleLarge!
+                                              .copyWith(
+                                                  color: Colors.white,
+                                                  letterSpacing: 0.5),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ))
               : Container(

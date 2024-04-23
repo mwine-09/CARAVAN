@@ -243,7 +243,8 @@ class _MyLoginState extends State<MyLogin> {
                               DatabaseService()
                                   .getUserProfile(value.uid)
                                   .then((value) {
-                                userProfileProvider.userProfile = value;
+                                // userProfileProvider.userProfile = value;
+                                userProfileProvider.saveUserProfile(value);
                                 userProfileProvider.userProfile.email = email;
 
                                 chatProvider.reset();
@@ -255,7 +256,7 @@ class _MyLoginState extends State<MyLogin> {
                                   'Chat provider: ${chatProvider.chatrooms.length}');
                               Navigator.pop(context);
                               Navigator.pushNamed(context, '/home');
-                              print('Signed in: ${value.displayName}');
+
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {

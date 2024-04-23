@@ -22,10 +22,23 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  void setProvider() async {
+    await Provider.of<UserProfileProvider>(context).loadUserProfile();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final userProfile = context.watch<UserProfileProvider>().userProfile;
+    var userProfile = context.watch<UserProfileProvider>().userProfile;
+    if (userProfile.userID == null) {
+      setProvider();
+
+      return const MyLogin();
+    }
+    // final userProfile = FirebaseAuth.instance.currentUser!.displayName;
+
     String username = userProfile.username ?? 'User';
+    // String username = userProfile ?? 'User';
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,

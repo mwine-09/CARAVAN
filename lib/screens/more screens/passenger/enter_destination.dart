@@ -22,13 +22,13 @@ class DestinationScreen extends StatefulWidget {
 
 class _DestinationScreenState extends State<DestinationScreen> {
   TripRequest tripRequest = TripRequest();
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
   late LocationService locationService;
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];
   late Set<Polyline> polylines = {};
-  late String destinationText;
+  late String destinationText = '';
   var locationSuggestions = [];
   static Widget _textFieldIcon = const Icon(Icons.search);
 
@@ -36,32 +36,46 @@ class _DestinationScreenState extends State<DestinationScreen> {
   late LocationProvider locationProvider;
 
   TextEditingController destinationController = TextEditingController();
-  var initialCameraPosition = const LatLng(0, 0);
-  late LatLng? currentPosition;
+
+  var initialCameraPosition = const LatLng(0.3151691, 32.5816307);
+
+  late LatLng currentPosition;
   Set<Marker> markers = {};
   bool isLoading = true;
 
-  String? currentPositionName;
+  String currentPositionName = '';
+
   @override
   void initState() {
     super.initState();
-
-    // }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    currentPosition = context.watch<LocationProvider>().currentPosition;
-    currentPositionName = context.watch<LocationProvider>().currentPositionName;
+    locationProvider = Provider.of<LocationProvider>(context);
+    currentPositionName = locationProvider.currentPositionName ?? '';
 
-    // if (currentPosition != null) {
+    currentPosition = locationProvider.currentPosition ?? initialCameraPosition;
     markers.add(
       Marker(
         markerId: const MarkerId('current'),
-        position: currentPosition!,
+        position: currentPosition,
       ),
     );
+
+    if (mapController != null && currentPosition != initialCameraPosition) {
+      mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: currentPosition,
+            zoom: 14.4746,
+          ),
+        ),
+      );
+    }
+
+    isLoading = false;
   }
 
   @override
@@ -110,13 +124,16 @@ class _DestinationScreenState extends State<DestinationScreen> {
                   child: IgnorePointer(
                     ignoring: false,
                     child: GoogleMap(
+                      onMapCreated: (GoogleMapController controller) {
+                        setState(() {
+                          mapController = controller;
+                        });
+                      },
                       initialCameraPosition: CameraPosition(
-                        target: currentPosition!,
+                        target: locationProvider.currentPosition ??
+                            initialCameraPosition,
                         zoom: 14.4746,
                       ),
-                      onMapCreated: (GoogleMapController controller) {
-                        mapController = controller;
-                      },
                       markers: markers,
                     ),
                   ),

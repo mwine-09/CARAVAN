@@ -1,5 +1,6 @@
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/trips_provider.dart';
+import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/more%20screens/create_trip.dart';
 import 'package:caravan/screens/more%20screens/trip_details.dart';
 import 'package:caravan/services/database_service.dart';
@@ -32,15 +33,16 @@ class AvailableTrips extends StatelessWidget {
           },
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const CreateTripScreen()));
-            },
-          ),
+          if (context.read<UserProfileProvider>().userProfile.isDriver)
+            IconButton(
+              icon: const Icon(Icons.add, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CreateTripScreen()));
+              },
+            ),
         ],
         backgroundColor: Colors.black,
       ),
