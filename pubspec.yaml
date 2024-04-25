@@ -67,6 +67,8 @@ dependencies:
   path_to_regexp: ^0.4.0
   logger: ^2.2.0
   shared_preferences: ^2.2.3
+  flutter_background_geolocation: ^4.15.2
+  geolocator: ^11.0.0
   image_picker: ^1.1.0
   # google_sign_in: ^6.2.1
 

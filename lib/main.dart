@@ -6,8 +6,9 @@ import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
-import 'package:caravan/providers/user_provider.dart';
+
 import 'package:caravan/screens/authenticate/interim_login.dart';
+import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/tabs/history.dart';
 import 'package:caravan/screens/more%20screens/welcome_screen.dart';
 import 'package:caravan/screens/main_scaffold.dart';
@@ -15,6 +16,7 @@ import 'package:caravan/screens/more%20screens/profile.dart';
 import 'package:caravan/screens/wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -24,7 +26,6 @@ Future<void> main() async {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => LocationProvider()),
     ChangeNotifierProvider(create: (context) => TripDetailsProvider()),
-    ChangeNotifierProvider(create: (context) => UserProvider()),
     ChangeNotifierProvider(create: (context) => ChatProvider()),
     ChangeNotifierProvider(create: (context) => UserProfileProvider())
   ], child: const MyRideSharingApp()));
@@ -45,6 +46,9 @@ class MyRideSharingApp extends StatelessWidget {
           backgroundColor: Colors.black,
           elevation: 0,
         ),
+        bottomAppBarTheme: const BottomAppBarTheme(
+            color: Colors.black,
+            shape: AutomaticNotchedShape(RoundedRectangleBorder())),
         primarySwatch: Colors.yellow,
         pageTransitionsTheme: const PageTransitionsTheme(),
         scaffoldBackgroundColor: Colors.black,
@@ -86,7 +90,8 @@ class MyRideSharingApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/history': (context) => const HistoryScreen(),
         '/index': (context) => const Welcome(),
-        '/login': (context) => const MyLogin()
+        '/login': (context) => const MyLogin(),
+        '/available_trips': (context) => const AvailableTrips(),
       },
 
       home: const Wrapper(),

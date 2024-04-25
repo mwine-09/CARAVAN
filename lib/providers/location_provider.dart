@@ -1,25 +1,17 @@
-import 'package:flutter/material.dart';
-
 import 'package:caravan/services/location_service.dart';
-
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 import 'package:location/location.dart' as location;
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+    as bg;
 
 class LocationProvider with ChangeNotifier {
-  final locationController = location.Location();
+  final location.Location locationController = location.Location();
   LatLng? _currentPosition;
   String? _currentPositionName;
-  bool _isLoading = true;
 
   LatLng? get currentPosition => _currentPosition;
   String? get currentPositionName => _currentPositionName;
-  bool get isLoading => _isLoading;
-
-  // setters
-  void setCurrentPosition(LatLng newPosition) {
-    _updateCurrentPosition(newPosition);
-  }
 
   void setCurrentPositionName(String newName) {
     _currentPositionName = newName;
@@ -28,32 +20,66 @@ class LocationProvider with ChangeNotifier {
 
   LocationProvider() {
     _initLocationUpdates();
+    _configureBackgroundGeolocation();
   }
 
   Future<void> _initLocationUpdates() async {
-    var permissionGranted = await locationController.hasPermission();
-    if (permissionGranted == location.PermissionStatus.denied) {
-      permissionGranted = await locationController.requestPermission();
-      if (permissionGranted != location.PermissionStatus.granted) {
-        return;
-      }
-    }
-    locationController.onLocationChanged
-        .listen((location.LocationData currentLocation) {
-      if (currentLocation.latitude != null &&
-          currentLocation.longitude != null) {
+    try {
+      await _enableLocationService();
+      await _requestPermission();
+
+      locationController.onLocationChanged
+          .listen((location.LocationData currentLocation) {
+        if (currentLocation.latitude != null &&
+            currentLocation.longitude != null) {
+          _updateCurrentPosition(
+            LatLng(currentLocation.latitude!, currentLocation.longitude!),
+          );
+        }
+      });
+
+      location.LocationData? initialLocation =
+          await locationController.getLocation();
+      if (initialLocation.latitude != null &&
+          initialLocation.longitude != null) {
         _updateCurrentPosition(
-          LatLng(currentLocation.latitude!, currentLocation.longitude!),
+          LatLng(initialLocation.latitude!, initialLocation.longitude!),
         );
       }
-    });
+    } catch (e) {
+      print('Error initializing location updates: $e');
+      // Handle the error as appropriate in your app
+    }
+  }
 
-    location.LocationData? initialLocation =
-        await locationController.getLocation();
-    if (initialLocation.latitude != null && initialLocation.longitude != null) {
-      _updateCurrentPosition(
-        LatLng(initialLocation.latitude!, initialLocation.longitude!),
-      );
+  Future<bool> _isLocationServiceEnabled() async {
+    return await locationController.serviceEnabled();
+  }
+
+  Future<void> _enableLocationService() async {
+    bool serviceEnabled = await _isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await locationController.requestService();
+      if (!serviceEnabled) {
+        throw Exception('Location service is disabled.');
+      }
+    }
+  }
+
+  Future<bool> _isPermissionGranted() async {
+    location.PermissionStatus permission =
+        await locationController.hasPermission();
+    return permission == location.PermissionStatus.granted;
+  }
+
+  Future<void> _requestPermission() async {
+    bool permissionGranted = await _isPermissionGranted();
+    if (!permissionGranted) {
+      location.PermissionStatus permission =
+          await locationController.requestPermission();
+      if (permission != location.PermissionStatus.granted) {
+        throw Exception('Location permissions are denied');
+      }
     }
   }
 
@@ -61,7 +87,42 @@ class LocationProvider with ChangeNotifier {
     _currentPosition = newPosition;
     _currentPositionName = await LocationService()
         .getPlaceName(newPosition.latitude, newPosition.longitude);
-    _isLoading = false;
     notifyListeners();
+  }
+
+// background location updates
+
+  void _configureBackgroundGeolocation() {
+    bg.BackgroundGeolocation.onLocation((bg.Location location) {
+      print('[location] - $location');
+      _updateCurrentPosition(
+        LatLng(location.coords.latitude, location.coords.longitude),
+      );
+    });
+
+    bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
+      print('[motionchange] - $location');
+      _updateCurrentPosition(
+        LatLng(location.coords.latitude, location.coords.longitude),
+      );
+    });
+
+    bg.BackgroundGeolocation.ready(bg.Config(
+      desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+      distanceFilter: 10.0,
+      stopOnTerminate: false,
+      startOnBoot: true,
+      debug: true,
+      logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+      reset: true,
+    ));
+  }
+
+  void startBackgroundGeolocation() {
+    bg.BackgroundGeolocation.start();
+  }
+
+  void stopBackgroundGeolocation() {
+    bg.BackgroundGeolocation.stop();
   }
 }

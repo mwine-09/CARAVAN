@@ -12,6 +12,7 @@ import 'package:caravan/screens/more%20screens/selected_user_profile.dart';
 import 'package:caravan/services/location_service.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -54,171 +55,180 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Driver details",
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 255, 255, 255),
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TripDriverCard(
-                    trip: trip,
-                    selectedDriverName: selectedDriverName,
-                    userProfile: widget.userProfile),
-                const SizedBox(height: 5),
-                const Text(
-                  "Trip Details",
-                  style: TextStyle(
-                      color: Color.fromARGB(255, 249, 249, 249),
+            child: Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Driver details",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
                       fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 22, 22, 22),
-                    borderRadius: BorderRadius.circular(5),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "From: ${trip.location}",
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 14),
+                  TripDriverCard(
+                      trip: trip,
+                      selectedDriverName: selectedDriverName,
+                      userProfile: widget.userProfile),
+                  const SizedBox(height: 5),
+                  const Text(
+                    "Trip Details",
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 249, 249, 249),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 22, 22, 22),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "To: ${trip.destination}",
+                                    softWrap: true,
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 14),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    "From: ${trip.location}",
+                                    softWrap: true,
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 14),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    "Number of stops: ${trip.availableSeats}",
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 14),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                "To: ${trip.destination}",
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 14),
-                              ),
-                              Text(
-                                "Number of stops: ${trip.availableSeats}",
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 14),
-                              ),
-                            ],
-                          ),
-                          // message button
-                          if (trip.driverID !=
-                              userProfileProvider.userProfile.userID)
-                            ElevatedButton(
-                              onPressed: () async {
-                                String driverId = trip.driverID;
+                            ),
+                            // message button
+                            if (trip.createdBy !=
+                                userProfileProvider.userProfile.userID)
+                              ElevatedButton(
+                                onPressed: () async {
+                                  String driverId = trip.createdBy!;
 
-                                if (chatProvider.hasChatroom(driverId)) {
-                                  ChatRoom? chatroom =
-                                      chatProvider.getChatroom(driverId);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatScreen(
-                                        chatRoom: chatroom!,
+                                  if (chatProvider.hasChatroom(driverId)) {
+                                    ChatRoom? chatroom =
+                                        chatProvider.getChatroom(driverId);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ChatScreen(
+                                          chatRoom: chatroom!,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                } else {
-                                  await chatProvider.createChatroom(
-                                    driverId,
-                                  );
-                                  ChatRoom? chatroom =
-                                      chatProvider.getChatroom(driverId);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatScreen(
-                                        chatRoom: chatroom!,
+                                    );
+                                  } else {
+                                    await chatProvider.createChatroom(
+                                      driverId,
+                                    );
+                                    ChatRoom? chatroom =
+                                        chatProvider.getChatroom(driverId);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ChatScreen(
+                                          chatRoom: chatroom!,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(100, 50),
-                                backgroundColor:
-                                    const Color.fromARGB(255, 255, 255, 255),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)),
+                                    );
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: const Size(100, 50),
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 255, 255, 255),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5)),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Message',
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
-                              child: const Text(
-                                'Message',
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 0, 0, 0),
-                                  fontSize: 16,
-                                ),
-                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(320, 50),
+                            backgroundColor:
+                                const Color.fromARGB(255, 255, 255, 255),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(5)),
                             ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(320, 50),
-                          backgroundColor:
-                              const Color.fromARGB(255, 255, 255, 255),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
                           ),
-                        ),
-                        child: const Text(
-                          'Send request',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 0, 0, 0),
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Row(
-                        children: [
-                          Text(
-                            "Route Map",
+                          child: const Text(
+                            'Send request',
                             style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
+                              color: Color.fromARGB(255, 0, 0, 0),
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(5),
-                        child: SizedBox(
-                          width: 380,
-                          height: 220,
-                          child: GoogleMap(
-                            onMapCreated: (controller) {
-                              mapController = controller;
-                              initializeMap(trip);
-                            },
-                            initialCameraPosition: CameraPosition(
-                              target: _center,
-                              zoom: 20,
-                            ),
-                            markers: markers.values.toSet(),
-                            polylines: polylines.values.toSet(),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+                        const SizedBox(height: 10),
+                        const Row(
+                          children: [
+                            Text(
+                              "Route Map",
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(5),
+                          child: SizedBox(
+                            width: 380,
+                            height: 220,
+                            child: GoogleMap(
+                              onMapCreated: (controller) {
+                                mapController = controller;
+                                initializeMap(trip);
+                              },
+                              initialCameraPosition: CameraPosition(
+                                target: _center,
+                                zoom: 20,
+                              ),
+                              markers: markers.values.toSet(),
+                              polylines: polylines.values.toSet(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
@@ -227,18 +237,14 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   }
 
   Future<void> initializeMap(Trip trip) async {
-    final coordinates = await Future.wait([
-      LocationService().searchLocation(trip.destination),
-      LocationService().searchLocation(trip.location),
-    ]);
-    final destinationCoordinates = coordinates[0];
-    final pickupCoordinates = coordinates[1];
+    // final coordinates = await Future.wait([
+    //   LocationService().searchLocation(trip.destination!),
+    //   LocationService().searchLocation(trip.location!),
+    // ]);
+    final destinationCoordinates = trip.polylinePoints!.last;
+    final pickupCoordinates = trip.polylinePoints!.first;
 
-    final List<LatLng> polylinePoints = await fetchPolylinePoints(
-      pickupCoordinates,
-      destinationCoordinates,
-    );
-
+    final List<LatLng> polylinePoints = trip.polylinePoints!;
     if (mounted) {
       setState(() {
         _center = LatLng(
@@ -270,24 +276,24 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
     animateToBounds(pickupCoordinates, destinationCoordinates);
   }
 
-  Future<List<LatLng>> fetchPolylinePoints(
-      LatLng pickup, LatLng destinationAddress) async {
-    final polylinePoints = PolylinePoints();
-    final result = await polylinePoints.getRouteBetweenCoordinates(
-      googleMapsApiKey,
-      PointLatLng(pickup.latitude, pickup.longitude),
-      PointLatLng(destinationAddress.latitude, destinationAddress.longitude),
-    );
-    if (result.points.isNotEmpty) {
-      final List<LatLng> polylineCoordinates = result.points
-          .map((point) => LatLng(point.latitude, point.longitude))
-          .toList();
-      return polylineCoordinates;
-    } else {
-      debugPrint(result.errorMessage);
-      return [];
-    }
-  }
+  // Future<List<LatLng>> fetchPolylinePoints(
+  //     LatLng pickup, LatLng destinationAddress) async {
+  //   final polylinePoints = PolylinePoints();
+  //   final result = await polylinePoints.getRouteBetweenCoordinates(
+  //     googleMapsApiKey,
+  //     PointLatLng(pickup.latitude, pickup.longitude),
+  //     PointLatLng(destinationAddress.latitude, destinationAddress.longitude),
+  //   );
+  //   if (result.points.isNotEmpty) {
+  //     final List<LatLng> polylineCoordinates = result.points
+  //         .map((point) => LatLng(point.latitude, point.longitude))
+  //         .toList();
+  //     return polylineCoordinates;
+  //   } else {
+  //     debugPrint(result.errorMessage);
+  //     return [];
+  //   }
+  // }
 
   void generatePolyLineFromPoints(List<LatLng> polylinePoints) {
     const id = PolylineId('polyline');
@@ -332,8 +338,7 @@ class TripDriverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String driverID = trip.driverID;
-
+    String driverID = trip.createdBy!;
     print("The driver id is $driverID");
     return Card(
       shape: RoundedRectangleBorder(
