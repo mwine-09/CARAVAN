@@ -1,12 +1,15 @@
 import 'package:caravan/components/date_time_picker.dart';
+import 'package:caravan/models/trip.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/shared/constants/text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class CreateTripScreen extends StatelessWidget {
-  const CreateTripScreen({super.key});
+  final Trip tripdetails;
+  const CreateTripScreen({super.key, required this.tripdetails});
 
   @override
   Widget build(BuildContext context) {
@@ -24,29 +27,24 @@ class CreateTripScreen extends StatelessWidget {
           color: Colors.white,
         ),
       ),
-      body: const AddTripForm(),
+      body: AddTripForm(tripdetails: tripdetails),
     );
   }
 }
 
 class AddTripForm extends StatefulWidget {
-  const AddTripForm({super.key});
+  final Trip tripdetails;
+  const AddTripForm({super.key, required this.tripdetails});
 
   @override
   _AddTripFormState createState() => _AddTripFormState();
 }
 
 class _AddTripFormState extends State<AddTripForm> {
-  final AuthService _auth = AuthService();
-
   final _formKey = GlobalKey<FormState>();
-  String _departureLocation = '';
-  String _destination = '';
-  final DateTime _departureTime = DateTime.now();
-  int _availableSeats = 0;
-  String _tripStatus = '';
+
   User user = AuthService().getCurrentUser();
-  String _driverId = '';
+
   String _feedback = '';
 
   @override
@@ -61,24 +59,24 @@ class _AddTripFormState extends State<AddTripForm> {
               style: myInputTextStyle,
               decoration:
                   myTextFieldStyle.copyWith(labelText: 'Departure Location'),
-              onChanged: (value) {
-                setState(() {
-                  _departureLocation = value;
-                });
-              },
+              controller:
+                  TextEditingController(text: widget.tripdetails.location),
+              enabled: false,
             ),
             const SizedBox(height: 16),
             TextFormField(
               style: myInputTextStyle,
               decoration: myTextFieldStyle.copyWith(labelText: 'Destination'),
-              onChanged: (value) {
-                setState(() {
-                  _destination = value;
-                });
-              },
+              controller:
+                  TextEditingController(text: widget.tripdetails.destination),
+              enabled: false,
             ),
             const SizedBox(height: 16),
-            const DepartureTimePicker(),
+            DepartureTimePicker(
+              onChanged: (value) {
+                widget.tripdetails.dateTime = value;
+              },
+            ),
             const SizedBox(height: 16),
             TextFormField(
               keyboardType: TextInputType.number,
@@ -86,7 +84,7 @@ class _AddTripFormState extends State<AddTripForm> {
               decoration:
                   myTextFieldStyle.copyWith(labelText: 'Available Seats'),
               onChanged: (value) {
-                _availableSeats = int.tryParse(value) ?? 0;
+                widget.tripdetails.availableSeats = int.tryParse(value) ?? 0;
               },
             ),
             const SizedBox(height: 16),
@@ -95,7 +93,7 @@ class _AddTripFormState extends State<AddTripForm> {
               decoration: myTextFieldStyle.copyWith(labelText: 'Trip Status'),
               onChanged: (value) {
                 setState(() {
-                  _tripStatus = value;
+                  widget.tripdetails.tripStatus = value;
                 });
               },
             ),
@@ -108,19 +106,40 @@ class _AddTripFormState extends State<AddTripForm> {
                   minimumSize: const Size(280, 50)),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  _driverId = user.uid;
-                  DatabaseService().addTrip(
-                    _driverId,
-                    _departureLocation,
-                    _destination,
-                    _departureTime,
-                    _availableSeats,
-                    _tripStatus,
-                  );
+                  widget.tripdetails.createdBy = user.uid;
+
+                  DatabaseService().addTrip(widget.tripdetails);
                   setState(() {
                     _feedback = 'Trip saved successfully!';
                   });
-                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: Colors.white,
+                        title: Text('Success',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(color: Colors.black, fontSize: 20)),
+                        content: Text(_feedback),
+                        actions: [
+                          TextButton(
+                            child: Text('OK',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                        color: Colors.black, fontSize: 18)),
+                            onPressed: () {
+                              Navigator.pushNamedAndRemoveUntil(context,
+                                  '/available_trips', (route) => false);
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 }
               },
               child: Text('Post Trip',

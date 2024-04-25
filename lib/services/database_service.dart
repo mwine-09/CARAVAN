@@ -5,6 +5,7 @@ import 'package:caravan/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path/path.dart' as p;
 
 class DatabaseService {
@@ -42,21 +43,19 @@ class DatabaseService {
   }
 
   // Add a new trip to the "trips" collection
-  Future<void> addTrip(
-      String driverId,
-      String departureLocation,
-      String destination,
-      DateTime departureTime,
-      int availableSeats,
-      String tripStatus) async {
+  Future<void> addTrip(Trip trip) async {
     try {
       await _firestore.collection('trips').doc().set({
-        'driver ID': driverId,
-        'departure location': departureLocation,
-        'destination': destination,
-        'departure time': departureTime,
-        'available seats': availableSeats,
-        'trip status': tripStatus,
+        'createdBy': trip.createdBy,
+        'departure location': trip.location,
+        'destination': trip.destination,
+        'departure time': trip.dateTime,
+        'available seats': trip.availableSeats,
+        'trip status': trip.tripStatus,
+        'polylinePoints': trip.polylinePoints!
+            .map((point) =>
+                {'latitude': point.latitude, 'longitude': point.longitude})
+            .toList(),
       });
     } catch (e) {
       // Handle any errors
@@ -73,14 +72,19 @@ class DatabaseService {
         .collection('/trips')
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) {
+              List<LatLng> polylinePoints = (doc['polylinePoints'] as List)
+                  .map((point) => LatLng(point['latitude'], point['longitude']))
+                  .toList();
+
               return Trip(
                 id: doc.id,
-                driverID: doc['driver ID'],
+                createdBy: doc['createdBy'],
                 location: doc['departure location'],
                 destination: doc['destination'],
                 availableSeats: doc['available seats'],
                 dateTime: (doc['departure time'] as Timestamp).toDate(),
                 tripStatus: doc['trip status'],
+                polylinePoints: polylinePoints,
               );
             }).toList());
   }

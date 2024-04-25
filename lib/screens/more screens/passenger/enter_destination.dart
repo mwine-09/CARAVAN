@@ -152,6 +152,14 @@ class _DestinationScreenState extends State<DestinationScreen> {
                         Container(
                       height: MediaQuery.of(context).size.height * 0.8,
                       decoration: const BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 10.0,
+                            spreadRadius: 0.5,
+                            offset: Offset(0.7, 0.7),
+                          ),
+                        ],
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(20),

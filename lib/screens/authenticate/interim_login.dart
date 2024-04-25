@@ -1,5 +1,6 @@
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/chat_provider.dart';
+import 'package:caravan/providers/location_provider.dart';
 
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
@@ -49,6 +50,7 @@ class _MyLoginState extends State<MyLogin> {
     UserProfileProvider userProfileProvider =
         Provider.of(context, listen: true);
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       body: SafeArea(
@@ -166,13 +168,6 @@ class _MyLoginState extends State<MyLogin> {
                           },
                         ),
                       ),
-
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'Please enter a password';
-                      //   }
-                      //   return null;
-                      // },
                     ),
                     const SizedBox(height: 15),
                     // Display error message if it is not empty
@@ -222,6 +217,8 @@ class _MyLoginState extends State<MyLogin> {
                               .then((value) async {
                             Navigator.pop(context); // Close the loading dialog
                             if (value != null) {
+                              // LocationProvider();
+
                               // get email
                               final userProfile = UserProfile();
                               final userExists = await DatabaseService()

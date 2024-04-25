@@ -42,37 +42,55 @@ class _HomePageState extends State<HomePage> {
         controller: _pageController,
         children: tabs,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentTab,
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
-        onTap: goToTab,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.history,
-              color: Colors.white,
-            ),
-            label: 'History',
+      bottomNavigationBar: Theme(
+          data: ThemeData(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home_filled,
-              color: Colors.white,
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.settings,
-              color: Colors.white,
-            ),
-            label: 'Settings',
-            backgroundColor: Colors.white,
-          ),
-        ],
-      ),
+          child: BottomNavigationBar(
+            currentIndex: currentTab,
+            backgroundColor: Colors.black,
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.grey,
+            onTap: goToTab,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.history_outlined,
+                  color: Colors.grey,
+                ),
+                activeIcon: Icon(
+                  Icons.history,
+                  color: Colors.white,
+                ),
+                label: 'History',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home_outlined,
+                  color: Colors.grey,
+                ),
+                activeIcon: Icon(
+                  Icons.home,
+                  color: Colors.white,
+                ),
+                label: 'Home',
+              ),
+
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.settings_outlined,
+                  color: Colors.grey,
+                ),
+                activeIcon: Icon(
+                  Icons.settings,
+                  color: Colors.white,
+                ),
+                label: 'Settings',
+              ),
+              // Add more items as needed...
+            ],
+          )),
     );
   }
 }

@@ -1,28 +1,60 @@
-class Trip {
-  final String id;
-  final String location;
-  final String destination;
-  final int availableSeats;
-  final DateTime dateTime;
-  final String tripStatus;
-  final String driverID;
+import 'dart:convert';
 
-  Trip.empty()
-      : id = '',
-        driverID = '',
-        location = '',
-        destination = '',
-        tripStatus = '',
-        availableSeats = 0,
-        dateTime = DateTime.now();
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+class Trip {
+  String? id;
+  String? createdBy;
+  String? location;
+  String? destination;
+  int? availableSeats;
+  DateTime? dateTime;
+  String? tripStatus;
+  List<LatLng>? polylinePoints;
 
   Trip({
-    required this.id,
-    required this.driverID,
-    required this.location,
-    required this.destination,
-    required this.availableSeats,
-    required this.dateTime,
-    required this.tripStatus,
+    this.id,
+    this.createdBy,
+    this.location,
+    this.destination,
+    this.availableSeats,
+    this.dateTime,
+    this.tripStatus,
+    this.polylinePoints,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'createdBy': createdBy,
+      'location': location,
+      'destination': destination,
+      'availableSeats': availableSeats,
+      'dateTime': dateTime!.toIso8601String(),
+      'tripStatus': tripStatus,
+      'polylinePoints': polylinePoints!
+          .map((point) =>
+              {'latitude': point.latitude, 'longitude': point.longitude})
+          .toList(),
+    };
+  }
+
+  static Trip fromMap(Map<String, dynamic> map) {
+    return Trip(
+      id: map['id'],
+      createdBy: map['createdBy'],
+      location: map['location'],
+      destination: map['destination'],
+      availableSeats: map['availableSeats'],
+      dateTime: DateTime.parse(map['dateTime']),
+      tripStatus: map['tripStatus'],
+      polylinePoints: (map['polylinePoints'] as List)
+          .map((point) => LatLng(point['latitude'], point['longitude']))
+          .toList(),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  static Trip fromJson(String source) => fromMap(json.decode(source));
 }
