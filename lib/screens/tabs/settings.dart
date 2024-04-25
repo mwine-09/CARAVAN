@@ -103,10 +103,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     trailing: const Icon(Icons.arrow_forward_ios,
                         color: Colors.white),
                     onTap: () {
-                      UserProvider userProvider =
-                          Provider.of<UserProvider>(context, listen: false);
-                      String uid = userProvider.getUid();
-
                       // Handle profile tap
                       Navigator.push(
                           context,
@@ -360,47 +356,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
     );
   }
-  // void showUploadProgressDialog(BuildContext context, File file) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       // Create a Reference to the file
-  //       Reference storageRef = firebaseStorage.ref().child(
-  //           'profile_pictures/${userProfileProvider.userProfile.userID}');
-
-  //       // Start the upload.
-  //       var uploadTask = storageRef.putFile(file);
-
-  //       // Listen for snapshot events to monitor the upload progress.
-  //       uploadTask.snapshotEvents.listen((event) {
-  //         logger.i(
-  //             'Upload progress: ${event.bytesTransferred}/${event.totalBytes}');
-  //         uploadProgress.value = event.bytesTransferred / event.totalBytes;
-  //       });
-
-  //       uploadTask.whenComplete(() async {
-  //         try {
-  //           uploadComplete.value = true;
-  //           // Get the download URL.
-  //           final String downloadURL = await storageRef.getDownloadURL();
-  //           DatabaseService().updateUserProfilePicture(
-  //               userProfileProvider.userProfile.userID!, downloadURL);
-
-  //           userProfileProvider.userProfile.photoUrl = downloadURL;
-
-  //           // Use the download URL (e.g., save it to Firestore, display it in the app).
-  //           print('Download URL: $downloadURL');
-  //           Navigator.pop(context);
-  //         } catch (e) {
-  //           // The upload failed, handle the error.
-  //           showErrorDialog(context, 'Upload failed with error: $e');
-  //         }
-  //       });
-
-  //       return buildUploadProgressDialog(context);
-  //     },
-  //   );
-  // }
 
   void showErrorDialog(BuildContext context, String message) {
     showDialog(
