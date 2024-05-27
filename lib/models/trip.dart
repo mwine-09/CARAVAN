@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:caravan/models/user_profile.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Trip {
@@ -11,7 +12,7 @@ class Trip {
   DateTime? dateTime;
   String? tripStatus;
   List<LatLng>? polylinePoints;
-
+  UserProfile? driver;
   Trip({
     this.id,
     this.createdBy,
@@ -21,6 +22,7 @@ class Trip {
     this.dateTime,
     this.tripStatus,
     this.polylinePoints,
+    this.driver,
   });
 
   Map<String, dynamic> toMap() {

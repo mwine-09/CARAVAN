@@ -39,7 +39,7 @@ class DatabaseService {
       });
     } catch (e) {
       // Handle any errors
-      print('Error adding user: $e');
+      logger.i('Error adding user: $e');
     }
   }
 
@@ -60,7 +60,7 @@ class DatabaseService {
       });
     } catch (e) {
       // Handle any errors
-      print('Error adding trip: $e');
+      logger.i('Error adding trip: $e');
     }
   }
 
@@ -102,7 +102,7 @@ class DatabaseService {
       });
     } catch (e) {
       // Handle any errors
-      print('Error adding booking: $e');
+      logger.i('Error adding booking: $e');
     }
   }
 
@@ -118,7 +118,7 @@ class DatabaseService {
       });
     } catch (e) {
       // Handle any errors
-      print('Error adding payment: $e');
+      logger.i('Error adding payment: $e');
     }
   }
 
@@ -135,7 +135,7 @@ class DatabaseService {
       });
     } catch (e) {
       // Handle any errors
-      print('Error adding rating: $e');
+      logger.i('Error adding rating: $e');
     }
   }
 
@@ -160,7 +160,7 @@ class DatabaseService {
       });
     } catch (e) {
       // Handle any errors
-      print('Error adding wallet transaction: $e');
+      logger.i('Error adding wallet transaction: $e');
     }
   }
 
@@ -170,17 +170,17 @@ class DatabaseService {
   //         await _firestore.collection('users').doc(userId).get();
   //     return UserProfile.fromSnapshot(snapshot);
   //   } catch (e) {
-  //     print('Error getting user profile: $e');
+  //     logger.i('Error getting user profile: $e');
   //     rethrow;
   //   }
   // }
   Future<UserProfile> getUserProfile(String userId) {
-    print("The receiver id supplied to the getUserProfile is $userId");
+    logger.i("The receiver id supplied to the getUserProfile is $userId");
     return _firestore.collection('users').doc(userId).get().then((snapshot) {
-      // print("${snapshot.data()} is the snapshot data");
+      // logger.i("${snapshot.data()} is the snapshot data");
       return UserProfile.fromSnapshot(snapshot);
     }).catchError((e) {
-      // print('Error getting user profile: $e');
+      // logger.i('Error getting user profile: $e');
       throw e;
     });
   }
@@ -191,7 +191,7 @@ class DatabaseService {
           await _firestore.collection('users').doc(userId).get();
       return snapshot.exists;
     } catch (e) {
-      print('Error checking if user exists: $e');
+      logger.i('Error checking if user exists: $e');
       rethrow;
     }
   }
@@ -214,7 +214,7 @@ class DatabaseService {
       });
     } catch (e) {
       // Handle any errors
-      print('Error adding emergency alert: $e');
+      logger.i('Error adding emergency alert: $e');
     }
   }
 
@@ -230,7 +230,7 @@ class DatabaseService {
       });
     } catch (e) {
       // Handle any errors
-      print('Error adding emergency contact: $e');
+      logger.i('Error adding emergency contact: $e');
     }
   }
 
@@ -241,7 +241,7 @@ class DatabaseService {
     try {
       await _firestore.collection('users').doc(userId).set(data);
     } catch (e) {
-      print('Error creating user profile: $e');
+      logger.i('Error creating user profile: $e');
       rethrow;
     }
   }
@@ -253,7 +253,7 @@ class DatabaseService {
 
       // Update the user profile in the user provider
     } catch (e) {
-      print('Error updating user profile: $e');
+      logger.i('Error updating user profile: $e');
       rethrow;
     }
   }
@@ -265,7 +265,7 @@ class DatabaseService {
         'isDriver': isDriver,
       });
     } catch (e) {
-      print('Error toggling isDriver: $e');
+      logger.i('Error toggling isDriver: $e');
       rethrow;
     }
   }
@@ -273,22 +273,22 @@ class DatabaseService {
   Future<String> uploadImageToStorage(File file, String userID) async {
     try {
       String downloadUrl = '';
-      print("Method for uploading has been called");
+      logger.i("Method for uploading has been called");
       String fileExtension = p.extension(file.path).replaceFirst('.', '');
       FirebaseStorage storage = FirebaseStorage.instance;
       Reference ref =
           storage.ref().child('profile_images').child('$userID.$fileExtension');
-      print("We have created a reference");
+      logger.i("We have created a reference");
       UploadTask uploadTask = ref.putFile(file);
-      print("We are waiting for the upload to complete");
+      logger.i("We are waiting for the upload to complete");
       TaskSnapshot snapshot = await uploadTask;
-      print("Upload completed");
+      logger.i("Upload completed");
       downloadUrl = await snapshot.ref.getDownloadURL();
-      print("Image was uploaded successfully");
-      print(downloadUrl);
+      logger.i("Image was uploaded successfully");
+      logger.i(downloadUrl);
       return downloadUrl;
     } catch (e) {
-      print('Error uploading image: $e');
+      logger.i('Error uploading image: $e');
       rethrow;
     }
   }

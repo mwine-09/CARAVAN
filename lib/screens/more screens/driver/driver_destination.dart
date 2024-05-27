@@ -29,6 +29,8 @@ class _DriverDestinationScreenState extends State<DriverDestinationScreen> {
   List<String> suggestions = [];
   static Widget _textFieldIcon = const Icon(Icons.search);
   Trip trip = Trip();
+  LocationService locationService =
+      LocationService.getInstance() as LocationService;
 
   @override
   void didChangeDependencies() {
@@ -159,7 +161,7 @@ class _DriverDestinationScreenState extends State<DriverDestinationScreen> {
                       child: TextField(
                         controller: searchController,
                         onChanged: (testFieldValue) {
-                          LocationService()
+                          locationService
                               .getLocationSuggestions(testFieldValue)
                               .then((value) {
                             setState(() {
@@ -226,7 +228,7 @@ class _DriverDestinationScreenState extends State<DriverDestinationScreen> {
                                                   suggestions.clear();
                                                 });
 
-                                                LocationService()
+                                                locationService
                                                     .searchLocation(location)
                                                     .then((value) {
                                                   setState(() {

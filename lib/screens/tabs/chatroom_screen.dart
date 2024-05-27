@@ -14,9 +14,12 @@ class ChatListScreen extends StatelessWidget {
     final userProfileProvider = Provider.of<UserProfileProvider>(context);
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
+          title: Text(
             'Chats',
-            style: TextStyle(color: Colors.white),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5),
           ),
           iconTheme: const IconThemeData(
             color: Colors.white,

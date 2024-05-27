@@ -1,11 +1,11 @@
 // ignore_for_file: avoid_logger.i
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
-
 import 'package:caravan/constants.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import "package:http/http.dart" as http;
+import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert' as convert;
 
 import 'package:logger/web.dart';
@@ -13,7 +13,15 @@ import 'package:logger/web.dart';
 var logger = Logger();
 
 class LocationService {
-  final String key = googleMapsApiKey;
+  String key = googleMapsApiKey;
+  static LocationService? _instance;
+
+  LocationService._(); // Private constructor
+
+  static LocationService getInstance() {
+    _instance ??= LocationService._();
+    return _instance!;
+  }
 
   Future<String> getPlaceId(String input) async {
     final String url =
@@ -30,7 +38,6 @@ class LocationService {
   }
 
   Future<List<String>> getLocationSuggestions(String query) async {
-    var key = LocationService().key;
     var url = Uri.parse(
         'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$query&key=$key&components=country:UG');
 
@@ -92,6 +99,19 @@ class LocationService {
     throw Exception('No place found for the given coordinates.');
   }
 
+  Future<List> getRoutes(String startPlaceId, String endPlaceId) async {
+    final String url =
+        "https://maps.googleapis.com/maps/api/directions/json?origin=place_id:$startPlaceId&destination=place_id:$endPlaceId&alternatives=true&key=$key";
+
+    var response = await http.get(Uri.parse(url));
+
+    var json = convert.jsonDecode(response.body);
+
+    var routes = json['routes'] as List;
+
+    return routes;
+  }
+
   Future<Map<String, dynamic>> getDirection(
     String origin,
     String destination,
@@ -120,12 +140,10 @@ class LocationService {
   Future<LatLng> searchLocation(String location) async {
     try {
       // Get place details using the location name
-      Map<String, dynamic> placeDetails =
-          await LocationService().getPlace(location);
+      Map<String, dynamic> placeDetails = await getPlace(location);
 
       // Extract coordinates from the place details
-      Map<String, double> coordinates =
-          LocationService().extractCoordinates(placeDetails);
+      Map<String, double> coordinates = extractCoordinates(placeDetails);
       double latitude = coordinates["lat"]!;
       double longitude = coordinates["lng"]!;
 
@@ -164,92 +182,4 @@ class LocationService {
         .toList();
     return polylines;
   }
-
-  // import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-  // Future<Map<String, dynamic>> getDirection(
-  //   String origin,
-  //   String destination,
-  // ) async {
-  //   final String url =
-  //       "https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$key";
-
-  //   var response = await http.get(Uri.parse(url));
-  //   var json = convert.jsonDecode(response.body);
-
-  //   if (json['routes'] == null || json['routes'].isEmpty) {
-  //     throw Exception('No routes found.');
-  //   }
-
-  //   var route = json['routes'][0];
-  //   var legs = route['legs'];
-
-  //   if (legs == null || legs.isEmpty) {
-  //     throw Exception('No legs found.');
-  //   }
-
-  //   var leg = legs[0];
-
-  //   var results = {
-  //     'distance_km': leg['distance'],
-  //     'bounds_ne': route['bounds']['northeast'],
-  //     'bounds_sw': route['bounds']['southwest'],
-  //     'start_location': leg['start_location'],
-  //     'end_location': leg['end_location'],
-  //     'polyline': route['overview_polyline']['points'],
-  //     'polyline_decoded':
-  //         PolylinePoints().decodePolyline(route['overview_polyline']['points']),
-  //   };
-
-  //   logger.i(results);
-
-  //   List<PointLatLng> polylineDecoded = results['polyline_decoded'];
-  //   for (var point in polylineDecoded) {
-  //     logger.i('Latitude: ${point.latitude}, Longitude: ${point.longitude}');
-  //   }
-
-  //   return results;
-  // }
-
-//   Future<Map<String, dynamic>> getDirection(
-//       String origin, String destination) async {
-//     final String url =
-//         "https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$key";
-
-//     var response = await http.get(Uri.parse(url));
-//     var json = convert.jsonDecode(response.body);
-
-//     if (json['status'] == 'OK' &&
-//         json['routes'] != null &&
-//         json['routes'].isNotEmpty) {
-//       var route = json['routes'][0];
-//       var legs = route['legs'];
-
-//       if (legs != null && legs.isNotEmpty) {
-//         var leg = legs[0];
-
-//         var results = {
-//           'distance_km': leg['distance'],
-//           'bounds_ne': route['bounds']['northeast'],
-//           'bounds_sw': route['bounds']['southwest'],
-//           'start_location': leg['start_location'],
-//           'end_location': leg['end_location'],
-//           'polyline': route['overview_polyline']['points'],
-//           'polyline_decoded': PolylinePoints()
-//               .decodePolyline(route['overview_polyline']['points']),
-//         };
-
-//         logger.i(results);
-
-//         List<PointLatLng> polylineDecoded = results['polyline_decoded'];
-//         for (var point in polylineDecoded) {
-//           logger.i('Latitude: ${point.latitude}, Longitude: ${point.longitude}');
-//         }
-
-//         return results;
-//       }
-//     }
-
-//     throw Exception('No routes found.');
-//   }
 }

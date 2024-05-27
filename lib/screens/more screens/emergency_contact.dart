@@ -1,7 +1,7 @@
 import 'package:caravan/models/emergency_contact.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
-import 'package:caravan/screens/main_scaffold.dart';
+import 'package:caravan/screens/tabs/main_scaffold.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

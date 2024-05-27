@@ -28,7 +28,8 @@ class DriverStartPointScreen extends StatefulWidget {
 
 class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
   late GoogleMapController _googleMapController;
-  late LocationService locationService;
+  LocationService locationService =
+      LocationService.getInstance() as LocationService;
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];
@@ -343,7 +344,7 @@ class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
                             child: TextField(
                               controller: pickupFieldController,
                               onChanged: (testFieldValue) {
-                                LocationService()
+                                locationService
                                     .getLocationSuggestions(testFieldValue)
                                     .then((value) {
                                   setState(() {
@@ -404,7 +405,7 @@ class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
                                                             .clear();
                                                       });
 
-                                                      LocationService()
+                                                      locationService
                                                           .searchLocation(
                                                               pickUpLocationQuery)
                                                           .then((value) {
@@ -512,7 +513,7 @@ class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
       ),
     );
 
-    List<LatLng> something = await LocationService().fetchPolylines(
+    List<LatLng> something = await locationService.fetchPolylines(
         widget.tripRequest.source!, widget.tripRequest.destination!);
 
     logger.i("We have fetched the polylines");

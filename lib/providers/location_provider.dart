@@ -9,6 +9,8 @@ class LocationProvider with ChangeNotifier {
   final location.Location locationController = location.Location();
   LatLng? _currentPosition;
   String? _currentPositionName;
+  LocationService locationService =
+      LocationService.getInstance() as LocationService;
 
   LatLng? get currentPosition => _currentPosition;
   String? get currentPositionName => _currentPositionName;
@@ -85,8 +87,8 @@ class LocationProvider with ChangeNotifier {
 
   void _updateCurrentPosition(LatLng newPosition) async {
     _currentPosition = newPosition;
-    _currentPositionName = await LocationService()
-        .getPlaceName(newPosition.latitude, newPosition.longitude);
+    _currentPositionName = await locationService.getPlaceName(
+        newPosition.latitude, newPosition.longitude);
     notifyListeners();
   }
 

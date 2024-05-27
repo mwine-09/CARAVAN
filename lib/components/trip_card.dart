@@ -38,9 +38,12 @@ class AvailabeTripCard extends StatelessWidget {
                 Container(
                   width: 100,
                   height: 100,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/default_profile.jpg'),
+                      image: trip.driver?.photoUrl != null
+                          ? NetworkImage(trip.driver!.photoUrl!)
+                          : const AssetImage('assets/default_profile.jpg')
+                              as ImageProvider,
                     ),
                   ),
                 ),

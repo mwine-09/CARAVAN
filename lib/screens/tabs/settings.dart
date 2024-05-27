@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
-import 'package:caravan/providers/user_provider.dart';
+
 import 'package:caravan/screens/more%20screens/profile.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -11,6 +11,7 @@ import 'package:logger/logger.dart';
 
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final logger = Logger();
 
@@ -22,6 +23,24 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  File? _imageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? imagePath = prefs.getString('imagePath');
+    if (imagePath != null) {
+      setState(() {
+        _imageFile = File(imagePath);
+      });
+    }
+  }
+
   final firebaseStorage = FirebaseStorage.instance;
   ValueNotifier<double> uploadProgress = ValueNotifier(0);
   ValueNotifier<bool> uploadComplete = ValueNotifier(false);
@@ -51,9 +70,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             CircleAvatar(
               backgroundColor: Colors.white60,
               radius: 50,
-              backgroundImage: userProfile.photoUrl != null
-                  ? NetworkImage(userProfile.photoUrl!)
-                  : null,
+              backgroundImage: _imageFile != null
+                  ? FileImage(_imageFile!)
+                  : userProfile.photoUrl != null
+                      ? NetworkImage(userProfile.photoUrl!)
+                          as ImageProvider<Object>?
+                      : null,
               child: Stack(
                 children: [
                   Positioned(
@@ -257,6 +279,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (image != null) {
             File file = File(image.path);
             showImagePreviewDialog(context, file);
+
+            // Save the image path to SharedPreferences
+            final SharedPreferences prefs =
+                await SharedPreferences.getInstance();
+            await prefs.setString('imagePath', file.path);
           }
         } catch (e) {
           showErrorDialog(context, 'Failed to pick image: $e');
@@ -317,6 +344,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         try {
           uploadComplete.value = true;
           // Get the download URL.
+
           final String downloadURL = await storageRef.getDownloadURL();
           DatabaseService().updateUserProfilePicture(
               userProfileProvider.userProfile.userID!, downloadURL);
@@ -325,6 +353,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // Use the download URL (e.g., save it to Firestore, display it in the app).
           print('Download URL: $downloadURL');
+          Navigator.pop(context);
           Navigator.pop(context);
         } catch (e) {
           // The upload failed, handle the error.
@@ -336,25 +365,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Uploading...'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LinearProgressIndicator(value: uploadProgress.value),
-              const SizedBox(height: 20),
-              TextButton(
-                child: const Text('Cancel Upload'),
-                onPressed: () {
-                  uploadTask.cancel();
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
+        return buildUploadProgressDialog(context);
       },
     );
+
+    setState(() {
+      _loadImage();
+    });
   }
 
   void showErrorDialog(BuildContext context, String message) {

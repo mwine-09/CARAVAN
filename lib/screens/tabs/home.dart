@@ -2,10 +2,8 @@
 
 // import 'dart:html';
 
-import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
-import 'package:caravan/screens/more%20screens/chatroom_screen.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
 
@@ -55,17 +53,41 @@ class _HomeState extends State<Home> {
           color: Colors.white,
         ),
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.mail,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ChatListScreen()),
-              );
-            },
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.notifications,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  // Handle your button tap here
+                },
+              ),
+              Positioned(
+                right: 0,
+                top: 7,
+                child: Container(
+                  padding: const EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 12,
+                    minHeight: 12,
+                  ),
+                  child: const Text(
+                    '10', // Replace with your dynamic value
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
           ),
           IconButton(
               icon: const Icon(Icons.power_settings_new,

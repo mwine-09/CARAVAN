@@ -22,7 +22,8 @@ class PickupLocationScreen extends StatefulWidget {
 
 class _PickupLocationScreenState extends State<PickupLocationScreen> {
   late GoogleMapController _googleMapController;
-  late LocationService locationService;
+  LocationService locationService =
+      LocationService.getInstance() as LocationService;
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];
@@ -324,7 +325,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                             child: TextField(
                               controller: pickupFieldController,
                               onChanged: (testFieldValue) {
-                                LocationService()
+                                locationService
                                     .getLocationSuggestions(testFieldValue)
                                     .then((value) {
                                   setState(() {
@@ -385,7 +386,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                                                             .clear();
                                                       });
 
-                                                      LocationService()
+                                                      locationService
                                                           .searchLocation(
                                                               pickUpLocationQuery)
                                                           .then((value) {
@@ -493,7 +494,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
       ),
     );
 
-    List<LatLng> something = await LocationService().fetchPolylines(
+    List<LatLng> something = await locationService.fetchPolylines(
         widget.tripRequest.source!, widget.tripRequest.destination!);
 
     logger.i("We have fetched the polylines");

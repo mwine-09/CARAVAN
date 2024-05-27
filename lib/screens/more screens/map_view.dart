@@ -20,6 +20,8 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   static late LatLng pickupLocationCoordinates;
   static var pickupLocationName = '';
   final logger = Logger();
+  LocationService locationService =
+      LocationService.getInstance() as LocationService;
 
   // varible to hold the destinationCoordinates
   static late LatLng destinationCoordinates;
@@ -171,7 +173,8 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
                                             pickupFocus = true;
                                           });
                                         }
-                                        LocationService()
+
+                                        locationService
                                             .getLocationSuggestions(value)
                                             .then((value) => {
                                                   if (mounted)
@@ -199,7 +202,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
                                             pickupFocus = false;
                                           });
                                         }
-                                        LocationService()
+                                        locationService
                                             .getLocationSuggestions(value)
                                             .then((value) => {
                                                   if (mounted)
@@ -266,7 +269,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
                                         });
 
                                         // Fetch the polyline points between the pickup and destination locations
-                                        _routes = await LocationService()
+                                        _routes = await locationService
                                             .fetchPolylines(pickupLocationName,
                                                 destinationName);
 
@@ -419,12 +422,12 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
       logger.i("Getting location");
       // Get place details using the location name
       Map<String, dynamic> placeDetails =
-          await LocationService().getPlace(location);
+          await locationService.getPlace(location);
       // logger.i(placeDetails);
 
       // Extract coordinates from the place details
       Map<String, double> coordinates =
-          LocationService().extractCoordinates(placeDetails);
+          locationService.extractCoordinates(placeDetails);
       double latitude = coordinates["lat"]!;
       double longitude = coordinates["lng"]!;
 

@@ -1,6 +1,6 @@
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
-import 'package:caravan/screens/main_scaffold.dart';
+import 'package:caravan/screens/tabs/main_scaffold.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:caravan/screens/home/home.dart';

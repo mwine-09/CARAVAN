@@ -11,17 +11,19 @@ import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/tabs/history.dart';
 import 'package:caravan/screens/more%20screens/welcome_screen.dart';
-import 'package:caravan/screens/main_scaffold.dart';
+import 'package:caravan/screens/tabs/main_scaffold.dart';
 import 'package:caravan/screens/more%20screens/profile.dart';
 import 'package:caravan/screens/wrapper.dart';
+import 'package:caravan/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => LocationProvider()),
@@ -35,8 +37,7 @@ class MyRideSharingApp extends StatelessWidget {
   const MyRideSharingApp({super.key});
   @override
   Widget build(BuildContext context) {
-    // UserProfileProvider userProfileProvider =
-    //     Provider.of<UserProfileProvider>(context);
+    LocationService.getInstance();
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -46,9 +47,6 @@ class MyRideSharingApp extends StatelessWidget {
           backgroundColor: Colors.black,
           elevation: 0,
         ),
-        bottomAppBarTheme: const BottomAppBarTheme(
-            color: Colors.black,
-            shape: AutomaticNotchedShape(RoundedRectangleBorder())),
         primarySwatch: Colors.yellow,
         pageTransitionsTheme: const PageTransitionsTheme(),
         scaffoldBackgroundColor: Colors.black,

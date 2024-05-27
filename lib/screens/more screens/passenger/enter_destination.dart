@@ -23,7 +23,8 @@ class DestinationScreen extends StatefulWidget {
 class _DestinationScreenState extends State<DestinationScreen> {
   TripRequest tripRequest = TripRequest();
   GoogleMapController? mapController;
-  late LocationService locationService;
+  LocationService locationService =
+      LocationService.getInstance() as LocationService;
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];
@@ -53,21 +54,6 @@ class _DestinationScreenState extends State<DestinationScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    if (mapController != null && currentPosition != initialCameraPosition) {
-      mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: currentPosition,
-            zoom: 14.4746,
-          ),
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     locationProvider = Provider.of<LocationProvider>(context);
     currentPositionName = locationProvider.currentPositionName ?? '';
 
@@ -79,6 +65,22 @@ class _DestinationScreenState extends State<DestinationScreen> {
       ),
     );
 
+    if (mapController != null && currentPosition != initialCameraPosition) {
+      mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: currentPosition,
+            zoom: 14.4746,
+          ),
+        ),
+      );
+    }
+
+    isLoading = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -192,7 +194,7 @@ class _DestinationScreenState extends State<DestinationScreen> {
                             child: TextField(
                               controller: destinationController,
                               onChanged: (testFieldValue) {
-                                LocationService()
+                                locationService
                                     .getLocationSuggestions(testFieldValue)
                                     .then((value) {
                                   setState(() {
@@ -266,7 +268,7 @@ class _DestinationScreenState extends State<DestinationScreen> {
                                                             .clear();
                                                       });
 
-                                                      LocationService()
+                                                      locationService
                                                           .searchLocation(
                                                               destinationText)
                                                           .then((value) {

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:caravan/components/debouncer.dart';
 import 'package:caravan/components/trip_card.dart';
 import 'package:caravan/models/trip.dart';
@@ -28,11 +30,14 @@ class _AvailableTripsState extends State<AvailableTrips> {
   final TextEditingController _searchController = TextEditingController();
   final logger = Logger();
   late LatLng _currentLocation;
+  LocationService locationService = LocationService.getInstance();
 
   final List<Trip> _allTrips = [];
   List<Trip> _filteredTrips = [];
   double _searchRadius = 3; // Initial search radius in km.
-  final _debouncer = Debouncer(milliseconds: 500);
+  final _debouncer = Debouncer(milliseconds: 300);
+
+  // num get pi => null;
   @override
   Widget build(BuildContext context) {
     context.read<TripDetailsProvider>();
@@ -42,13 +47,85 @@ class _AvailableTripsState extends State<AvailableTrips> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
-        title: Text('Available Trips',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
-                )),
+        title: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+
+          // padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: TextField(
+            controller: _searchController,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: const Color.fromARGB(255, 0, 0, 0),
+                ),
+            cursorColor: Colors.black,
+            decoration: InputDecoration(
+              constraints: const BoxConstraints(
+                maxHeight: 50,
+              ),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.filter_list,
+                    color: Color.fromARGB(255, 0, 0, 0)),
+                onPressed: () {
+                  showModalBottomSheet(
+                    showDragHandle: true,
+                    enableDrag: true,
+                    context: context,
+                    builder: (context) {
+                      return StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                          return Container(
+                            height: 200,
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.values[1],
+                              children: [
+                                Text(
+                                    'Search Radius: ${_searchRadius.toStringAsFixed(1)} km'),
+                                Slider(
+                                  activeColor: Colors.black,
+                                  value: _searchRadius,
+                                  min: 1,
+                                  max: 15,
+                                  divisions: 14,
+                                  label: _searchRadius.round().toString(),
+                                  onChanged: (double value) {
+                                    setState(() {
+                                      _searchRadius = value;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+              hintText: 'Enter Destination',
+              hintStyle: const TextStyle(color: Colors.black),
+              fillColor: Colors.white,
+              filled: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(width: 0.8),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(
+                  width: 0.8,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            onChanged: (value) async {
+              _debouncer.run(() {
+                _searchTrips();
+              });
+            },
+          ),
+        ),
         centerTitle: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -57,45 +134,6 @@ class _AvailableTripsState extends State<AvailableTrips> {
           },
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.white),
-            onPressed: () {
-              showModalBottomSheet(
-                showDragHandle: true,
-                enableDrag: true,
-                context: context,
-                builder: (context) {
-                  return StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setState) {
-                      return Container(
-                        height: 200,
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.values[1],
-                          children: [
-                            Text(
-                                'Search Radius: ${_searchRadius.toStringAsFixed(1)} km'),
-                            Slider(
-                              value: _searchRadius,
-                              min: 1,
-                              max: 15,
-                              divisions: 14,
-                              label: _searchRadius.round().toString(),
-                              onChanged: (double value) {
-                                setState(() {
-                                  _searchRadius = value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-              );
-            },
-          ),
           if (context.read<UserProfileProvider>().userProfile.isDriver)
             IconButton(
               icon: const Icon(Icons.add, color: Colors.white),
@@ -111,52 +149,6 @@ class _AvailableTripsState extends State<AvailableTrips> {
       ),
       body: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              controller: _searchController,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: const Color.fromARGB(255, 0, 0, 0),
-                  ),
-              cursorColor: Colors.black,
-              decoration: InputDecoration(
-                constraints: const BoxConstraints(
-                  maxHeight: 50,
-                ),
-                suffixIcon: IconButton(
-                  constraints: const BoxConstraints(
-                    maxHeight: 50,
-                  ),
-                  icon: const Icon(Icons.search,
-                      color: Color.fromARGB(255, 0, 0, 0)),
-                  onPressed: () {
-                    _searchTrips();
-                  },
-                ),
-                hintText: 'Enter Destination',
-                hintStyle: const TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: const BorderSide(width: 0.8),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: const BorderSide(
-                    width: 0.8,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              onChanged: (value) async {
-                _debouncer.run(() {
-                  _searchTrips();
-                });
-              },
-            ),
-          ),
           _filteredTrips.isNotEmpty
               ? Expanded(
                   child: ListView.builder(
@@ -221,66 +213,25 @@ class _AvailableTripsState extends State<AvailableTrips> {
     );
   }
 
-  void _searchTrips() async {
-    String searchText = _searchController.text;
-    double searchRadiusInMeters = _searchRadius * 1000; // Convert km to meters.
-
-    if (searchText.isEmpty) {
-      setState(() {
-        _filteredTrips.clear();
-        _filteredTrips =
-            List.from(_allTrips); // Create a new list from _allTrips.
-      });
-    } else {
-      // Get the coordinates of the search location.
-      LatLng searchLocation =
-          await LocationService().searchLocation(searchText);
-      setState(() {
-        _filteredTrips.clear();
-
-        _filteredTrips = _allTrips.where((trip) {
-          // Check if the search location is close enough to any point in the polyline.
-          bool isDestinationInPath = trip.polylinePoints!.any((point) {
-            double distanceInMeters = Geolocator.distanceBetween(
-              searchLocation.latitude,
-              searchLocation.longitude,
-              point.latitude,
-              point.longitude,
-            );
-            return distanceInMeters <=
-                searchRadiusInMeters; // Use the specified search radius.
-          });
-
-          // Check if the trip's location is within the specified radius of the current location.
-          double distanceFromCurrentLocation = Geolocator.distanceBetween(
-            _currentLocation.latitude,
-            _currentLocation.longitude,
-            trip.polylinePoints!.first.latitude,
-            trip.polylinePoints!.first.longitude,
-          );
-
-          return isDestinationInPath &&
-              distanceFromCurrentLocation <=
-                  searchRadiusInMeters; // Use the specified search radius.
-        }).toList();
-      });
-    }
-  }
-
   // void _searchTrips() async {
   //   String searchText = _searchController.text;
-
-  //   // Get the coordinates of the search location.
-  //   LatLng searchLocation = await LocationService().searchLocation(searchText);
-
-  //   logger.i("The search location is $searchLocation");
+  //   double searchRadiusInMeters = _searchRadius * 1000; // Convert km to meters.
   //   if (searchText.isEmpty) {
   //     setState(() {
-  //       _filteredTrips = _allTrips;
+  //       _filteredTrips.clear();
+  //       _filteredTrips =
+  //           List<Trip>.from(_allTrips); // Create a new list from _allTrips.
   //     });
   //   } else {
+  //     // Get the coordinates of the search location.
+  //     LatLng searchLocation = await locationService.searchLocation(searchText);
   //     setState(() {
+  //       _filteredTrips.clear();
+  //       if (_filteredTrips.isEmpty) {
+  //         logger.e("The search list has been cleared");
+  //       }
   //       _filteredTrips = _allTrips.where((trip) {
+  //         logger.e("Looking for the matching trips");
   //         // Check if the search location is close enough to any point in the polyline.
   //         bool isDestinationInPath = trip.polylinePoints!.any((point) {
   //           double distanceInMeters = Geolocator.distanceBetween(
@@ -289,26 +240,71 @@ class _AvailableTripsState extends State<AvailableTrips> {
   //             point.latitude,
   //             point.longitude,
   //           );
+  //           logger.e("The distance is $distanceInMeters");
   //           return distanceInMeters <=
-  //               3000; // 3km threshold for destination in path.
+  //               searchRadiusInMeters; // Use the specified search radius.
   //         });
-
-  //         // Check if the trip's location is within a 3km radius of the current location.
+  //         // Check if the trip's location is within the specified radius of the current location.
   //         double distanceFromCurrentLocation = Geolocator.distanceBetween(
   //           _currentLocation.latitude,
   //           _currentLocation.longitude,
   //           trip.polylinePoints!.first.latitude,
   //           trip.polylinePoints!.first.longitude,
   //         );
-
-  //         logger.i(
-  //             'The distance from the current location is ${distanceFromCurrentLocation / 1000} kms');
-
   //         return isDestinationInPath &&
   //             distanceFromCurrentLocation <=
-  //                 _searchRadius * 1000; // 3km threshold for trip's location.
+  //                 searchRadiusInMeters; // Use the specified search radius.
   //       }).toList();
+  //       logger.i(_filteredTrips);
   //     });
   //   }
   // }
+  double calculateDistance(LatLng point1, LatLng point2) {
+    return Geolocator.distanceBetween(
+        point1.latitude, point1.longitude, point2.latitude, point2.longitude);
+  }
+
+  void _searchTrips() async {
+    String searchText = _searchController.text;
+    double searchRadiusInMeters = _searchRadius * 1000; // Convert km to meters.
+
+    if (searchText.isEmpty) {
+      setState(() {
+        _filteredTrips.clear();
+        _filteredTrips =
+            List<Trip>.from(_allTrips); // Create a new list from _allTrips.
+      });
+    } else {
+      // Get the coordinates of the search location.
+      LatLng searchLocation = await locationService.searchLocation(searchText);
+
+      // double searchLat = searchLocation.latitude;
+      // double searchLng = searchLocation.longitude;
+
+      setState(() {
+        _filteredTrips.clear();
+        _filteredTrips = _allTrips
+            .where((trip) {
+              // Check if the search location is close enough to any point in the polyline.
+              bool isDestinationInPath = trip.polylinePoints!.any((point) {
+                double distanceInMeters =
+                    calculateDistance(searchLocation, point);
+                return distanceInMeters <= searchRadiusInMeters;
+              });
+
+              // Check if the trip's pickup location is within the specified radius of the current location.
+              LatLng firstPoint = trip.polylinePoints!.first;
+              double distanceFromCurrentLocation =
+                  calculateDistance(_currentLocation, firstPoint);
+
+              return isDestinationInPath ||
+                  distanceFromCurrentLocation <= searchRadiusInMeters;
+            })
+            .toSet()
+            .toList(); // Convert to Set to ensure uniqueness, then back to List.
+
+        logger.i(_filteredTrips);
+      });
+    }
+  }
 }
