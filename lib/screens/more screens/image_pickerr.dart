@@ -10,7 +10,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mime/mime.dart';
+// import 'package:mime/mime.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -122,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView.builder(
           key: UniqueKey(),
           itemBuilder: (BuildContext context, int index) {
-            final String? mime = lookupMimeType(_mediaFileList![index].path);
+            // final String? mime = lookupMimeType(_mediaFileList![index].path);
 
             // Why network for web?
             // See https://pub.dev/packages/image_picker_for_web#limitations-on-the-web-platform

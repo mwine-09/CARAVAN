@@ -10,7 +10,7 @@ class LocationProvider with ChangeNotifier {
   LatLng? _currentPosition;
   String? _currentPositionName;
   LocationService locationService =
-      LocationService.getInstance() as LocationService;
+      LocationService.getInstance();
 
   LatLng? get currentPosition => _currentPosition;
   String? get currentPositionName => _currentPositionName;

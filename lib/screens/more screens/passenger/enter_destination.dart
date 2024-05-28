@@ -24,7 +24,7 @@ class _DestinationScreenState extends State<DestinationScreen> {
   TripRequest tripRequest = TripRequest();
   GoogleMapController? mapController;
   LocationService locationService =
-      LocationService.getInstance() as LocationService;
+      LocationService.getInstance();
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];

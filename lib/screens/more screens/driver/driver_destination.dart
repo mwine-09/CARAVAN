@@ -30,7 +30,7 @@ class _DriverDestinationScreenState extends State<DriverDestinationScreen> {
   static Widget _textFieldIcon = const Icon(Icons.search);
   Trip trip = Trip();
   LocationService locationService =
-      LocationService.getInstance() as LocationService;
+      LocationService.getInstance();
 
   @override
   void didChangeDependencies() {

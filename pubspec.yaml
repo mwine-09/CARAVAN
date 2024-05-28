@@ -74,6 +74,7 @@ dependencies:
   # google_sign_in: ^6.2.1
 
 
+  mime: any
 flutter_icons:
   android: true
   ios: true

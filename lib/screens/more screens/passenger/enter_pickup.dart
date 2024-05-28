@@ -23,7 +23,7 @@ class PickupLocationScreen extends StatefulWidget {
 class _PickupLocationScreenState extends State<PickupLocationScreen> {
   late GoogleMapController _googleMapController;
   LocationService locationService =
-      LocationService.getInstance() as LocationService;
+      LocationService.getInstance();
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];

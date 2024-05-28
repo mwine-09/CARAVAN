@@ -1,6 +1,5 @@
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/chat_provider.dart';
-import 'package:caravan/providers/location_provider.dart';
 
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';

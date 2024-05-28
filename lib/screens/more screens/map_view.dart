@@ -21,7 +21,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   static var pickupLocationName = '';
   final logger = Logger();
   LocationService locationService =
-      LocationService.getInstance() as LocationService;
+      LocationService.getInstance();
 
   // varible to hold the destinationCoordinates
   static late LatLng destinationCoordinates;

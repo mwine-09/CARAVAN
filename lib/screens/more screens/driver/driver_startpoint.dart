@@ -29,7 +29,7 @@ class DriverStartPointScreen extends StatefulWidget {
 class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
   late GoogleMapController _googleMapController;
   LocationService locationService =
-      LocationService.getInstance() as LocationService;
+      LocationService.getInstance();
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];

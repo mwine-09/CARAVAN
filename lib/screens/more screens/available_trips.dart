@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:caravan/components/debouncer.dart';
 import 'package:caravan/components/trip_card.dart';
