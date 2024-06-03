@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/chat_provider.dart';
+import 'package:caravan/providers/notification_provider.dart';
 
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
 import 'package:caravan/screens/more%20screens/complete_profile.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:logger/web.dart';
@@ -216,7 +220,7 @@ class _MyLoginState extends State<MyLogin> {
                               .then((value) async {
                             Navigator.pop(context); // Close the loading dialog
                             if (value != null) {
-                              // LocationProvider();
+                              // Provider.of<NotificationProvider>(context);
 
                               // get email
                               final userProfile = UserProfile();
@@ -246,37 +250,27 @@ class _MyLoginState extends State<MyLogin> {
                                 chatProvider.reset();
                                 chatProvider.listenToChatrooms(value.userID!);
                               });
-                              Future.delayed(const Duration(seconds: 2));
 
                               logger.i(
                                   'Chat provider: ${chatProvider.chatrooms.length}');
                               Navigator.pop(context);
                               Navigator.pushNamed(context, '/home');
 
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    backgroundColor: Colors.white,
-                                    title: const Text("Success"),
-                                    content: Text(
-                                      "Signed in as ${value.displayName}",
-                                    ),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text(
-                                          "OK",
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Logged in as ${value.displayName}",
+                                  ),
+                                  duration: const Duration(seconds: 2),
+                                  action: SnackBarAction(
+                                    textColor: Colors.white,
+                                    label: 'OK',
+                                    onPressed: () {
+                                      ScaffoldMessenger.of(context)
+                                          .hideCurrentSnackBar();
+                                    },
+                                  ),
+                                ),
                               );
                             } else {
                               // User is null, show error message

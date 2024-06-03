@@ -2,10 +2,13 @@
 
 // import 'dart:html';
 
+import 'package:caravan/providers/notification_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
+import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
+import 'package:caravan/screens/more%20screens/trip_notifications.dart';
 
 // import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,6 +29,11 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final notificationProvider =
+        Provider.of<NotificationProvider>(context, listen: true);
+    int unreadNotificationsCount =
+        notificationProvider.unreadNotificationsCount;
+
     var userProfile = context.watch<UserProfileProvider>().userProfile;
     if (userProfile.userID == null) {
       setProvider();
@@ -62,31 +70,38 @@ class _HomeState extends State<Home> {
                 ),
                 onPressed: () {
                   // Handle your button tap here
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const NotificationsScreen()));
                 },
               ),
-              Positioned(
-                right: 0,
-                top: 7,
-                child: Container(
-                  padding: const EdgeInsets.all(1),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 12,
-                    minHeight: 12,
-                  ),
-                  child: const Text(
-                    '10', // Replace with your dynamic value
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
+              if (unreadNotificationsCount > 0)
+                Positioned(
+                  right: 0,
+                  top: 7,
+                  child: Container(
+                    padding: const EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 235, 88, 78),
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    textAlign: TextAlign.center,
+                    constraints: const BoxConstraints(
+                      minWidth: 15,
+                      minHeight: 15,
+                    ),
+                    child: Center(
+                      child: Text(
+                        "$unreadNotificationsCount", // Replace with your dynamic value
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           IconButton(

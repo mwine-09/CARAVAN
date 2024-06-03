@@ -9,6 +9,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as p;
 
+import '../models/notification.dart';
+
 class DatabaseService {
   // create a variable that store the user
   User? user = FirebaseAuth.instance.currentUser;
@@ -64,10 +66,6 @@ class DatabaseService {
     }
   }
 
-  // fetch all trips from the "trips" collection
-  // Stream<QuerySnapshot> fetchTrips() {
-  //   return _firestore.collection('trips').snapshots();
-  // }
   Stream<List<Trip>> fetchTrips() {
     return FirebaseFirestore.instance
         .collection('/trips')
@@ -164,16 +162,6 @@ class DatabaseService {
     }
   }
 
-  // Future<UserProfile> getUserProfile(String userId) async {
-  //   try {
-  //     DocumentSnapshot snapshot =
-  //         await _firestore.collection('users').doc(userId).get();
-  //     return UserProfile.fromSnapshot(snapshot);
-  //   } catch (e) {
-  //     logger.i('Error getting user profile: $e');
-  //     rethrow;
-  //   }
-  // }
   Future<UserProfile> getUserProfile(String userId) {
     logger.i("The receiver id supplied to the getUserProfile is $userId");
     return _firestore.collection('users').doc(userId).get().then((snapshot) {
@@ -297,6 +285,140 @@ class DatabaseService {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     await firestore.collection('users').doc(userId).update({
       'profilePicture': imageUrl,
+    });
+  }
+
+  void sendRequest(String tripId, String driverId) async {
+    // Check if a request already exists
+    var existingRequest = await FirebaseFirestore.instance
+        .collection('requests')
+        .where('tripId', isEqualTo: tripId)
+        .where('passengerId', isEqualTo: user?.uid)
+        .get();
+
+    if (existingRequest.docs.isNotEmpty) {
+      logger.i("A request for this trip already exists");
+      return;
+    }
+    // Save the request to Firestore
+    logger.i("Sending request to the driver");
+    var requestID = FirebaseFirestore.instance.collection('requests').doc().id;
+    await FirebaseFirestore.instance.collection('requests').doc(requestID).set({
+      'tripId': tripId,
+      'passengerId': user?.uid,
+      'driverId': driverId,
+      'status': 'pending',
+      'timestamp': DateTime.now(),
+    });
+
+    // Create a notification for the driver
+    var notificationId = FirebaseFirestore.instance
+        .collection('users')
+        .doc(driverId)
+        .collection('notifications')
+        .doc()
+        .id;
+    logger.e("Saving a notification to the database");
+    // Save the notification to Firestore
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(driverId)
+        .collection('notifications')
+        .doc(notificationId)
+        .set({
+      'type': 'request',
+      'requestId': requestID,
+      'message': 'You have a new request from ${user?.displayName}',
+      'status': 'unread',
+      'timestamp': DateTime.now(),
+    });
+  }
+
+  Future<QuerySnapshot> fetchRequestsByStatus(String tripId, String status) {
+    return _firestore
+        .collection('requests')
+        .where('tripId', isEqualTo: tripId)
+        .where('status', isEqualTo: status)
+        .get();
+  }
+
+  Future<void> addPassengerToTrip(String userId, String tripId) async {
+    try {
+      await _firestore.collection('trips').doc(tripId).update({
+        'passengers': FieldValue.arrayUnion([userId]),
+      });
+    } catch (e) {
+      // Handle any errors
+      logger.i('Error adding passenger to trip: $e');
+    }
+  }
+
+  Future<void> updateRequestStatus(String requestId, String newStatus) async {
+    try {
+      await _firestore.collection('requests').doc(requestId).update({
+        'status': newStatus,
+      });
+    } catch (e) {
+      // Handle any errors
+      logger.i('Error updating request status: $e');
+    }
+  }
+
+  // driver documents
+
+  Future<bool> documentExists(String userId) async {
+    try {
+      DocumentSnapshot docSnapshot =
+          await _firestore.collection('documents').doc(userId).get();
+
+      logger.d(docSnapshot.exists);
+      return docSnapshot.exists;
+    } catch (e) {
+      // Handle any errors
+      logger.i('Error checking if document exists: $e');
+      return false;
+    }
+  }
+
+  Future<bool> isDocumentApproved(String userId) async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('documents')
+          .doc(userId)
+          .get();
+      Map<String, dynamic>? documentData =
+          snapshot.data() as Map<String, dynamic>?;
+      if (documentData != null && documentData.containsKey('status')) {
+        String documentStatus = documentData['status'];
+        return documentStatus == 'approved';
+      } else {
+        return false;
+      }
+    } catch (e) {
+      // Handle error
+      logger.i('Error checking if document is approved: $e');
+      return false;
+    }
+  }
+
+// Driver documents
+  Future<bool> checkDocumentStatus(String userId) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection('documents')
+        .where('userID', isEqualTo: userId)
+        .where('status', isEqualTo: 'approved')
+        .get();
+
+    return snapshot.docs.isNotEmpty;
+  }
+
+  Future<void> addDocument(
+      String userId, String documentType, String documentURL) {
+    return _firestore.collection('documents').add({
+      'userID': userId,
+      'documentType': documentType,
+      'documentURL': documentURL,
+      'status': 'pending',
     });
   }
 }

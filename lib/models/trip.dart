@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:caravan/models/user_profile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Trip {
@@ -13,6 +14,7 @@ class Trip {
   String? tripStatus;
   List<LatLng>? polylinePoints;
   UserProfile? driver;
+  List<Request>? requests;
   Trip({
     this.id,
     this.createdBy,
@@ -22,6 +24,7 @@ class Trip {
     this.dateTime,
     this.tripStatus,
     this.polylinePoints,
+    this.requests,
     this.driver,
   });
 
@@ -46,6 +49,7 @@ class Trip {
       id: map['id'],
       createdBy: map['createdBy'],
       location: map['location'],
+      requests: map['requests'],
       destination: map['destination'],
       availableSeats: map['availableSeats'],
       dateTime: DateTime.parse(map['dateTime']),
@@ -59,4 +63,37 @@ class Trip {
   String toJson() => json.encode(toMap());
 
   static Trip fromJson(String source) => fromMap(json.decode(source));
+}
+
+class Request {
+  String? tripId;
+  String? passengerId;
+  String? status; // 'pending', 'accepted', 'declined'
+  // other request details
+  DateTime? timestamp;
+
+  Request({this.tripId, this.passengerId, this.status, this.timestamp
+      // other request details
+      });
+
+  factory Request.fromFirestore(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return Request(
+        tripId: data['tripId'],
+        passengerId: data['passengerId'],
+        status: data['status'],
+        timestamp: data['timestamp']
+        // other request details
+        );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'tripId': tripId,
+      'passengerId': passengerId,
+      'status': status,
+      'timestamp': timestamp
+      // other request details
+    };
+  }
 }

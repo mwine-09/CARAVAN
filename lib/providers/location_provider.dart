@@ -2,15 +2,12 @@ import 'package:caravan/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-    as bg;
 
 class LocationProvider with ChangeNotifier {
   final location.Location locationController = location.Location();
   LatLng? _currentPosition;
   String? _currentPositionName;
-  LocationService locationService =
-      LocationService.getInstance();
+  LocationService locationService = LocationService.getInstance();
 
   LatLng? get currentPosition => _currentPosition;
   String? get currentPositionName => _currentPositionName;
@@ -22,7 +19,7 @@ class LocationProvider with ChangeNotifier {
 
   LocationProvider() {
     _initLocationUpdates();
-    _configureBackgroundGeolocation();
+    // _configureBackgroundGeolocation();
   }
 
   Future<void> _initLocationUpdates() async {
@@ -94,37 +91,37 @@ class LocationProvider with ChangeNotifier {
 
 // background location updates
 
-  void _configureBackgroundGeolocation() {
-    bg.BackgroundGeolocation.onLocation((bg.Location location) {
-      print('[location] - $location');
-      _updateCurrentPosition(
-        LatLng(location.coords.latitude, location.coords.longitude),
-      );
-    });
+  // void _configureBackgroundGeolocation() {
+  //   bg.BackgroundGeolocation.onLocation((bg.Location location) {
+  //     print('[location] - $location');
+  //     _updateCurrentPosition(
+  //       LatLng(location.coords.latitude, location.coords.longitude),
+  //     );
+  //   });
 
-    bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
-      print('[motionchange] - $location');
-      _updateCurrentPosition(
-        LatLng(location.coords.latitude, location.coords.longitude),
-      );
-    });
+  //   bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
+  //     print('[motionchange] - $location');
+  //     _updateCurrentPosition(
+  //       LatLng(location.coords.latitude, location.coords.longitude),
+  //     );
+  //   });
 
-    bg.BackgroundGeolocation.ready(bg.Config(
-      desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-      distanceFilter: 10.0,
-      stopOnTerminate: false,
-      startOnBoot: true,
-      debug: true,
-      logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-      reset: true,
-    ));
-  }
+  //   bg.BackgroundGeolocation.ready(bg.Config(
+  //     desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+  //     distanceFilter: 10.0,
+  //     stopOnTerminate: false,
+  //     startOnBoot: true,
+  //     debug: true,
+  //     logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+  //     reset: true,
+  //   ));
+  // }
 
-  void startBackgroundGeolocation() {
-    bg.BackgroundGeolocation.start();
-  }
+  // void startBackgroundGeolocation() {
+  //   bg.BackgroundGeolocation.start();
+  // }
 
-  void stopBackgroundGeolocation() {
-    bg.BackgroundGeolocation.stop();
-  }
+  // void stopBackgroundGeolocation() {
+  //   bg.BackgroundGeolocation.stop();
+  // }
 }

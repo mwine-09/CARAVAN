@@ -1,66 +1,30 @@
+import 'package:caravan/providers/notification_provider.dart';
+import 'package:caravan/screens/more%20screens/trip_notifications.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final notificationProvider = Provider.of<NotificationProvider>(context);
+    final notifications = notificationProvider.notifications;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          'Notifications',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Center(
-        child: Column(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                FirebaseFirestore.instance.collection('/notifications').add({
-                  'title': 'New Notification',
-                  'body': 'This is a new notification',
-                });
-
-                print("done adding trip");
-              },
-              child: const Text("Add notification"),
-            ),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('/notifications')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    final notifications = snapshot.data?.docs;
-                    return ListView.builder(
-                      itemCount: notifications?.length,
-                      itemBuilder: (context, index) {
-                        final notification = notifications?[index].data();
-                        return ListTile(
-                          title: Text(
-                              (notification as Map<String, dynamic>)['title']),
-                          subtitle: Text(notification['body']),
-                        );
-                      },
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    return const Center(
-                      child: SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: CircularProgressIndicator(
-                          color: Colors.black,
-                        ),
-                      ),
-                    );
-                  }
-                },
+        child: notifications.isNotEmpty
+            ? NotificationList()
+            : const Text(
+                " You don't have notifications!",
+                style: TextStyle(color: Colors.white, fontSize: 20),
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

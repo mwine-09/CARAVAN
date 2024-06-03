@@ -1,8 +1,6 @@
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/tabs/main_scaffold.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:caravan/screens/home/home.dart';
 import 'package:flutter/material.dart';
 
 class Wrapper extends StatelessWidget {
@@ -21,12 +19,11 @@ class Wrapper extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           final user = snapshot.data;
+          logger.e("This is user data:  $user");
 
-          logger.i('this is the data from the auth changes ${snapshot.data}');
           if (user == null) {
             return const MyLogin();
           } else {
-            // Initialize the user profile
             return const HomePage();
           }
         } else {

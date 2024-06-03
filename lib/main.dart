@@ -4,6 +4,7 @@ import 'package:caravan/firebase_options.dart';
 
 import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/location_provider.dart';
+import 'package:caravan/providers/notification_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 
@@ -15,6 +16,7 @@ import 'package:caravan/screens/tabs/main_scaffold.dart';
 import 'package:caravan/screens/more%20screens/profile.dart';
 import 'package:caravan/screens/wrapper.dart';
 import 'package:caravan/services/location_service.dart';
+import 'package:caravan/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -29,7 +31,8 @@ Future<void> main() async {
     ChangeNotifierProvider(create: (context) => LocationProvider()),
     ChangeNotifierProvider(create: (context) => TripDetailsProvider()),
     ChangeNotifierProvider(create: (context) => ChatProvider()),
-    ChangeNotifierProvider(create: (context) => UserProfileProvider())
+    ChangeNotifierProvider(create: (context) => UserProfileProvider()),
+    ChangeNotifierProvider(create: (context) => NotificationProvider()),
   ], child: const MyRideSharingApp()));
 }
 
@@ -92,7 +95,7 @@ class MyRideSharingApp extends StatelessWidget {
         '/available_trips': (context) => const AvailableTrips(),
       },
 
-      home: const Wrapper(),
+      home: const SplashScreen(),
 
       // initialRoute: '/index',
     );

@@ -23,8 +23,7 @@ class DestinationScreen extends StatefulWidget {
 class _DestinationScreenState extends State<DestinationScreen> {
   TripRequest tripRequest = TripRequest();
   GoogleMapController? mapController;
-  LocationService locationService =
-      LocationService.getInstance();
+  LocationService locationService = LocationService.getInstance();
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];
@@ -122,21 +121,18 @@ class _DestinationScreenState extends State<DestinationScreen> {
               children: [
                 SizedBox(
                   height: MediaQuery.of(context).size.height,
-                  child: IgnorePointer(
-                    ignoring: false,
-                    child: GoogleMap(
-                      onMapCreated: (GoogleMapController controller) {
-                        setState(() {
-                          mapController = controller;
-                        });
-                      },
-                      initialCameraPosition: CameraPosition(
-                        target: locationProvider.currentPosition ??
-                            initialCameraPosition,
-                        zoom: 14.4746,
-                      ),
-                      markers: markers,
+                  child: GoogleMap(
+                    onMapCreated: (GoogleMapController controller) {
+                      setState(() {
+                        mapController = controller;
+                      });
+                    },
+                    initialCameraPosition: CameraPosition(
+                      target: locationProvider.currentPosition ??
+                          initialCameraPosition,
+                      zoom: 14.4746,
                     ),
+                    markers: markers,
                   ),
                 ),
                 Container(

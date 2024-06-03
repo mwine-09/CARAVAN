@@ -1,9 +1,19 @@
 import 'package:caravan/screens/authenticate/interim_login.dart';
-// import 'package:caravan/screens/authenticate/sign_in.dart';
-import 'package:flutter/material.dart';
+import 'package:caravan/screens/wrapper.dart';
+import 'package:flutter/material.dart'; // Add this line
 
-class Welcome extends StatelessWidget {
+class Welcome extends StatefulWidget {
   const Welcome({super.key});
+
+  @override
+  State<Welcome> createState() => _WelcomeState();
+}
+
+class _WelcomeState extends State<Welcome> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

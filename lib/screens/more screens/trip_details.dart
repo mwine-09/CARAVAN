@@ -7,11 +7,17 @@ import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
+import 'package:caravan/screens/more%20screens/request_sent.dart';
 import 'package:caravan/screens/more%20screens/selected_user_profile.dart';
+import 'package:caravan/screens/more%20screens/view_requests.dart';
+import 'package:caravan/services/database_service.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+
+Logger logger = Logger();
 
 class TripDetailsScreen extends StatefulWidget {
   final UserProfile userProfile;
@@ -168,25 +174,70 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(320, 50),
-                            backgroundColor:
-                                const Color.fromARGB(255, 255, 255, 255),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)),
-                            ),
-                          ),
-                          child: const Text(
-                            'Send request',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 0, 0, 0),
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
+                        trip.createdBy != userProfileProvider.userProfile.userID
+                            ? ElevatedButton(
+                                onPressed: () {
+                                  try {
+                                    DatabaseService()
+                                        .sendRequest(trip.id!, trip.createdBy!);
+
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const RequestSendScreen()));
+                                  } catch (e) {
+                                    logger.e("Encountered an error $e");
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: const Size(320, 50),
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 255, 255, 255),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5)),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Send request',
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              )
+                            : ElevatedButton(
+                                onPressed: () {
+                                  try {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ViewRequestsScreen(
+                                                  tripId: trip.id!,
+                                                )));
+                                  } catch (e) {
+                                    logger.e("Encountered an error $e");
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: const Size(320, 50),
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 255, 255, 255),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5)),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'View Requests',
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
                         const SizedBox(height: 10),
                         const Row(
                           children: [
@@ -271,25 +322,6 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
     }
     animateToBounds(pickupCoordinates, destinationCoordinates);
   }
-
-  // Future<List<LatLng>> fetchPolylinePoints(
-  //     LatLng pickup, LatLng destinationAddress) async {
-  //   final polylinePoints = PolylinePoints();
-  //   final result = await polylinePoints.getRouteBetweenCoordinates(
-  //     googleMapsApiKey,
-  //     PointLatLng(pickup.latitude, pickup.longitude),
-  //     PointLatLng(destinationAddress.latitude, destinationAddress.longitude),
-  //   );
-  //   if (result.points.isNotEmpty) {
-  //     final List<LatLng> polylineCoordinates = result.points
-  //         .map((point) => LatLng(point.latitude, point.longitude))
-  //         .toList();
-  //     return polylineCoordinates;
-  //   } else {
-  //     debugPrint(result.errorMessage);
-  //     return [];
-  //   }
-  // }
 
   void generatePolyLineFromPoints(List<LatLng> polylinePoints) {
     const id = PolylineId('polyline');

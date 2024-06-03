@@ -64,7 +64,7 @@ class AuthService {
 
       return user;
     } catch (e) {
-      logger.i(e.toString());
+      logger.i("Error from the sign in function ${e.toString()}");
       return null;
     }
   }

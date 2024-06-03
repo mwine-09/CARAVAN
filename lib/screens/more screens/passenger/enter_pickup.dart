@@ -458,7 +458,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
       });
     }
 
-    logger.i("Done putting on the map");
+    logger.i("Done painting on the map");
   }
 
   void updateMap(LatLng pickupLocation, LatLng destinationLocation) async {
@@ -508,51 +508,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
     animateToBounds(widget.tripRequest.pickupCoordinates!,
         widget.tripRequest.destinationCoordinates!);
   }
-  // void updateMap(LatLng pickupLocation, LatLng destinationLocation) async {
-  //   setState(() {
-  //     _markers.clear();
-  //     polylines.clear();
-  //   });
-  //   _markers.add(
-  //     Marker(
-  //       markerId: const MarkerId('pickup'),
-  //       position: widget.tripRequest.pickupCoordinates!,
-  //       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-  //       infoWindow: const InfoWindow(title: 'Pickup'),
-  //     ),
-  //   );
-  //   _markers.add(
-  //     Marker(
-  //       markerId: const MarkerId('Current Location'),
-  //       position: locationProvider.currentPosition!,
-  //       icon: await BitmapDescriptor.fromAssetImage(
-  //           const ImageConfiguration(size: Size(48, 48)),
-  //           'assets/customMarkerNew.png',
-  //           mipmaps: true),
-  //       infoWindow: const InfoWindow(title: 'My Location'),
-  //     ),
-  //   );
-  //   _markers.add(
-  //     Marker(
-  //       markerId: const MarkerId('destinationCoordinates'),
-  //       position: widget.tripRequest.destinationCoordinates!,
-  //       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-  //       infoWindow: const InfoWindow(title: 'Destination'),
-  //     ),
-  //   );
-
-  //   List<LatLng> something = await LocationService().fetchPolylines(
-  //       widget.tripRequest.source!, widget.tripRequest.destination!);
-
-  //   setState(() {
-  //     polylineCoordinates = something;
-  //   });
-
-  //   drawRoutesOnMap(polylineCoordinates);
-  //   animateToBounds(widget.tripRequest.pickupCoordinates!,
-  //       widget.tripRequest.destinationCoordinates!);
-  // }
-
+ 
   void animateToBounds(LatLng pickup, LatLng destination) async {
     LatLngBounds bounds = LatLngBounds(
       southwest: LatLng(min(pickup.latitude, destination.latitude),
