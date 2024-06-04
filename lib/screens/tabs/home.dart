@@ -128,7 +128,7 @@ class _HomeState extends State<Home> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   MyCard(
-                      title: 'View trips',
+                      title: 'Request for a ride',
                       icon: const AssetImage('assets/car.png'),
                       onTap: () {
                         // Handle tap on request for a ride
@@ -139,7 +139,7 @@ class _HomeState extends State<Home> {
                         );
                       }),
                   MyCard(
-                    title: 'Request for a ride',
+                    title: 'Schedule a trip',
                     icon: const AssetImage('assets/car.png'),
                     onTap: () {
                       // Handle tap on request for a ride

@@ -15,15 +15,21 @@ class NotificationProvider with ChangeNotifier {
     _startListeningToNotifications();
   }
 
-  void _startListeningToNotifications() {
-    _notificationSubscription = FirebaseFirestore.instance
+  Stream<List<MyNotification>> getNotificationsStream() {
+    return FirebaseFirestore.instance
         .collection('users')
         .doc(user?.uid)
         .collection('notifications')
         .snapshots()
-        .listen((snapshot) {
-      _notifications =
-          snapshot.docs.map((doc) => MyNotification.fromDocument(doc)).toList();
+        .map((snapshot) => snapshot.docs
+            .map((doc) => MyNotification.fromDocument(doc))
+            .toList());
+  }
+
+  void _startListeningToNotifications() {
+    _notificationSubscription =
+        getNotificationsStream().listen((notifications) {
+      _notifications = notifications;
       unreadNotificationsCount = _notifications
           .where((notification) => notification.status == 'unread')
           .length;
@@ -39,7 +45,6 @@ class NotificationProvider with ChangeNotifier {
   }
 
   Future<void> markAsRead(MyNotification notification) async {
-    // Replace 'userId' with the actual user ID
     String? userId = user!.uid;
 
     await FirebaseFirestore.instance

@@ -66,33 +66,37 @@ class RequestsList extends StatelessWidget {
   final String status;
 
   const RequestsList({super.key, required this.tripId, required this.status});
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<QuerySnapshot>(
-      future: DatabaseService().fetchRequestsByStatus(tripId, status),
+    return StreamBuilder<QuerySnapshot>(
+      stream: DatabaseService().fetchRequestsStream(tripId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-              child: CircularProgressIndicator(
-            color: Colors.white,
-          ));
+            child: CircularProgressIndicator(
+              color: Colors.white,
+            ),
+          );
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return Center(
-              child: Text(
-            'No requests found.',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.white, fontSize: 20),
-          ));
+            child: Text(
+              'No $status requests found.',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.white, fontSize: 20),
+            ),
+          );
         } else {
+          var requests = snapshot.data!.docs
+              .where((request) => request['status'] == status)
+              .toList();
           return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
+            itemCount: requests.length,
             itemBuilder: (context, index) {
-              var request = snapshot.data!.docs[index];
+              var request = requests[index];
               return FutureBuilder<UserProfile>(
                 future:
                     DatabaseService().getUserProfile(request['passengerId']),

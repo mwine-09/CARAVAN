@@ -148,7 +148,7 @@ class _IdDocumentUploadScreenState extends State<IdDocumentUploadScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => InterpolLetterUploadScreen(
-                            frontIdFile: frontIdFile, backIdFile: backIdFile),
+                            frontIdFile: frontIdFile!, backIdFile: backIdFile!),
                       ),
                     );
                   }

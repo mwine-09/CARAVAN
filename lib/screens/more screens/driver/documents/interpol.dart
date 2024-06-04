@@ -9,8 +9,8 @@ import 'package:image_picker/image_picker.dart';
 ImagePickerService imagePickerService = ImagePickerService();
 
 class InterpolLetterUploadScreen extends StatefulWidget {
-  final File? frontIdFile;
-  final File? backIdFile;
+  final File frontIdFile;
+  final File backIdFile;
 
   const InterpolLetterUploadScreen(
       {super.key, required this.frontIdFile, required this.backIdFile});
@@ -113,7 +113,7 @@ class _InterpolLetterUploadScreenState
                             builder: (context) => SelfieUploadScreen(
                                 frontIdFile: widget.frontIdFile,
                                 backIdFile: widget.backIdFile,
-                                interpolLetterFile: interpolLetterFile),
+                                interpolLetterFile: interpolLetterFile!),
                           ),
                         );
                       } else {

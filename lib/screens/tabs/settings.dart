@@ -47,11 +47,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ValueNotifier<double> uploadProgress = ValueNotifier(0);
   ValueNotifier<bool> uploadComplete = ValueNotifier(false);
   late UserProfileProvider userProfileProvider;
+  late UserProfile userProfile;
   bool _isDriver = false; // Assuming initial role is passenger
   @override
   Widget build(BuildContext context) {
     userProfileProvider = Provider.of(context);
-    UserProfile userProfile = userProfileProvider.userProfile;
+    userProfile = userProfileProvider.userProfile;
     String username = userProfileProvider.userProfile.username!;
     _isDriver = userProfile.isDriver;
     return Scaffold(
@@ -150,9 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     trailing: Switch(
                       value: userProfile.isDriver,
                       onChanged: (newValue) {
-                        setState(() {
-                          _toggleRole();
-                        });
+                        _toggleRole();
                       },
                       activeColor: Colors.green,
                       inactiveThumbColor: Colors.grey,
@@ -224,65 +223,75 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _toggleRole() async {
+    logger.d("The value of the issue Driver is $_isDriver");
     String userId = userProfileProvider.userProfile.userID!;
-    // Check if the user has the 'documents' field in the database
-    bool docExists = await DatabaseService().documentExists(userId);
-    if (!docExists) {
-      // Prompt user to submit documents
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Please submit your documents for review.',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Colors.white,
-                  fontSize: 16,
-                )),
-      ));
-      return;
-    }
-    bool isApproved = await DatabaseService().checkDocumentStatus(userId);
-    if (docExists && !isApproved) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('your documents await review.',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Colors.white,
-                  fontSize: 16,
-                )),
-      ));
-      return;
-    }
+    DatabaseService databaseService = DatabaseService();
 
-    // User has the 'documents' field, proceed to toggle role
     if (_isDriver) {
-      // Check document status and only allow toggle if approved
-      bool isApproved = await DatabaseService().isDocumentApproved(userId);
-      if (isApproved) {
-        await DatabaseService().toggleIsDriver(userId, false);
-        setState(() {
-          _isDriver = false;
-        });
+      // If the user is currently a driver, allow switching to passenger without any checks
+      await databaseService.toggleIsDriver(userId, false);
+      setState(() {
+        _isDriver = false;
+        userProfile.isDriver =
+            false; // Update userProfile directly if it's used in the UI
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+          'You are now a passenger.',
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+        ),
+      ));
+    } else {
+      // Check if the user has the 'documents' field in the database
+      bool docExists = await databaseService.documentExists(userId);
+      if (!docExists) {
+        // Prompt user to submit documents
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('You are now a passenger.',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Colors.white,
-                    fontSize: 16,
-                  )),
+          content: Text(
+            'Please submit your documents for review.',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+          ),
+        ));
+        return;
+      }
+
+      // Check if documents are approved
+      bool isApproved = await databaseService.isDocumentApproved(userId);
+      if (isApproved) {
+        await databaseService.toggleIsDriver(userId, true);
+        setState(() {
+          _isDriver = true;
+          userProfile.isDriver =
+              true; // Update userProfile directly if it's used in the UI
+        });
+        logger.d("The value of the issue Driver is $_isDriver");
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            'You are now a driver.',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+          ),
         ));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Please submit your documents for review.',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Colors.white,
-                    fontSize: 16,
-                  )),
+          content: Text(
+            'Your documents are awaiting review.',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+          ),
         ));
       }
-    } else {
-      await DatabaseService().toggleIsDriver(userId, true);
-      setState(() {
-        _isDriver = true;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('You are now a driver.'),
-      ));
     }
   }
 

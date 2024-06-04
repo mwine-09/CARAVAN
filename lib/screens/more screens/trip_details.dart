@@ -34,6 +34,12 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   static LatLng _center = const LatLng(0, 0);
 
   @override
+  void initState() {
+    super.initState();
+    print("TripDetailsScreen initialized");
+  }
+
+  @override
   Widget build(BuildContext context) {
     ChatProvider chatProvider = Provider.of<ChatProvider>(context);
     UserProfileProvider userProfileProvider =
@@ -57,225 +63,251 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Driver details",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Driver details",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TripDriverCard(
+                    trip: trip,
+                    selectedDriverName: selectedDriverName,
+                    userProfile: widget.userProfile),
+                const SizedBox(height: 8),
+                const Text(
+                  "Trip Details",
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 249, 249, 249),
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                      fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 22, 22, 22),
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                  TripDriverCard(
-                      trip: trip,
-                      selectedDriverName: selectedDriverName,
-                      userProfile: widget.userProfile),
-                  const SizedBox(height: 5),
-                  const Text(
-                    "Trip Details",
-                    style: TextStyle(
-                        color: Color.fromARGB(255, 249, 249, 249),
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 22, 22, 22),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Flexible(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "To: ${trip.destination}",
-                                    softWrap: true,
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 14),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    "From: ${trip.location}",
-                                    softWrap: true,
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 14),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    "Number of stops: ${trip.availableSeats}",
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // message button
-                            if (trip.createdBy !=
-                                userProfileProvider.userProfile.userID)
-                              ElevatedButton(
-                                onPressed: () async {
-                                  String driverId = trip.createdBy!;
-
-                                  if (chatProvider.hasChatroom(driverId)) {
-                                    ChatRoom? chatroom =
-                                        chatProvider.getChatroom(driverId);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ChatScreen(
-                                          chatRoom: chatroom!,
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    await chatProvider.createChatroom(
-                                      driverId,
-                                    );
-                                    ChatRoom? chatroom =
-                                        chatProvider.getChatroom(driverId);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ChatScreen(
-                                          chatRoom: chatroom!,
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: const Size(100, 50),
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 255, 255, 255),
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5)),
-                                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "To: ${trip.destination}",
+                                  softWrap: true,
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 14),
                                 ),
-                                child: const Text(
-                                  'Message',
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 0, 0, 0),
-                                    fontSize: 16,
-                                  ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  "From: ${trip.location}",
+                                  softWrap: true,
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 14),
                                 ),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        trip.createdBy != userProfileProvider.userProfile.userID
-                            ? ElevatedButton(
-                                onPressed: () {
-                                  try {
-                                    DatabaseService()
-                                        .sendRequest(trip.id!, trip.createdBy!);
-
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const RequestSendScreen()));
-                                  } catch (e) {
-                                    logger.e("Encountered an error $e");
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: const Size(320, 50),
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 255, 255, 255),
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5)),
-                                  ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  "Number of stops: ${trip.availableSeats}",
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 14),
                                 ),
-                                child: const Text(
-                                  'Send request',
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 0, 0, 0),
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              )
-                            : ElevatedButton(
-                                onPressed: () {
-                                  try {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ViewRequestsScreen(
-                                                  tripId: trip.id!,
-                                                )));
-                                  } catch (e) {
-                                    logger.e("Encountered an error $e");
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: const Size(320, 50),
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 255, 255, 255),
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5)),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'View Requests',
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 0, 0, 0),
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                        const SizedBox(height: 10),
-                        const Row(
-                          children: [
-                            Text(
-                              "Route Map",
-                              style: TextStyle(
-                                color: Color.fromARGB(255, 255, 255, 255),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(5),
-                          child: SizedBox(
-                            width: 380,
-                            height: 220,
-                            child: GoogleMap(
-                              onMapCreated: (controller) {
-                                mapController = controller;
-                                initializeMap(trip);
-                              },
-                              initialCameraPosition: CameraPosition(
-                                target: _center,
-                                zoom: 20,
-                              ),
-                              markers: markers.values.toSet(),
-                              polylines: polylines.values.toSet(),
+                              ],
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+
+                          // message button
+                          if (trip.createdBy !=
+                              userProfileProvider.userProfile.userID)
+                            ElevatedButton(
+                              onPressed: () async {
+                                String driverId = trip.createdBy!;
+
+                                if (chatProvider.hasChatroom(driverId)) {
+                                  ChatRoom? chatroom =
+                                      chatProvider.getChatroom(driverId);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                        chatRoom: chatroom!,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  await chatProvider.createChatroom(
+                                    driverId,
+                                  );
+                                  ChatRoom? chatroom =
+                                      chatProvider.getChatroom(driverId);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                        chatRoom: chatroom!,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(100, 50),
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 255, 255),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)),
+                                ),
+                              ),
+                              child: const Text(
+                                'Message',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      trip.createdBy != userProfileProvider.userProfile.userID
+                          ? ElevatedButton(
+                              onPressed: () {
+                                try {
+                                  DatabaseService()
+                                      .sendRequest(trip.id!, trip.createdBy!);
+
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const RequestSendScreen()));
+                                } catch (e) {
+                                  logger.e("Encountered an error $e");
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(320, 50),
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 255, 255),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)),
+                                ),
+                              ),
+                              child: const Text(
+                                'Send request',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            )
+                          : ElevatedButton(
+                              onPressed: () {
+                                try {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ViewRequestsScreen(
+                                                tripId: trip.id!,
+                                              )));
+                                } catch (e) {
+                                  logger.e("Encountered an error $e");
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(320, 50),
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 255, 255),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)),
+                                ),
+                              ),
+                              child: const Text(
+                                'View Requests',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            )
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Map Preview",
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 249, 249, 249),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: SizedBox(
+                    width: 380,
+                    height: 220,
+                    child: GoogleMap(
+                      onMapCreated: (controller) {
+                        mapController = controller;
+                        initializeMap(trip);
+                      },
+                      initialCameraPosition: CameraPosition(
+                        target: _center,
+                        zoom: 20,
+                      ),
+                      markers: markers.values.toSet(),
+                      polylines: polylines.values.toSet(),
                     ),
+                  ),
+                ),
+                if (trip.createdBy == userProfileProvider.userProfile.userID)
+                  Column(
+                    children: [
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Center(
+                        child: ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(200, 50),
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 255, 255),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)),
+                                )),
+                            child: Text(
+                              "Start Trip",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                      fontSize: 16,
+                                      letterSpacing: 3,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w800),
+                            )),
+                      ),
+                    ],
                   )
-                ],
-              ),
+              ],
             ),
           ),
         ),
@@ -283,11 +315,45 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
     );
   }
 
+  Future<void> getDirections(String origin, String destination) async {
+    // Use your method to get directions and set polylines
+    // For example:
+    // var directions = await getDirectionsFromAPI(origin, destination);
+    // setPolylines(directions);
+
+    // Dummy implementation
+    LatLng originLatLng =
+        const LatLng(37.7749, -122.4194); // Example coordinates
+    LatLng destinationLatLng = const LatLng(34.0522, -118.2437);
+
+    PolylineId id = const PolylineId("poly");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.blue,
+      points: [originLatLng, destinationLatLng],
+      width: 3,
+    );
+
+    Marker originMarker = Marker(
+      markerId: const MarkerId("origin"),
+      position: originLatLng,
+    );
+
+    Marker destinationMarker = Marker(
+      markerId: const MarkerId("destination"),
+      position: destinationLatLng,
+    );
+
+    setState(() {
+      polylines[id] = polyline;
+      markers[const MarkerId("origin")] = originMarker;
+      markers[const MarkerId("destination")] = destinationMarker;
+      _center = LatLng((originLatLng.latitude + destinationLatLng.latitude) / 2,
+          (originLatLng.longitude + destinationLatLng.longitude) / 2);
+    });
+  }
+
   Future<void> initializeMap(Trip trip) async {
-    // final coordinates = await Future.wait([
-    //   LocationService().searchLocation(trip.destination!),
-    //   LocationService().searchLocation(trip.location!),
-    // ]);
     final destinationCoordinates = trip.polylinePoints!.last;
     final pickupCoordinates = trip.polylinePoints!.first;
 
@@ -353,8 +419,10 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
 }
 
 class TripDriverCard extends StatelessWidget {
+  final Trip trip;
   final String selectedDriverName;
   final UserProfile userProfile;
+
   const TripDriverCard({
     super.key,
     required this.trip,
@@ -362,140 +430,21 @@ class TripDriverCard extends StatelessWidget {
     required this.userProfile,
   });
 
-  final Trip trip;
-
   @override
   Widget build(BuildContext context) {
-    String driverID = trip.createdBy!;
-    print("The driver id is $driverID");
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
-      ),
-      color: const Color.fromARGB(255, 22, 22, 22),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Center(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(width: 10),
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: userProfile.photoUrl != null
-                            ? NetworkImage(userProfile.photoUrl!)
-                            : const AssetImage('assets/default_profile.jpg')
-                                as ImageProvider<Object>,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            "Driver Name: ",
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          Text(
-                            selectedDriverName,
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      const Row(
-                        children: [
-                          Text(
-                            "Number Plate: ",
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          Text(
-                            "UBQ 876G",
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          SizedBox(height: 5),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Row(
-                        children: [
-                          const Text(
-                            "Available Seats: ",
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            "${trip.availableSeats}",
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Add navigation logic here
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => SelectedDriverScreen(
-                                userProfile: userProfile,
-                              )));
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(320, 50),
-                  backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                  ),
-                ),
-                child: const Text(
-                  'See Full Profile',
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 0, 0, 0),
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-          ],
+      color: Colors.grey[800],
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(userProfile.photoUrl!),
+        ),
+        title: Text(
+          selectedDriverName,
+          style: const TextStyle(color: Colors.white),
+        ),
+        subtitle: Text(
+          trip.driver!.make ?? 'Unknown Car Model',
+          style: const TextStyle(color: Colors.white70),
         ),
       ),
     );

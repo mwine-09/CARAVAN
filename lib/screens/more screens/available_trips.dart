@@ -1,4 +1,3 @@
-
 import 'package:caravan/components/debouncer.dart';
 import 'package:caravan/components/trip_card.dart';
 import 'package:caravan/models/trip.dart';
@@ -51,78 +50,82 @@ class _AvailableTripsState extends State<AvailableTrips> {
           margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
 
           // padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: TextField(
-            controller: _searchController,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: const Color.fromARGB(255, 0, 0, 0),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: const Color.fromARGB(255, 0, 0, 0),
+                  ),
+              cursorColor: Colors.black,
+              decoration: InputDecoration(
+                constraints: const BoxConstraints(
+                  maxHeight: 50,
                 ),
-            cursorColor: Colors.black,
-            decoration: InputDecoration(
-              constraints: const BoxConstraints(
-                maxHeight: 50,
-              ),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.filter_list,
-                    color: Color.fromARGB(255, 0, 0, 0)),
-                onPressed: () {
-                  showModalBottomSheet(
-                    showDragHandle: true,
-                    enableDrag: true,
-                    context: context,
-                    builder: (context) {
-                      return StatefulBuilder(
-                        builder: (BuildContext context, StateSetter setState) {
-                          return Container(
-                            height: 200,
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.values[1],
-                              children: [
-                                Text(
-                                    'Search Radius: ${_searchRadius.toStringAsFixed(1)} km'),
-                                Slider(
-                                  activeColor: Colors.black,
-                                  value: _searchRadius,
-                                  min: 1,
-                                  max: 15,
-                                  divisions: 14,
-                                  label: _searchRadius.round().toString(),
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      _searchRadius = value;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
-              hintText: 'Enter Destination',
-              hintStyle: const TextStyle(color: Colors.black),
-              fillColor: Colors.white,
-              filled: true,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: const BorderSide(width: 0.8),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: const BorderSide(
-                  width: 0.8,
-                  color: Colors.black,
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.filter_list,
+                      color: Color.fromARGB(255, 0, 0, 0)),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      showDragHandle: true,
+                      enableDrag: true,
+                      context: context,
+                      builder: (context) {
+                        return StatefulBuilder(
+                          builder:
+                              (BuildContext context, StateSetter setState) {
+                            return Container(
+                              height: 200,
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.values[1],
+                                children: [
+                                  Text(
+                                      'Search Radius: ${_searchRadius.toStringAsFixed(1)} km'),
+                                  Slider(
+                                    activeColor: Colors.black,
+                                    value: _searchRadius,
+                                    min: 1,
+                                    max: 15,
+                                    divisions: 14,
+                                    label: _searchRadius.round().toString(),
+                                    onChanged: (double value) {
+                                      setState(() {
+                                        _searchRadius = value;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+                hintText: 'Enter Destination',
+                hintStyle: const TextStyle(color: Colors.black),
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(width: 0.8),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(
+                    width: 0.7,
+                    color: Colors.black,
+                  ),
                 ),
               ),
+              onChanged: (value) async {
+                _debouncer.run(() {
+                  _searchTrips();
+                });
+              },
             ),
-            onChanged: (value) async {
-              _debouncer.run(() {
-                _searchTrips();
-              });
-            },
           ),
         ),
         centerTitle: false,
@@ -146,68 +149,73 @@ class _AvailableTripsState extends State<AvailableTrips> {
         ],
         backgroundColor: Colors.black,
       ),
-      body: Column(
-        children: [
-          _filteredTrips.isNotEmpty
-              ? Expanded(
-                  child: ListView.builder(
-                    itemCount: _filteredTrips.length,
-                    itemBuilder: (context, index) {
-                      final trip = _filteredTrips[index];
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: AvailabeTripCard(trip: trip),
-                      );
-                    },
-                  ),
-                )
-              : Expanded(
-                  child: StreamBuilder<List<Trip>>(
-                    stream: DatabaseService().fetchTrips(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                            child: CircularProgressIndicator(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ));
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                            ));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Center(
-                          child: Text(
-                            'No trips available',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                ),
-                          ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          children: [
+            _filteredTrips.isNotEmpty
+                ? Expanded(
+                    child: ListView.builder(
+                      itemCount: _filteredTrips.length,
+                      itemBuilder: (context, index) {
+                        final trip = _filteredTrips[index];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: AvailabeTripCard(trip: trip),
                         );
-                      } else {
-                        // Data is available, you can use snapshot.data safely
-                        final trips = snapshot.data!;
-                        _allTrips.addAll(trips);
-                        return ListView.builder(
-                          itemCount: trips.length,
-                          itemBuilder: (context, index) {
-                            final trip = trips[index];
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: AvailabeTripCard(trip: trip),
-                            );
-                          },
-                        );
-                      }
-                    },
+                      },
+                    ),
+                  )
+                : Expanded(
+                    child: StreamBuilder<List<Trip>>(
+                      stream: DatabaseService().fetchTrips(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ));
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No trips available',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                  ),
+                            ),
+                          );
+                        } else {
+                          // Data is available, you can use snapshot.data safely
+                          final trips = snapshot.data!;
+                          _allTrips.addAll(trips);
+                          return ListView.builder(
+                            itemCount: trips.length,
+                            itemBuilder: (context, index) {
+                              final trip = trips[index];
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: AvailabeTripCard(trip: trip),
+                              );
+                            },
+                          );
+                        }
+                      },
+                    ),
                   ),
-                ),
-        ],
+          ],
+        ),
       ),
     );
   }

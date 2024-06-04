@@ -70,22 +70,32 @@ class DatabaseService {
     return FirebaseFirestore.instance
         .collection('/trips')
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) {
-              List<LatLng> polylinePoints = (doc['polylinePoints'] as List)
-                  .map((point) => LatLng(point['latitude'], point['longitude']))
-                  .toList();
+        .asyncMap((snapshot) async {
+      List<Trip> trips = [];
+      for (var doc in snapshot.docs) {
+        List<LatLng> polylinePoints = (doc['polylinePoints'] as List)
+            .map((point) => LatLng(point['latitude'], point['longitude']))
+            .toList();
 
-              return Trip(
-                id: doc.id,
-                createdBy: doc['createdBy'],
-                location: doc['departure location'],
-                destination: doc['destination'],
-                availableSeats: doc['available seats'],
-                dateTime: (doc['departure time'] as Timestamp).toDate(),
-                tripStatus: doc['trip status'],
-                polylinePoints: polylinePoints,
-              );
-            }).toList());
+        Trip trip = Trip(
+          id: doc.id,
+          createdBy: doc['createdBy'],
+          location: doc['departure location'],
+          destination: doc['destination'],
+          availableSeats: doc['available seats'],
+          dateTime: (doc['departure time'] as Timestamp).toDate(),
+          tripStatus: doc['trip status'],
+          polylinePoints: polylinePoints,
+        );
+
+        UserProfile driverProfile = await getUserProfile(doc['createdBy']);
+        trip.driver = driverProfile;
+        logger.d(trip.driver);
+
+        trips.add(trip);
+      }
+      return trips;
+    });
   }
 
   // Add a new booking to the "bookings" collection
@@ -334,12 +344,11 @@ class DatabaseService {
     });
   }
 
-  Future<QuerySnapshot> fetchRequestsByStatus(String tripId, String status) {
+  Stream<QuerySnapshot> fetchRequestsStream(String tripId) {
     return _firestore
         .collection('requests')
         .where('tripId', isEqualTo: tripId)
-        .where('status', isEqualTo: status)
-        .get();
+        .snapshots();
   }
 
   Future<void> addPassengerToTrip(String userId, String tripId) async {

@@ -1,15 +1,16 @@
 import 'dart:io';
 
 import 'package:caravan/screens/more%20screens/driver/documents/review_submit.dart';
+import 'package:caravan/screens/more%20screens/driver/documents/upload.dart';
 import 'package:flutter/material.dart';
 import 'package:caravan/services/image_picker_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SelfieUploadScreen extends StatefulWidget {
-  final File? frontIdFile;
-  final File? backIdFile;
-  final File? interpolLetterFile;
+  final File frontIdFile;
+  final File backIdFile;
+  final File interpolLetterFile;
 
   const SelfieUploadScreen({
     super.key,
@@ -94,11 +95,11 @@ class _SelfieUploadScreenState extends State<SelfieUploadScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ReviewDocumentsScreen(
+                        builder: (context) => DocumentUploadScreen(
                           frontIdFile: widget.frontIdFile,
                           backIdFile: widget.backIdFile,
                           interpolLetterFile: widget.interpolLetterFile,
-                          selfieFile: selfieFile,
+                          selfieFile: selfieFile!,
                         ),
                       ),
                     );
