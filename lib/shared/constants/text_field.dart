@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 const myTextFieldStyle = InputDecoration(
-  
   focusedBorder: OutlineInputBorder(
     borderSide: BorderSide(color: Colors.white, width: 1.0),
   ),

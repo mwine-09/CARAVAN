@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:caravan/screens/tabs/main_scaffold.dart';
 import 'package:caravan/screens/tabs/settings.dart';
 import 'package:caravan/services/image_picker_service.dart';
 
@@ -145,7 +146,10 @@ class DocumentUploadScreen extends StatelessWidget {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+      MaterialPageRoute(
+          builder: (context) => const HomePage(
+                tabDestination: 3,
+              )),
       (route) => false,
     );
   }

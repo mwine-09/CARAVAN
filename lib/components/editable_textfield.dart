@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 
 class EditableProfileField extends StatefulWidget {
   final String label;
@@ -30,33 +33,36 @@ class _EditableProfileFieldState extends State<EditableProfileField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.label,
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                color: Colors.grey,
-              ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Text(
+            widget.label,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Colors.grey,
+                ),
+          ),
         ),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                style: const TextStyle(color: Colors.white),
-                cursorColor: Colors.white,
-                controller: _controller,
-                decoration: InputDecoration(
-                    hintText: 'Enter ${widget.label.toLowerCase()}',
-                    hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: Colors.white.withOpacity(0.5),
-                        )),
-              ),
+        const SizedBox(
+          height: 8,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Container(
+            height: 50,
+            margin: const EdgeInsets.only(bottom: 20),
+            decoration: const BoxDecoration(
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                color: Color.fromARGB(96, 150, 146, 146)),
+            child: TextField(
+              style: const TextStyle(color: Colors.white),
+              cursorColor: Colors.white,
+              controller: _controller,
+              decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(8)),
             ),
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                widget.onSave(_controller.text);
-              },
-            ),
-          ],
+          ),
         ),
       ],
     );

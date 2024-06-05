@@ -1,34 +1,29 @@
-import 'package:caravan/models/request.dart';
-import 'package:caravan/models/trip.dart';
-import 'package:caravan/providers/location_provider.dart';
-import 'package:caravan/screens/more%20screens/passenger/enter_pickup.dart';
-import 'package:caravan/services/location_service.dart';
-
 import 'package:flutter/material.dart';
-
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logger/web.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+
+import '../models/trip.dart';
+import '../providers/location_provider.dart';
+import '../services/location_service.dart';
 
 var logger = Logger();
 
-class DestinationScreen extends StatefulWidget {
-  final Trip trip;
+class LocationSelectionWidget extends StatefulWidget {
+  final Function(Trip tripRequest) onLocationsSelected;
 
-  const DestinationScreen({super.key, required this.trip});
+  const LocationSelectionWidget({super.key, required this.onLocationsSelected});
 
   @override
-  _DestinationScreenState createState() => _DestinationScreenState();
+  _LocationSelectionWidgetState createState() =>
+      _LocationSelectionWidgetState();
 }
 
-class _DestinationScreenState extends State<DestinationScreen> {
+class _LocationSelectionWidgetState extends State<LocationSelectionWidget> {
   Trip tripRequest = Trip();
   GoogleMapController? mapController;
   LocationService locationService = LocationService.getInstance();
-  late PolylinePoints polylinePoints;
-  late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];
   late Set<Polyline> polylines = {};
   late String destinationText = '';
@@ -47,11 +42,6 @@ class _DestinationScreenState extends State<DestinationScreen> {
   bool isLoading = true;
 
   String currentPositionName = '';
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void didChangeDependencies() {
@@ -275,13 +265,6 @@ class _DestinationScreenState extends State<DestinationScreen> {
                                                           destinationCoordinates =
                                                               value;
 
-                                                          tripRequest.driver =
-                                                              widget
-                                                                  .trip.getDriver;
-
-                                                          tripRequest.id =
-                                                              widget.trip.getId;
-
                                                           tripRequest
                                                                   .destinationCoordinates =
                                                               value;
@@ -302,16 +285,9 @@ class _DestinationScreenState extends State<DestinationScreen> {
 
                                                         logger.e(tripRequest
                                                             .destinationCoordinates);
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                PickupLocationScreen(
-                                                              tripRequest:
-                                                                  tripRequest,
-                                                            ),
-                                                          ),
-                                                        );
+                                                        widget
+                                                            .onLocationsSelected(
+                                                                tripRequest);
                                                       });
                                                     }
 

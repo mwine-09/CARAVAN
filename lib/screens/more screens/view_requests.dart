@@ -2,6 +2,9 @@ import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:logger/logger.dart';
+
+Logger logger = Logger();
 
 class ViewRequestsScreen extends StatefulWidget {
   final String tripId;
@@ -93,7 +96,20 @@ class RequestsList extends StatelessWidget {
           var requests = snapshot.data!.docs
               .where((request) => request['status'] == status)
               .toList();
-          return ListView.builder(
+
+          if (requests.isEmpty) {
+            return const Center(
+              child: Text(
+                "Nothing to see here",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+            );
+          }
+          return ListView.separated(
+            separatorBuilder: (context, index) => const Divider(
+              height: 1,
+              color: Colors.white30,
+            ),
             itemCount: requests.length,
             itemBuilder: (context, index) {
               var request = requests[index];
@@ -102,9 +118,13 @@ class RequestsList extends StatelessWidget {
                     DatabaseService().getUserProfile(request['passengerId']),
                 builder: (context, userSnapshot) {
                   if (userSnapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox(); // Show nothing while loading user data
+                    return const SizedBox();
                   } else if (userSnapshot.hasError) {
-                    return Center(child: Text('Error: ${userSnapshot.error}'));
+                    return Center(
+                        child: Text(
+                      'Error: ${userSnapshot.error}',
+                      style: const TextStyle(color: Colors.white),
+                    ));
                   } else {
                     var username = userSnapshot.data!.username!;
                     return ListTile(
@@ -133,9 +153,15 @@ class RequestsList extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                DatabaseService().addPassengerToTrip(
-                    request['passengerId'], request['tripId']);
+                // change the status of the request to accepted
+                logger.d("The id of this request docuement is ${request.id}");
+                DatabaseService()
+                    .addRequestToTrip(request['tripId'], request.id);
                 DatabaseService().updateRequestStatus(request.id, 'accepted');
+                logger.d("${request['passengerId']}, ${request.id}");
+                // notify the user that their request has been accepted.
+                DatabaseService().sendRequestStatusNotification(
+                    request['passengerId'], request.id, 'accepted');
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.black,
@@ -149,6 +175,9 @@ class RequestsList extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 DatabaseService().updateRequestStatus(request.id, 'declined');
+
+                DatabaseService().sendRequestStatusNotification(
+                    request['passengerId'], request.id, 'declined');
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
@@ -164,7 +193,15 @@ class RequestsList extends StatelessWidget {
       case 'accepted':
         return ElevatedButton(
           onPressed: () {
+            // change the status of the request to accepted
             DatabaseService().updateRequestStatus(request.id, 'pending');
+
+            DatabaseService().removePassengerFromTrip(
+                request['passengerId'], request['tripId']);
+
+            // notify the user that their request has been accepted.
+            DatabaseService().sendRequestStatusNotification(
+                request['passengerId'], request.id, 'pending');
           },
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
@@ -178,9 +215,14 @@ class RequestsList extends StatelessWidget {
       case 'declined':
         return ElevatedButton(
           onPressed: () {
+            // change the status of the request to accepted
+            logger.d("The id of this request docuement is ${request.id}");
+            DatabaseService().addRequestToTrip(request['tripId'], request.id);
             DatabaseService().updateRequestStatus(request.id, 'accepted');
-            DatabaseService()
-                .addPassengerToTrip(request['passengerId'], request['tripId']);
+            logger.d("${request['passengerId']}, ${request.id}");
+            // notify the user that their request has been accepted.
+            DatabaseService().sendRequestStatusNotification(
+                request['passengerId'], request.id, 'accepted');
           },
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.black,

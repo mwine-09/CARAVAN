@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:caravan/models/chat_room.dart';
 import 'package:caravan/models/message.dart';
+import 'package:caravan/services/database_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -40,7 +41,7 @@ class ChatProvider with ChangeNotifier {
         );
       }).toList();
 
-      // set the title of the chatroom to the username of the other user
+      // set the title and photo URL of the chatroom
       await Future.wait(_chatrooms.map((chatroom) async {
         try {
           List<String> userIds = chatroom.id.split('_');
@@ -50,13 +51,16 @@ class ChatProvider with ChangeNotifier {
           String username = await getUsername(senderID);
           logger.e('Got username for $senderID: $username');
           chatroom.title = username;
+
+          String photoUrl =
+              await DatabaseService().getUserProfilePictureUrl(senderID);
+          chatroom.photoUrl = photoUrl;
         } catch (e) {
           logger.e('Error getting username: $e');
         }
       }));
 
       // get messages for each chatroom
-
       for (var chatRoom in _chatrooms) {
         await fetchMessages(chatRoom);
       }

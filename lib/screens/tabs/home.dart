@@ -8,10 +8,9 @@ import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
-import 'package:caravan/screens/more%20screens/trip_notifications.dart';
+import 'package:caravan/screens/more%20screens/request_sent.dart';
 
 // import 'package:caravan/screens/more%20screens/notifications.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -40,86 +39,79 @@ class _HomeState extends State<Home> {
 
       return const MyLogin();
     }
-    // final userProfile = FirebaseAuth.instance.currentUser!.displayName;
 
     String username = userProfile.username ?? 'User';
-    // String username = userProfile ?? 'User';
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
         automaticallyImplyLeading: false,
-        title: Text(
-          'Hello $username !',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.white,
-                fontSize: 20,
-                letterSpacing: 1,
-              ),
+        title: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            'Hello $username !',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.white,
+                  fontSize: 20,
+                  letterSpacing: 1,
+                ),
+          ),
         ),
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.notifications,
-                  color: Colors.white,
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.notifications,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    // Handle your button tap here
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const NotificationsScreen()));
+                  },
                 ),
-                onPressed: () {
-                  // Handle your button tap here
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const NotificationsScreen()));
-                },
-              ),
-              if (unreadNotificationsCount > 0)
-                Positioned(
-                  right: 0,
-                  top: 7,
-                  child: Container(
-                    padding: const EdgeInsets.all(1),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 235, 88, 78),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 15,
-                      minHeight: 15,
-                    ),
-                    child: Center(
-                      child: Text(
-                        "$unreadNotificationsCount", // Replace with your dynamic value
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
+                if (unreadNotificationsCount > 0)
+                  Positioned(
+                    right: 0,
+                    top: 7,
+                    child: Container(
+                      padding: const EdgeInsets.all(1),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 15,
+                        minHeight: 15,
+                      ),
+                      child: Center(
+                        child: Text(
+                          "$unreadNotificationsCount", // Replace with your dynamic value
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-          IconButton(
-              icon: const Icon(Icons.power_settings_new,
-                  color: Colors.white, weight: 0.8),
-              onPressed: () {
-                FirebaseAuth.instance.signOut();
-
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MyLogin()),
-                    (route) => false);
-              })
         ],
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Column(
             children: [
               const SingleCard(),
@@ -146,7 +138,7 @@ class _HomeState extends State<Home> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const DestinationScreen()),
+                            builder: (context) => const RequestSendScreen()),
                       );
                     },
                   ),
@@ -242,7 +234,7 @@ class _MyCardState extends State<MyCard> {
         onTap: widget.onTap,
         child: Card(
           child: Container(
-            height: 150,
+            height: 140,
             // width should fit the content
             width: (MediaQuery.of(context).size.width - 50) / 2,
             decoration: BoxDecoration(
@@ -255,10 +247,10 @@ class _MyCardState extends State<MyCard> {
                   offset: const Offset(-30, 0),
                   child: Image(
                     image: widget.icon,
-                    height: 100,
+                    width: 140,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Text(widget.title,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Colors.white,
@@ -320,8 +312,8 @@ class SingleCard extends StatelessWidget {
             ElevatedButton(
               onPressed: () {},
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.white),
-                shape: MaterialStateProperty.all(
+                backgroundColor: WidgetStateProperty.all(Colors.white),
+                shape: WidgetStateProperty.all(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),

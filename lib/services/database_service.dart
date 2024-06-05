@@ -1,15 +1,15 @@
 import 'dart:io';
 
+import 'package:caravan/models/request.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as p;
-
-import '../models/notification.dart';
 
 class DatabaseService {
   // create a variable that store the user
@@ -54,15 +54,16 @@ class DatabaseService {
         'destination': trip.destination,
         'departure time': trip.dateTime,
         'available seats': trip.availableSeats,
-        'trip status': trip.tripStatus,
+        'trip status': trip.tripStatus?.toString().split('.').last,
         'polylinePoints': trip.polylinePoints!
             .map((point) =>
                 {'latitude': point.latitude, 'longitude': point.longitude})
             .toList(),
       });
+      logger.i('The trip has been added successfully');
     } catch (e) {
       // Handle any errors
-      logger.i('Error adding trip: $e');
+      logger.d('Error adding trip: $e');
     }
   }
 
@@ -84,14 +85,15 @@ class DatabaseService {
           destination: doc['destination'],
           availableSeats: doc['available seats'],
           dateTime: (doc['departure time'] as Timestamp).toDate(),
-          tripStatus: doc['trip status'],
+          tripStatus: TripStatus.values.firstWhere(
+              (e) => e.toString().split('.').last == doc['trip status']),
           polylinePoints: polylinePoints,
         );
+        logger.d("The status for trip ${doc.id} is ${trip.tripStatus}");
 
         UserProfile driverProfile = await getUserProfile(doc['createdBy']);
         trip.driver = driverProfile;
-        logger.d(trip.driver);
-
+        logger.i(" check for null fields ${trip.getNullFields()}");
         trips.add(trip);
       }
       return trips;
@@ -173,7 +175,7 @@ class DatabaseService {
   }
 
   Future<UserProfile> getUserProfile(String userId) {
-    logger.i("The receiver id supplied to the getUserProfile is $userId");
+    logger.i("Getting user profile for user id $userId");
     return _firestore.collection('users').doc(userId).get().then((snapshot) {
       // logger.i("${snapshot.data()} is the snapshot data");
       return UserProfile.fromSnapshot(snapshot);
@@ -298,51 +300,184 @@ class DatabaseService {
     });
   }
 
-  void sendRequest(String tripId, String driverId) async {
-    // Check if a request already exists
+  Future<void> sendRequest(Request request) async {
+    if (await _requestExists(request.tripId!)) {
+      logger.i("A request for this trip already exists");
+      return;
+    }
+
+    String requestId = await _saveRequestToFirestore(request);
+  }
+
+  Future<void> sendRequestStatusNotification(
+      String userId, String requestId, String newStatus) async {
+    try {
+      var notificationId = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .doc()
+          .id;
+      var message = 'Your request status has changed to $newStatus';
+
+      Map<String, dynamic> notificationData = {
+        'type': 'alert',
+        'message': message,
+        'status': 'unread',
+        'timestamp': DateTime.now(),
+      };
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .doc(notificationId)
+          .set(notificationData);
+    } catch (e) {
+      logger.i('Error sending request status notification: $e');
+      rethrow;
+    }
+  }
+
+  // Future<void> _sendPushNotification(String userToken, String message) async {
+  //   // Implement the logic to send a push notification to the user's device
+  //   // using a push notification service like Firebase Cloud Messaging (FCM)
+  //   // or any other third-party service.
+  //   // This code will depend on the specific push notification service you are using.
+  //   // Consult the documentation of the service for the implementation details.
+  //   // Here is a sample code using FCM:
+
+  //   // Initialize the Firebase Cloud Messaging instance
+  //   var fcm = FirebaseMessaging.instance;
+
+  //   // Create the notification payload
+  //   var notification = {
+  //     'title': 'Request Status Update',
+  //     'body': message,
+  //   };
+
+  //   // Send the notification to the user's device
+  //   await fcm.(
+  //     userToken,
+  //     {'notification': notification},
+  //   );
+  // }
+
+  Future<bool> _requestExists(String tripId) async {
     var existingRequest = await FirebaseFirestore.instance
         .collection('requests')
         .where('tripId', isEqualTo: tripId)
         .where('passengerId', isEqualTo: user?.uid)
         .get();
 
-    if (existingRequest.docs.isNotEmpty) {
-      logger.i("A request for this trip already exists");
-      return;
-    }
-    // Save the request to Firestore
-    logger.i("Sending request to the driver");
-    var requestID = FirebaseFirestore.instance.collection('requests').doc().id;
-    await FirebaseFirestore.instance.collection('requests').doc(requestID).set({
-      'tripId': tripId,
-      'passengerId': user?.uid,
-      'driverId': driverId,
-      'status': 'pending',
-      'timestamp': DateTime.now(),
-    });
+    return existingRequest.docs.isNotEmpty;
+  }
 
-    // Create a notification for the driver
+  Future<String> getUserProfilePictureUrl(String userId) async {
+    try {
+      DocumentSnapshot snapshot =
+          await _firestore.collection('users').doc(userId).get();
+      if (snapshot.exists) {
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        String profilePictureUrl = data['profilePicture'];
+        logger.d("This is the photo url $profilePictureUrl");
+        return profilePictureUrl;
+      } else {
+        throw Exception('User profile not found');
+      }
+    } catch (e) {
+      logger.i('Error getting user profile picture URL: $e');
+      rethrow;
+    }
+  }
+
+  Future<String> _saveRequestToFirestore(Request request) async {
+    logger.i("Sending request to the driver");
+    var requestId = FirebaseFirestore.instance.collection('requests').doc().id;
+    var data = request.toFirestore();
+
+    await FirebaseFirestore.instance
+        .collection('requests')
+        .doc(requestId)
+        .set(data);
+
+    return requestId;
+  }
+
+  Future<void> sendNotification(String driverId, String type, String message,
+      {String? requestId}) async {
+    logger.e("Saving a notification to the database");
     var notificationId = FirebaseFirestore.instance
         .collection('users')
         .doc(driverId)
         .collection('notifications')
         .doc()
         .id;
-    logger.e("Saving a notification to the database");
-    // Save the notification to Firestore
+
+    Map<String, dynamic> notificationData = {
+      'type': type,
+      'message': message,
+      'status': 'unread',
+      'timestamp': DateTime.now(),
+    };
+
+    if (requestId != null) {
+      notificationData['requestId'] = requestId;
+    }
+
     await FirebaseFirestore.instance
         .collection('users')
         .doc(driverId)
         .collection('notifications')
         .doc(notificationId)
-        .set({
-      'type': 'request',
-      'requestId': requestID,
-      'message': 'You have a new request from ${user?.displayName}',
-      'status': 'unread',
-      'timestamp': DateTime.now(),
-    });
+        .set(notificationData);
   }
+
+  // void sendRequest(String tripId, String driverId) async {
+  //   // Check if a request already exists
+  //   var existingRequest = await FirebaseFirestore.instance
+  //       .collection('requests')
+  //       .where('tripId', isEqualTo: tripId)
+  //       .where('passengerId', isEqualTo: user?.uid)
+  //       .get();
+
+  //   if (existingRequest.docs.isNotEmpty) {
+  //     logger.i("A request for this trip already exists");
+  //     return;
+  //   }
+  //   // Save the request to Firestore
+  //   logger.i("Sending request to the driver");
+  //   var requestID = FirebaseFirestore.instance.collection('requests').doc().id;
+  //   await FirebaseFirestore.instance.collection('requests').doc(requestID).set({
+  //     'tripId': tripId,
+  //     'passengerId': user?.uid,
+  //     'driverId': driverId,
+  //     'status': 'pending',
+  //     'timestamp': DateTime.now(),
+  //   });
+
+  //   // Create a notification for the driver
+  //   var notificationId = FirebaseFirestore.instance
+  //       .collection('users')
+  //       .doc(driverId)
+  //       .collection('notifications')
+  //       .doc()
+  //       .id;
+  //   logger.e("Saving a notification to the database");
+  //   // Save the notification to Firestore
+  //   await FirebaseFirestore.instance
+  //       .collection('users')
+  //       .doc(driverId)
+  //       .collection('notifications')
+  //       .doc(notificationId)
+  //       .set({
+  //     'type': 'request',
+  //     'requestId': requestID,
+  //     'message': 'You have a new request from ${user?.displayName}',
+  //     'status': 'unread',
+  //     'timestamp': DateTime.now(),
+  //   });
+  // }
 
   Stream<QuerySnapshot> fetchRequestsStream(String tripId) {
     return _firestore
@@ -351,14 +486,25 @@ class DatabaseService {
         .snapshots();
   }
 
-  Future<void> addPassengerToTrip(String userId, String tripId) async {
+  Future<void> addRequestToTrip(String tripId, String requestId) async {
     try {
       await _firestore.collection('trips').doc(tripId).update({
-        'passengers': FieldValue.arrayUnion([userId]),
+        'requests': FieldValue.arrayUnion([requestId]),
       });
     } catch (e) {
       // Handle any errors
       logger.i('Error adding passenger to trip: $e');
+    }
+  }
+
+  Future<void> removePassengerFromTrip(String userId, String tripId) async {
+    try {
+      await _firestore.collection('trips').doc(tripId).update({
+        'passengers': FieldValue.arrayRemove([userId]),
+      });
+    } catch (e) {
+      // Handle any errors
+      logger.i('Error removing passenger from trip: $e');
     }
   }
 

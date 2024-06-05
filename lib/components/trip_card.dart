@@ -26,7 +26,7 @@ class AvailabeTripCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
-      color: const Color.fromARGB(255, 22, 22, 22),
+      color: const Color.fromARGB(134, 112, 112, 112),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -103,6 +103,7 @@ class AvailabeTripCard extends StatelessWidget {
                     print("The driver id is $driverID");
                     DatabaseService().getUserProfile(driverID!).then((value) {
                       logger.i("The trip was created by $value");
+                      logger.d(trip.toJson());
                       Navigator.push(
                         context,
                         MaterialPageRoute(

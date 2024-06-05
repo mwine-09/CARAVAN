@@ -45,9 +45,12 @@ class ChatListScreen extends StatelessWidget {
                 children: [
                   ListTile(
                     splashColor: Colors.grey,
-                    leading: const CircleAvatar(
+                    leading: CircleAvatar(
                       radius: 25,
-                      backgroundImage: AssetImage('assets/default_profile.jpg'),
+                      backgroundImage: chatRoom.photoUrl != null
+                          ? NetworkImage(chatRoom.photoUrl!) as ImageProvider
+                          : const AssetImage('assets/default_profile.jpg')
+                              as ImageProvider,
                     ),
                     title: Text(
                       chatRoom.title ?? 'No title',

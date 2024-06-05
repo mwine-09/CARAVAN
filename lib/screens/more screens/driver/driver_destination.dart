@@ -29,8 +29,7 @@ class _DriverDestinationScreenState extends State<DriverDestinationScreen> {
   List<String> suggestions = [];
   static Widget _textFieldIcon = const Icon(Icons.search);
   Trip trip = Trip();
-  LocationService locationService =
-      LocationService.getInstance();
+  LocationService locationService = LocationService.getInstance();
 
   @override
   void didChangeDependencies() {
@@ -235,11 +234,11 @@ class _DriverDestinationScreenState extends State<DriverDestinationScreen> {
                                                     selectedDestination = value;
                                                   });
 
-                                                  var trip = TripRequest(
+                                                  var trip = Trip(
                                                     destination: location,
                                                     destinationCoordinates:
                                                         value,
-                                                    source: locationProvider
+                                                    location: locationProvider
                                                         .currentPositionName!,
                                                     pickupCoordinates:
                                                         locationProvider

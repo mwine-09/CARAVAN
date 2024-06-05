@@ -130,7 +130,9 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const HomePage()));
+                            builder: (context) => const HomePage(
+                                  tabDestination: 0,
+                                )));
                   },
                   child: Text('Done',
                       style: Theme.of(context)

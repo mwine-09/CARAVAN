@@ -1,6 +1,4 @@
 import 'dart:math';
-
-import 'package:caravan/models/request.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/screens/more%20screens/create_trip.dart';
@@ -18,7 +16,7 @@ import 'package:provider/provider.dart';
 var logger = Logger();
 
 class DriverStartPointScreen extends StatefulWidget {
-  final TripRequest tripRequest;
+  final Trip tripRequest;
 
   const DriverStartPointScreen({super.key, required this.tripRequest});
 
@@ -28,8 +26,7 @@ class DriverStartPointScreen extends StatefulWidget {
 
 class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
   late GoogleMapController _googleMapController;
-  LocationService locationService =
-      LocationService.getInstance();
+  LocationService locationService = LocationService.getInstance();
   late PolylinePoints polylinePoints;
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];
@@ -40,7 +37,7 @@ class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
   late LocationProvider locationProvider;
   final key = GlobalKey();
   bool isChooseCustomPickUp = false;
-  static Widget _textFieldIcon = const Icon(Icons.search);
+  static const Widget _textFieldIcon = Icon(Icons.search);
 
   TextEditingController pickupFieldController = TextEditingController();
   var initialCameraPosition = const LatLng(0, 0);
@@ -101,6 +98,8 @@ class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
             ),
             onMapCreated: (GoogleMapController controller) {
               _googleMapController = controller;
+              updateMap(widget.tripRequest.pickupCoordinates!,
+                  widget.tripRequest.pickupCoordinates!);
             },
             markers: _markers,
             polylines: polylines.values.toSet(),
@@ -112,62 +111,113 @@ class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
                   maxChildSize: 0.8,
                   builder: (BuildContext context,
                           ScrollController scrollController) =>
-                      Expanded(
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20),
-                            ),
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.8,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isChooseCustomPickUp = true;
-                                      });
-                                    },
-                                    child: const Text(
-                                      'Edit',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 0, horizontal: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isChooseCustomPickUp = true;
+                                    });
+                                  },
+                                  child: const Text(
+                                    'Edit',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  )
-                                ],
-                              ),
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Row(
+                                  ),
+                                )
+                              ],
+                            ),
+                            Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Row(
+                                    children: [
+                                      Text(
+                                        'Pickup Location',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text(
-                                          'Pickup Location',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
+                                        const Icon(
+                                          Icons.location_on,
+                                          color: Colors.black,
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        Flexible(
+                                          child: Text(
+                                            pickupLocation,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            softWrap: true,
+                                            overflow: TextOverflow.visible,
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  const Row(
+                                    children: [
+                                      Text(
+                                        'Destination',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        softWrap: true,
+                                        overflow: TextOverflow.visible,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Container(
                                       width: MediaQuery.of(context).size.width *
                                           0.9,
                                       padding: const EdgeInsets.symmetric(
@@ -184,11 +234,11 @@ class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
                                             color: Colors.black,
                                           ),
                                           const SizedBox(
-                                            width: 10,
+                                            width: 16,
                                           ),
                                           Flexible(
                                             child: Text(
-                                              pickupLocation,
+                                              'Destination: ${widget.tripRequest.destination}',
                                               style: const TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
@@ -198,99 +248,44 @@ class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
                                             ),
                                           ),
                                         ],
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    const Row(
-                                      children: [
-                                        Text(
-                                          'Destination:',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          softWrap: true,
-                                          overflow: TextOverflow.visible,
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.9,
+                                      )),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Align(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.black,
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 20, vertical: 10),
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[200],
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(
-                                              Icons.location_on,
-                                              color: Colors.black,
-                                            ),
-                                            const SizedBox(
-                                              width: 16,
-                                            ),
-                                            Flexible(
-                                              child: Text(
-                                                '${widget.tripRequest.destination}',
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                                softWrap: true,
-                                                overflow: TextOverflow.visible,
-                                              ),
-                                            ),
-                                          ],
-                                        )),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    Align(
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.black,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 30, vertical: 16),
-                                        ),
-                                        onPressed: () {
-                                          var trip = Trip();
-                                          trip.destination =
-                                              widget.tripRequest.destination;
-                                          trip.location = pickupLocation;
-                                          trip.polylinePoints =
-                                              polylineCoordinates;
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: ((context) =>
-                                                      CreateTripScreen(
-                                                          tripdetails: trip))));
-                                        },
-                                        child: Text(
-                                          'Create Trip',
-                                          style: theme.textTheme.titleLarge!
-                                              .copyWith(
-                                                  color: Colors.white,
-                                                  letterSpacing: 0.5),
-                                        ),
+                                            horizontal: 30, vertical: 16),
                                       ),
-                                    )
-                                  ],
-                                ),
+                                      onPressed: () {
+                                        var trip = Trip();
+                                        trip.destination =
+                                            widget.tripRequest.destination;
+                                        trip.location = pickupLocation;
+                                        trip.polylinePoints =
+                                            polylineCoordinates;
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: ((context) =>
+                                                    CreateTripScreen(
+                                                        tripdetails: trip))));
+                                      },
+                                      child: Text(
+                                        'Create Trip',
+                                        style: theme.textTheme.titleLarge!
+                                            .copyWith(
+                                                color: Colors.white,
+                                                letterSpacing: 0.5),
+                                      ),
+                                    ),
+                                  )
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ))
               : Container(
@@ -357,100 +352,86 @@ class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
                                 hintText: 'Enter Pickup Location',
                                 hintStyle: const TextStyle(color: Colors.black),
                                 prefixIcon: _textFieldIcon,
-                                fillColor: Colors.white,
                                 filled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: const BorderSide(width: 0.8),
+                                fillColor: Colors.grey[200],
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 20.0),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                    color: Colors.transparent,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10.0),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
                                   borderSide: const BorderSide(
-                                    width: 0.8,
-                                    color: Colors.black,
-                                  ),
+                                      color: Colors.transparent, width: 2.0),
+                                  borderRadius: BorderRadius.circular(10.0),
                                 ),
                               ),
                             ),
                           ),
-                          Expanded(
-                            child: SizedBox(
-                              height: MediaQuery.of(context).size.height *
-                                  0.5, // Adjust the height of the scrollable list
-                              child: SingleChildScrollView(
-                                controller:
-                                    scrollController, // Add the scroll controller to the SingleChildScrollView
-                                child: Column(
-                                  children: [
-                                    const SizedBox(
-                                      height: 10,
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          SizedBox(
+                            height: 200,
+                            child: ListView.builder(
+                              itemCount: locationSuggestions.length,
+                              itemBuilder: (context, index) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      pickupFieldController.text =
+                                          locationSuggestions[index]
+                                              ['description'];
+                                      pickupCoordinates = LatLng(
+                                          locationSuggestions[index]['lat'],
+                                          locationSuggestions[index]['lng']);
+                                      locationSuggestions = [];
+                                      logger.d(
+                                          'picked: $pickupCoordinates, name: $pickupLocation');
+                                      widget.tripRequest.pickupCoordinates =
+                                          pickupCoordinates;
+                                      updateMap(
+                                          pickupCoordinates,
+                                          widget.tripRequest
+                                              .destinationCoordinates!);
+                                    });
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                    if (locationSuggestions.isNotEmpty)
-                                      Column(
-                                        children: locationSuggestions
-                                            .map((location) => ListTile(
-                                                  leading: const Icon(
-                                                      Icons.location_on),
-                                                  title: Text(location),
-                                                  onTap: () {
-                                                    // Auto-fill the search bar with the selected location and search for it
-                                                    if (mounted) {
-                                                      setState(() {
-                                                        pickUpLocationQuery =
-                                                            location;
-                                                        pickupFieldController
-                                                            .text = location;
-
-                                                        locationSuggestions
-                                                            .clear();
-                                                      });
-
-                                                      locationService
-                                                          .searchLocation(
-                                                              pickUpLocationQuery)
-                                                          .then((value) {
-                                                        setState(() {
-                                                          pickupCoordinates =
-                                                              value;
-
-                                                          widget.tripRequest
-                                                                  .pickupCoordinates =
-                                                              value;
-
-                                                          widget.tripRequest
-                                                                  .source =
-                                                              pickUpLocationQuery;
-                                                        });
-                                                        logger.e(widget
-                                                            .tripRequest
-                                                            .pickupCoordinates);
-
-                                                        setState(() {
-                                                          pickupLocation =
-                                                              pickUpLocationQuery;
-                                                          updateMap(
-                                                              widget.tripRequest
-                                                                  .pickupCoordinates!,
-                                                              widget.tripRequest
-                                                                  .destinationCoordinates!);
-                                                          isChooseCustomPickUp =
-                                                              false;
-                                                        });
-                                                      });
-                                                    }
-
-                                                    setState(() {
-                                                      _textFieldIcon =
-                                                          const Icon(
-                                                              Icons.search);
-                                                    });
-                                                  },
-                                                ))
-                                            .toList(),
-                                      ),
-                                  ],
-                                ),
-                              ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 10),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.location_on,
+                                          color: Colors.black,
+                                        ),
+                                        const SizedBox(
+                                          width: 16,
+                                        ),
+                                        Flexible(
+                                          child: Text(
+                                            locationSuggestions[index]
+                                                ['description'],
+                                            style: theme.textTheme.bodyLarge!
+                                                .copyWith(
+                                                    color: Colors.black,
+                                                    letterSpacing: 0.5),
+                                            softWrap: true,
+                                            overflow: TextOverflow.visible,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ],
@@ -514,7 +495,7 @@ class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
     );
 
     List<LatLng> something = await locationService.fetchPolylines(
-        widget.tripRequest.source!, widget.tripRequest.destination!);
+        widget.tripRequest.location!, widget.tripRequest.destination!);
 
     logger.i("We have fetched the polylines");
     logger.i(something);

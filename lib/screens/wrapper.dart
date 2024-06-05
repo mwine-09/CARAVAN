@@ -24,7 +24,9 @@ class Wrapper extends StatelessWidget {
           if (user == null) {
             return const MyLogin();
           } else {
-            return const HomePage();
+            return const HomePage(
+              tabDestination: 1,
+            );
           }
         } else {
           return const Scaffold(

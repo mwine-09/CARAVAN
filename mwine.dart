@@ -1,26 +1,30 @@
 import 'dart:math';
-
-import 'package:caravan/models/request.dart';
+import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/location_provider.dart';
+import 'package:caravan/screens/more%20screens/create_trip.dart';
+
 import 'package:caravan/services/location_service.dart';
+
 import 'package:flutter/material.dart';
+
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
 
 var logger = Logger();
 
-class PickupLocationScreen extends StatefulWidget {
-  final TripRequest tripRequest;
+class DriverStartPointScreen extends StatefulWidget {
+  final Trip tripRequest;
 
-  const PickupLocationScreen({super.key, required this.tripRequest});
+  const DriverStartPointScreen({super.key, required this.tripRequest});
 
   @override
-  State<PickupLocationScreen> createState() => _PickupLocationScreenState();
+  State<DriverStartPointScreen> createState() => _DriverStartPointScreenState();
 }
 
-class _PickupLocationScreenState extends State<PickupLocationScreen> {
+class _DriverStartPointScreenState extends State<DriverStartPointScreen> {
   late GoogleMapController _googleMapController;
   LocationService locationService = LocationService.getInstance();
   late PolylinePoints polylinePoints;
@@ -199,7 +203,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                                     const Row(
                                       children: [
                                         Text(
-                                          'Destination',
+                                          'Destination:',
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -235,7 +239,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                                             ),
                                             Flexible(
                                               child: Text(
-                                                'Destination: ${widget.tripRequest.destination}',
+                                                '${widget.tripRequest.destination}',
                                                 style: const TextStyle(
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.bold,
@@ -254,11 +258,24 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.black,
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 20, vertical: 16),
+                                              horizontal: 30, vertical: 16),
                                         ),
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          var trip = Trip();
+                                          trip.destination =
+                                              widget.tripRequest.destination;
+                                          trip.location = pickupLocation;
+                                          trip.polylinePoints =
+                                              polylineCoordinates;
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      CreateTripScreen(
+                                                          tripdetails: trip))));
+                                        },
                                         child: Text(
-                                          'Request Ride',
+                                          'Create Trip',
                                           style: theme.textTheme.titleLarge!
                                               .copyWith(
                                                   color: Colors.white,
@@ -398,7 +415,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                                                               value;
 
                                                           widget.tripRequest
-                                                                  .source =
+                                                                  .location =
                                                               pickUpLocationQuery;
                                                         });
                                                         logger.e(widget
@@ -457,7 +474,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
       });
     }
 
-    logger.i("Done painting on the map");
+    logger.i("Done putting on the map");
   }
 
   void updateMap(LatLng pickupLocation, LatLng destinationLocation) async {
@@ -473,17 +490,17 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
         infoWindow: const InfoWindow(title: 'Pickup'),
       ),
     );
-    _markers.add(
-      Marker(
-        markerId: const MarkerId('Current Location'),
-        position: locationProvider.currentPosition!,
-        icon: await BitmapDescriptor.fromAssetImage(
-            const ImageConfiguration(size: Size(48, 48)),
-            'assets/customMarkerNew.png',
-            mipmaps: true),
-        infoWindow: const InfoWindow(title: 'My Location'),
-      ),
-    );
+    // _markers.add(
+    //   Marker(
+    //     markerId: const MarkerId('Current Location'),
+    //     position: locationProvider.currentPosition!,
+    //     icon: await BitmapDescriptor.fromAssetImage(
+    //         const ImageConfiguration(size: Size(48, 48)),
+    //         'assets/customMarkerNew.png',
+    //         mipmaps: true),
+    //     infoWindow: const InfoWindow(title: 'My Location'),
+    //   ),
+    // );
     _markers.add(
       Marker(
         markerId: const MarkerId('destinationCoordinates'),
@@ -494,7 +511,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
     );
 
     List<LatLng> something = await locationService.fetchPolylines(
-        widget.tripRequest.source!, widget.tripRequest.destination!);
+        widget.tripRequest.location!, widget.tripRequest.destination!);
 
     logger.i("We have fetched the polylines");
     logger.i(something);

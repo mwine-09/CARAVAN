@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/notification_provider.dart';
+import 'package:caravan/providers/trips_provider.dart';
 
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/email_register.dart';
 import 'package:caravan/screens/more%20screens/complete_profile.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:logger/web.dart';
@@ -52,6 +53,9 @@ class _MyLoginState extends State<MyLogin> {
     );
     UserProfileProvider userProfileProvider =
         Provider.of(context, listen: true);
+
+    Provider.of<TripDetailsProvider>(context, listen: true);
+
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
 
     return Scaffold(
@@ -246,7 +250,7 @@ class _MyLoginState extends State<MyLogin> {
                                 // userProfileProvider.userProfile = value;
                                 userProfileProvider.saveUserProfile(value);
                                 userProfileProvider.userProfile.email = email;
-
+                                Provider.of<NotificationProvider>(context);
                                 chatProvider.reset();
                                 chatProvider.listenToChatrooms(value.userID!);
                               });
@@ -296,10 +300,9 @@ class _MyLoginState extends State<MyLogin> {
                           borderRadius: BorderRadius.all(Radius.circular(5)),
                         ),
                       ).copyWith(
-                        backgroundColor: MaterialStateProperty.all(
+                        backgroundColor: WidgetStateProperty.all(
                             const Color.fromARGB(255, 255, 255, 255)),
-                        foregroundColor:
-                            MaterialStateProperty.all(Colors.black),
+                        foregroundColor: WidgetStateProperty.all(Colors.black),
                       ),
                       child: const Text(
                         'Login',

@@ -1,5 +1,6 @@
 import 'package:caravan/components/date_time_picker.dart';
 import 'package:caravan/models/trip.dart';
+import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:caravan/shared/constants/text_field.dart';
@@ -15,7 +16,7 @@ class CreateTripScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text('Add Trip',
+        title: Text('Create Trip',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Colors.white,
                   fontSize: 20,
@@ -78,6 +79,7 @@ class _AddTripFormState extends State<AddTripForm> {
             ),
             const SizedBox(height: 16),
             TextFormField(
+              cursorColor: Colors.white,
               keyboardType: TextInputType.number,
               style: myInputTextStyle,
               decoration:
@@ -87,58 +89,68 @@ class _AddTripFormState extends State<AddTripForm> {
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              style: myInputTextStyle,
-              decoration: myTextFieldStyle.copyWith(labelText: 'Trip Status'),
-              onChanged: (value) {
-                setState(() {
-                  widget.tripdetails.tripStatus = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            Text(_feedback, style: const TextStyle(color: Colors.green)),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.black,
                   backgroundColor: Colors.white,
                   minimumSize: const Size(280, 50)),
-              onPressed: () {
+              onPressed: () async {
+                widget.tripdetails.tripStatus = TripStatus.scheduled;
                 if (_formKey.currentState!.validate()) {
                   widget.tripdetails.createdBy = user.uid;
 
-                  DatabaseService().addTrip(widget.tripdetails);
+                  try {
+                    await DatabaseService().addTrip(widget.tripdetails);
+
+                    setState(() {
+                      _feedback = 'Trip saved successfully!';
+                    });
+
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                        _feedback,
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                      ),
+                    ));
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AvailableTrips()),
+                    );
+                  } catch (e) {
+                    setState(() {
+                      _feedback = "Failed to save trip!";
+                    });
+
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                        _feedback,
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                      ),
+                    ));
+                  }
+                } else {
                   setState(() {
-                    _feedback = 'Trip saved successfully!';
+                    _feedback = "Please correct the errors in the form.";
                   });
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        backgroundColor: Colors.white,
-                        title: Text('Success',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(color: Colors.black, fontSize: 20)),
-                        content: Text(_feedback),
-                        actions: [
-                          TextButton(
-                            child: Text('OK',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelMedium
-                                    ?.copyWith(
-                                        color: Colors.black, fontSize: 18)),
-                            onPressed: () {
-                              Navigator.pushNamedAndRemoveUntil(context,
-                                  '/available_trips', (route) => false);
-                            },
+
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                      _feedback,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: Colors.white,
+                            fontSize: 16,
                           ),
-                        ],
-                      );
-                    },
-                  );
+                    ),
+                  ));
                 }
               },
               child: Text('Post Trip',

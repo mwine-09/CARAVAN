@@ -1,7 +1,12 @@
 import 'dart:math';
 
 import 'package:caravan/models/request.dart';
+import 'package:caravan/models/trip.dart';
+import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/location_provider.dart';
+import 'package:caravan/providers/user_profile.provider.dart';
+import 'package:caravan/screens/more%20screens/trip_details.dart';
+import 'package:caravan/services/database_service.dart';
 import 'package:caravan/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -12,7 +17,7 @@ import 'package:provider/provider.dart';
 var logger = Logger();
 
 class PickupLocationScreen extends StatefulWidget {
-  final TripRequest tripRequest;
+  final Trip tripRequest;
 
   const PickupLocationScreen({super.key, required this.tripRequest});
 
@@ -57,6 +62,9 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    UserProfileProvider userProfileProvider =
+        Provider.of(context, listen: true);
+    UserProfile userProfile = userProfileProvider.userProfile;
     ThemeData theme = Theme.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -256,7 +264,36 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 20, vertical: 16),
                                       ),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Request request = Request(
+                                            tripId: widget.tripRequest.id,
+                                            passengerId: userProfile.userID,
+                                            driverId: widget
+                                                .tripRequest.driver!.userID,
+                                            status: RequestStatus.pending,
+                                            timestamp: DateTime.now(),
+                                            pickupCoordinates: widget
+                                                .tripRequest.pickupCoordinates,
+                                            pickupLocationName: pickupLocation,
+                                            destinationCoordinates: widget
+                                                .tripRequest
+                                                .destinationCoordinates,
+                                            destinationLocationName:
+                                                widget.tripRequest.destination);
+
+                                        logger.d(request.getNullFields());
+
+                                        DatabaseService().sendRequest(request);
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  TripDetailsScreen(
+                                                      userProfile: widget
+                                                          .tripRequest
+                                                          .driver!)),
+                                        );
+                                      },
                                       child: Text(
                                         'Request Ride',
                                         style: theme.textTheme.titleLarge!
@@ -462,7 +499,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
     );
 
     List<LatLng> something = await locationService.fetchPolylines(
-        widget.tripRequest.source!, widget.tripRequest.destination!);
+        widget.tripRequest.location!, widget.tripRequest.destination!);
 
     logger.i("We have fetched the polylines");
     logger.i(something);

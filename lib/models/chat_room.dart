@@ -9,6 +9,7 @@ class ChatRoom {
   final Timestamp lastMessageTime;
   final List<String> members;
   List<Message> messages;
+  String? photoUrl;
 
   ChatRoom({
     required this.id,

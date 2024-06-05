@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/change_password.dart';
+import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/driver/documents/national_id.dart';
 
 import 'package:caravan/screens/more%20screens/profile.dart';
 import 'package:caravan/services/database_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -115,105 +117,153 @@ class _SettingsScreenState extends State<SettingsScreen> {
               height: 15,
             ),
             Expanded(
-              child: ListView(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.person, color: Colors.white),
-                    title: Text(
-                      "Personal data",
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios,
-                        color: Colors.white),
-                    onTap: () {
-                      // Handle profile tap
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => // Initialize userProfile variable
-                                    const ProfileScreen(),
-                          ));
-                    },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Container(
+                  decoration: const BoxDecoration(
+                      color: Colors.white12,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: ListView(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.person, color: Colors.white),
+                        title: Text(
+                          "Personal data",
+                          style:
+                              Theme.of(context).textTheme.labelMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                        ),
+                        onTap: () {
+                          // Handle profile tap
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => // Initialize userProfile variable
+                                        const ProfileScreen(),
+                              ));
+                        },
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: Colors.white12,
+                      ),
+                      ListTile(
+                        leading:
+                            const Icon(Icons.car_rental, color: Colors.white),
+                        title: Text(
+                          "Driver",
+                          style:
+                              Theme.of(context).textTheme.labelMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                        ),
+                        trailing: Switch(
+                          value: userProfile.isDriver,
+                          onChanged: (newValue) {
+                            _toggleRole();
+                          },
+                          activeColor: Colors.green,
+                          inactiveThumbColor: Colors.grey,
+                          inactiveTrackColor: Colors.grey[300],
+                        ),
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: Colors.white12,
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.delete, color: Colors.white),
+                        title: Text(
+                          'Delete account',
+                          style:
+                              Theme.of(context).textTheme.labelMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                        ),
+                        onTap: () {
+                          // Handle option 2 tap
+                        },
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: Colors.white12,
+                      ),
+                      ListTile(
+                        leading:
+                            const Icon(Icons.password, color: Colors.white),
+                        title: Text(
+                          'change password',
+                          style:
+                              Theme.of(context).textTheme.labelMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ChangePasswordScreen()));
+                        },
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: Colors.white12,
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.document_scanner_rounded,
+                            color: Colors.white),
+                        title: Text(
+                          'Upload Documents',
+                          style:
+                              Theme.of(context).textTheme.labelMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const IdDocumentUploadScreen()));
+                        },
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: Colors.white12,
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.power_settings_new,
+                            color: Colors.white),
+                        title: Text(
+                          'Logout',
+                          style:
+                              Theme.of(context).textTheme.labelMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                        ),
+                        onTap: () {
+                          FirebaseAuth.instance.signOut();
+
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MyLogin()),
+                              (route) => false);
+                        },
+                      ),
+                    ],
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.car_rental, color: Colors.white),
-                    title: Text(
-                      "Driver",
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                    ),
-                    trailing: Switch(
-                      value: userProfile.isDriver,
-                      onChanged: (newValue) {
-                        _toggleRole();
-                      },
-                      activeColor: Colors.green,
-                      inactiveThumbColor: Colors.grey,
-                      inactiveTrackColor: Colors.grey[300],
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.delete, color: Colors.white),
-                    title: Text(
-                      'Delete account',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios,
-                        color: Colors.white),
-                    onTap: () {
-                      // Handle option 2 tap
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.password, color: Colors.white),
-                    title: Text(
-                      'change password',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios,
-                        color: Colors.white),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const ChangePasswordScreen()));
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.document_scanner_rounded,
-                        color: Colors.white),
-                    title: Text(
-                      'Upload Documents',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios,
-                        color: Colors.white),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const IdDocumentUploadScreen()));
-                    },
-                  ),
-                  // Add more list tiles for additional options
-                ],
+                ),
               ),
             ),
           ],

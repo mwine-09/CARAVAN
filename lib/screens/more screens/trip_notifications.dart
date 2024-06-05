@@ -7,8 +7,11 @@ import 'package:caravan/services/location_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 // import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+Logger logger = Logger();
 
 class NotificationList extends StatelessWidget {
   NotificationList({super.key});
@@ -19,18 +22,24 @@ class NotificationList extends StatelessWidget {
     final notificationProvider = Provider.of<NotificationProvider>(context);
     final notifications = notificationProvider.notifications;
 
-    return ListView.builder(
+    return ListView.separated(
       itemCount: notifications.length,
       itemBuilder: (context, index) {
         final notification = notifications[index];
         return ListTile(
           title: Text(
             notification.message,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
-          subtitle: Text(notification.timestamp.toString()),
+          subtitle: Text(
+            notification.timestamp.toString(),
+            style: const TextStyle(fontSize: 13),
+          ),
           trailing: notification.status == 'unread'
-              ? const Icon(Icons.new_releases)
+              ? const Icon(
+                  Icons.new_releases_rounded,
+                  color: Colors.blueAccent,
+                )
               : null,
           onTap: () async {
             notificationProvider.markAsRead(notification);
@@ -57,6 +66,12 @@ class NotificationList extends StatelessWidget {
             }
             // Handle notification tap
           },
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return const Divider(
+          height: 1,
+          color: Colors.white24,
         );
       },
     );

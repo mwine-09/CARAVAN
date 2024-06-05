@@ -1,7 +1,11 @@
 import 'package:caravan/services/location_service.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
+
+// import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+// as bg;
 
 class LocationProvider with ChangeNotifier {
   final location.Location locationController = location.Location();
@@ -9,8 +13,12 @@ class LocationProvider with ChangeNotifier {
   String? _currentPositionName;
   LocationService locationService = LocationService.getInstance();
 
+  Position? _userLocation;
+
   LatLng? get currentPosition => _currentPosition;
   String? get currentPositionName => _currentPositionName;
+
+  Position? get userLocation => _userLocation;
 
   void setCurrentPositionName(String newName) {
     _currentPositionName = newName;
@@ -19,6 +27,7 @@ class LocationProvider with ChangeNotifier {
 
   LocationProvider() {
     _initLocationUpdates();
+    // startBackgroundGeolocation();
     // _configureBackgroundGeolocation();
   }
 
@@ -26,7 +35,7 @@ class LocationProvider with ChangeNotifier {
     try {
       await _enableLocationService();
       await _requestPermission();
-
+      getPosition();
       locationController.onLocationChanged
           .listen((location.LocationData currentLocation) {
         if (currentLocation.latitude != null &&
@@ -46,7 +55,20 @@ class LocationProvider with ChangeNotifier {
         );
       }
     } catch (e) {
-      print('Error initializing location updates: $e');
+      logger.d('Error initializing location updates: $e');
+      // Handle the error as appropriate in your app
+    }
+  }
+
+  Future<void> getPosition() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      _userLocation = position;
+      notifyListeners();
+    } catch (e) {
+      logger.d('Error getting user position: $e');
       // Handle the error as appropriate in your app
     }
   }
@@ -100,7 +122,7 @@ class LocationProvider with ChangeNotifier {
   //   });
 
   //   bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
-  //     print('[motionchange] - $location');
+  //     logger.i('[motionchange] - $location');
   //     _updateCurrentPosition(
   //       LatLng(location.coords.latitude, location.coords.longitude),
   //     );

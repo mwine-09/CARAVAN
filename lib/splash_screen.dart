@@ -56,27 +56,25 @@ class _SplashScreenState extends State<SplashScreen> {
           AnimatedPositioned(
             duration: const Duration(seconds: 3),
             left: _isAnimated
-                ? MediaQuery.of(context).size.width / 2 - 50
+                ? MediaQuery.of(context).size.width / 2 - 100
                 : MediaQuery.of(context).size.width,
             top: MediaQuery.of(context).size.height / 2 - 50,
             curve: Curves.easeInOut,
             child: Image.asset(
-              'assets/splashImage.png', // Replace with your image path
-              width: 100,
-              height: 100,
+              'assets/pngwing.png', // Replace with your image path
+              width: 200,
+              height: 200,
             ),
           ),
-          const Center(
+          Center(
             child: Padding(
-              padding: EdgeInsets.only(top: 150.0),
-              child: Text(
-                'Caravan',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 0, 0, 0),
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              padding: const EdgeInsets.only(top: 250.0),
+              child: Text("Caravan",
+                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0)),
             ),
           ),
         ],

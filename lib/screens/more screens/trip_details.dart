@@ -6,9 +6,11 @@ import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
+import 'package:caravan/screens/more%20screens/location_tracking_map.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
+import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
+import 'package:caravan/screens/more%20screens/passenger/rider_destination_location.dart';
 import 'package:caravan/screens/more%20screens/request_sent.dart';
-import 'package:caravan/screens/more%20screens/selected_user_profile.dart';
 import 'package:caravan/screens/more%20screens/view_requests.dart';
 import 'package:caravan/services/database_service.dart';
 
@@ -33,6 +35,8 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   Map<MarkerId, Marker> markers = {};
   static LatLng _center = const LatLng(0, 0);
 
+  String startTripButton = "Start Trip";
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +50,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
         Provider.of<UserProfileProvider>(context);
     final tripProvider = Provider.of<TripDetailsProvider>(context);
     final Trip trip = tripProvider.tripDetails!;
-    String? selectedDriverName = widget.userProfile.username;
+    String? selectedDriverName = widget.userProfile.username ?? "Unknown user";
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -55,7 +59,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           color: Colors.white,
         ),
         title: Text(
-          selectedDriverName!,
+          selectedDriverName,
           style: const TextStyle(color: Colors.white),
         ),
       ),
@@ -118,7 +122,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                                 ),
                                 const SizedBox(height: 5),
                                 Text(
-                                  "Number of stops: ${trip.availableSeats}",
+                                  "Max number of stops: ${trip.availableSeats}",
                                   style: const TextStyle(
                                       color: Colors.white, fontSize: 14),
                                 ),
@@ -132,7 +136,8 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                               userProfileProvider.userProfile.userID)
                             ElevatedButton(
                               onPressed: () async {
-                                String driverId = trip.createdBy!;
+                                String driverId =
+                                    trip.createdBy ?? "Unknown user";
 
                                 if (chatProvider.hasChatroom(driverId)) {
                                   ChatRoom? chatroom =
@@ -185,14 +190,11 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                           ? ElevatedButton(
                               onPressed: () {
                                 try {
-                                  DatabaseService()
-                                      .sendRequest(trip.id!, trip.createdBy!);
-
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              const RequestSendScreen()));
+                                              DestinationScreen(trip: trip)));
                                 } catch (e) {
                                   logger.e("Encountered an error $e");
                                 }
@@ -282,28 +284,71 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                       const SizedBox(
                         height: 20,
                       ),
-                      Center(
-                        child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(200, 50),
-                                backgroundColor:
-                                    const Color.fromARGB(255, 255, 255, 255),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)),
-                                )),
-                            child: Text(
-                              "Start Trip",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(
-                                      fontSize: 16,
-                                      letterSpacing: 3,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w800),
-                            )),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const DestinationSelectionScreen(),
+                                    ));
+
+                                // change the status of the trip from to started
+                                // tripProvider.updateTripStatus(
+                                //     trip.id!, TripStatus.started);
+
+                                // DatabaseService().sendNotification(
+                                //     trip.createdBy!,
+                                //     "alert",
+                                //     "Trip to ${trip.destination} by ${trip.driver!.username} has started");
+
+                                // notify the passengers that supposed to be in that trip
+
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (context) =>
+                                //             LocationTrackingMap(
+                                //               tripId: trip.id!,
+                                //             )));
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 255, 255, 255),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5)),
+                                  )),
+                              child: Text(
+                                startTripButton,
+                                style: const TextStyle(
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  fontSize: 16,
+                                ),
+                              )),
+                          ElevatedButton(
+                              onPressed: () {
+//  Cancel a trip
+                                tripProvider.cancelTrip(trip.id!);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 255, 255, 255),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5)),
+                                  )),
+                              child: const Text(
+                                "Cancel Trip",
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  fontSize: 16,
+                                ),
+                              )),
+                        ],
                       ),
                     ],
                   )

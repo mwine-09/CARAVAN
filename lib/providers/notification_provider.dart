@@ -20,6 +20,8 @@ class NotificationProvider with ChangeNotifier {
         .collection('users')
         .doc(user?.uid)
         .collection('notifications')
+        .orderBy('timestamp',
+            descending: false) // Sort by timestamp in descending order
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => MyNotification.fromDocument(doc))
