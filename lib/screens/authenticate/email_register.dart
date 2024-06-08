@@ -12,6 +12,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
   String email = '';
   String password = '';
   String confirmPassword = '';
@@ -19,13 +20,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool passwdObsecure = true;
   bool passwdConfirmObsecure = true;
 
+  // Email validation regex
+  final RegExp emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+
   @override
   Widget build(BuildContext context) {
     var loginInputDecoration = InputDecoration(
       focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Colors.white, width: 1.0),
       ),
-      labelText: 'Password',
       labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
             color: Colors.white,
             fontSize: 16,
@@ -40,47 +43,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 150,
-                    height: 150,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      image: DecorationImage(
-                        image: AssetImage('assets/car.png'),
-                        fit: BoxFit.fitWidth,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 150,
+                      height: 150,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        image: DecorationImage(
+                          image: AssetImage('assets/car.png'),
+                          fit: BoxFit.fitWidth,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text("Get started!",
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Colors.white,
-                            fontSize: 20,
-                          )),
-                  const SizedBox(
-                    height: 25,
-                  ),
-                  TextField(
+                    const SizedBox(height: 20),
+                    Text("Get started!",
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Colors.white,
+                              fontSize: 20,
+                            )),
+                    const SizedBox(
+                      height: 25,
+                    ),
+                    TextFormField(
                       keyboardType: TextInputType.emailAddress,
                       onChanged: (value) {
-                        setState(() {
-                          email = value;
-                        });
+                        email = value;
                       },
                       decoration: loginInputDecoration.copyWith(
                           labelText: 'Email Address'),
-                      style: myInputTextStyle),
-                  const SizedBox(height: 10),
-                  TextField(
+                      style: myInputTextStyle,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email address';
+                        }
+                        if (!emailRegex.hasMatch(value)) {
+                          return 'Please enter a valid email address';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
                       obscureText: passwdObsecure,
                       onChanged: (value) {
-                        setState(() {
-                          password = value;
-                        });
+                        password = value;
                       },
                       decoration: loginInputDecoration.copyWith(
                         labelText: 'Password',
@@ -97,14 +108,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                       ),
-                      style: myInputTextStyle),
-                  const SizedBox(height: 10),
-                  TextField(
+                      style: myInputTextStyle,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters long';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
                       obscureText: passwdConfirmObsecure,
                       onChanged: (value) {
-                        setState(() {
-                          confirmPassword = value;
-                        });
+                        confirmPassword = value;
                       },
                       decoration: loginInputDecoration.copyWith(
                         labelText: 'Confirm Password',
@@ -121,68 +140,76 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                       ),
-                      style: myInputTextStyle),
-                  const SizedBox(height: 15),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Implement your registration logic here
-                      if (password == confirmPassword) {
-                        // Passwords match, proceed with registration
-                        userProfile.completeProfile(
-                          email: email,
-                        );
-                        print('User Profile: ${userProfile.email}');
+                      style: myInputTextStyle,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please confirm your password';
+                        }
+                        if (value != password) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 15),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          userProfile.completeProfile(
+                            email: email,
+                          );
+                          print('User Profile: ${userProfile.email}');
 
-                        Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => UsernameScreen(
-                                      userProfile: userProfile,
-                                      password: password,
-                                    )));
-                      } else {
-                        // Passwords don't match, show error message
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(280, 50),
-                      // reduce rounded corners
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                              builder: (context) => UsernameScreen(
+                                userProfile: userProfile,
+                                password: password,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(280, 50),
+                        // reduce rounded corners
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                        ),
+                      ).copyWith(
+                        backgroundColor: WidgetStateProperty.all(Colors.white),
                       ),
-                    ).copyWith(
-                      backgroundColor: MaterialStateProperty.all(Colors.white),
-                    ),
-                    child: Text('Register',
-                        style:
-                            Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                )),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  SizedBox(
-                    child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MyLogin()));
-                        },
-                        child: Text(
-                          'Already have an account? Login',
+                      child: Text('Register',
                           style:
                               Theme.of(context).textTheme.labelMedium?.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                        )),
-                  ),
-                ],
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                  )),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const MyLogin()),
+                        );
+                      },
+                      child: Text(
+                        'Already have an account? Login',
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

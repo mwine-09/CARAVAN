@@ -1,8 +1,9 @@
-import 'package:caravan/screens/more%20screens/welcome_screen.dart';
-import 'package:caravan/screens/wrapper.dart';
+import 'package:caravan/screens/authenticate/interim_login.dart';
+
+import 'package:caravan/screens/tabs/main_scaffold.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -33,51 +34,61 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 4));
 
     User? user = FirebaseAuth.instance.currentUser;
+
+    logger.e("This is user data:  $user");
     if (user == null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Welcome()),
+        MaterialPageRoute(builder: (context) => const MyLogin()),
       );
-      return;
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const HomePage(
+                  tabDestination: 1,
+                )),
+      );
     }
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const Wrapper()),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(
-          255, 255, 255, 255), // Change to your preferred color
-      body: Stack(
-        children: [
-          AnimatedPositioned(
-            duration: const Duration(seconds: 3),
-            left: _isAnimated
-                ? MediaQuery.of(context).size.width / 2 - 100
-                : MediaQuery.of(context).size.width,
-            top: MediaQuery.of(context).size.height / 2 - 50,
-            curve: Curves.easeInOut,
-            child: Image.asset(
-              'assets/pngwing.png', // Replace with your image path
-              width: 200,
-              height: 200,
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      body: Center(
+        heightFactor: 1.0,
+        child: Stack(
+          children: [
+            AnimatedPositioned(
+              duration: const Duration(seconds: 3),
+              left: _isAnimated
+                  ? MediaQuery.of(context).size.width / 2 - 100
+                  : MediaQuery.of(context).size.width,
+              top: MediaQuery.of(context).size.height / 2 - 50,
+              curve: Curves.easeInOut,
+              child: Image.asset(
+                'assets/pngwing.png', // Replace with your image path
+                width: 200,
+                height: 200,
+              ),
             ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 250.0),
-              child: Text("Caravan",
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 250.0),
+                child: Text(
+                  "Caravan",
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      color: const Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2.0)),
+                        color: const Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                      ),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

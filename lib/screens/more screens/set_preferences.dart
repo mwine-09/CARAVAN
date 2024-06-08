@@ -2,7 +2,6 @@ import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/screens/more%20screens/emergency_contact.dart';
 import 'package:flutter/material.dart';
 
-@override
 class PreferencesScreen extends StatefulWidget {
   final UserProfile userProfile;
   const PreferencesScreen({super.key, required this.userProfile});
@@ -14,35 +13,34 @@ class PreferencesScreen extends StatefulWidget {
 class _PreferencesScreenState extends State<PreferencesScreen> {
   List<String> selectedPreferences = [];
 
-  List<String> preferences = [
-    'smoking',
-    'no smoking',
-    'loud music',
-    'no music',
-    'low music',
-    'fastest route',
-    'scenic route',
-    'meet new people',
-    'pet-friendly',
-    'child-friendly',
-    'eco-conscious',
-    'quick stops',
-    'long rides',
-    'local knowledge sharing',
-    'comfortable ride',
-    'adventure seeker',
-    'foodie',
-    'sightseeing enthusiast',
-    'night owl',
-    'early bird',
-    'tech-savvy',
-    'nature lover',
-    'sports fan',
-    'bookworm',
-    'musician',
-    'artist',
-    'photographer',
-  ];
+  final Map<String, List<String>> categorizedPreferences = {
+    'Smoking Preferences': ['smoking', 'no smoking'],
+    'Music Preferences': ['loud music', 'no music', 'low music'],
+    'Route Preferences': ['fastest route', 'scenic route'],
+    'Social Preferences': ['meet new people', 'local knowledge sharing'],
+    'Travel Preferences': [
+      'pet-friendly',
+      'child-friendly',
+      'eco-conscious',
+      'quick stops',
+      'long rides',
+      'comfortable ride',
+      'adventure seeker',
+      'sightseeing enthusiast'
+    ],
+    'Personal Preferences': [
+      'foodie',
+      'night owl',
+      'early bird',
+      'tech-savvy',
+      'nature lover',
+      'sports fan',
+      'bookworm',
+      'musician',
+      'artist',
+      'photographer'
+    ],
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -59,107 +57,110 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
-            // crossAxisAlignment: CrossAxisAlignment.start,
-            // mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                  textAlign: TextAlign.center,
-                  'Select your preferences',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      )
-                  // textAlign: TextAlign.start,
-                  ),
-              const SizedBox(
-                height: 10,
+                'Select your preferences',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
-              Text('Choose as many to improve your experience!',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: const Color.fromARGB(171, 255, 255, 255),
-                        fontSize: 16,
-                      )
-                  // textAlign: TextAlign.start,
-                  ),
-              const SizedBox(
-                height: 16,
+              const SizedBox(height: 10),
+              Text(
+                'Choose as many to improve your experience!',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: const Color.fromARGB(171, 255, 255, 255),
+                      fontSize: 16,
+                    ),
               ),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: preferences
-                    .map(
-                      (preference) => GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (selectedPreferences.contains(preference)) {
-                              selectedPreferences.remove(preference);
-                            } else {
-                              selectedPreferences.add(preference);
-                            }
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12.0, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: selectedPreferences.contains(preference)
-                                ? Colors.blue
-                                : Colors.grey[300],
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: Text(
-                            preference,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(
-                                    color:
-                                        selectedPreferences.contains(preference)
+              const SizedBox(height: 16),
+              ...categorizedPreferences.entries.map((entry) {
+                String category = entry.key;
+                List<String> preferences = entry.value;
+                return ExpansionTile(
+                  iconColor: Colors.white,
+                  // backgroundColor: Colors.white,
+                  title: Text(
+                    category,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: const Color.fromARGB(255, 252, 252, 252),
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  children: preferences
+                      .map((preference) => GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (selectedPreferences.contains(preference)) {
+                                  selectedPreferences.remove(preference);
+                                } else {
+                                  selectedPreferences.add(preference);
+                                }
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0, vertical: 12),
+                              margin: const EdgeInsets.symmetric(vertical: 4.0),
+                              decoration: BoxDecoration(
+                                color: selectedPreferences.contains(preference)
+                                    ? Colors.blue
+                                    : Colors.grey[300],
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              child: Text(
+                                preference,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                        color: selectedPreferences
+                                                .contains(preference)
                                             ? Colors.white
                                             : Colors.black,
-                                    fontSize: 14),
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-              ),
+                                        fontSize: 14),
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                );
+              }),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        shape: ShapeBorder.lerp(
-            RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
-                side: const BorderSide(color: Colors.white)),
-            RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
-                side: const BorderSide(color: Colors.white)),
-            0.5),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
         onPressed: () {
           // Save selected preferences
           widget.userProfile.preferences = selectedPreferences;
 
           print(widget.userProfile.toString());
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      EmergencyContactScreen(userProfile: widget.userProfile)));
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  EmergencyContactScreen(userProfile: widget.userProfile),
+            ),
+          );
         },
-        child: Text(
-          "Next",
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Colors.black,
-                fontSize: 18,
-              ),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          child: Text(
+            "Next",
+            style: TextStyle(fontSize: 18, color: Colors.black),
+          ),
         ),
       ),
+      backgroundColor: Colors.black, // Background color
     );
   }
 }

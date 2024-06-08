@@ -127,12 +127,15 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
 
                     userProfileProvider.userProfile = widget.userProfile;
                     Navigator.pop(context);
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomePage(
-                                  tabDestination: 0,
-                                )));
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomePage(
+                          tabDestination: 1,
+                        ),
+                      ),
+                      (route) => false,
+                    );
                   },
                   child: Text('Done',
                       style: Theme.of(context)

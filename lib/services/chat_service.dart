@@ -19,7 +19,8 @@ class ChatService extends ChangeNotifier {
     );
 
     List<String> ids = [senderID, receiverID];
-    ids.sort();
+    ids.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
     String chatID = ids.join('_');
     print("$senderID is sending a message to $receiverID");
 
@@ -53,7 +54,8 @@ class ChatService extends ChangeNotifier {
     print("The sender id is $senderID");
 
     List<String> ids = [senderID, receiverID];
-    ids.sort();
+    ids.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
     print("This the list of the $ids"); // Debugging (Optional
     String chatID = ids.join('_');
     print("Getting messages for chatroom $chatID");

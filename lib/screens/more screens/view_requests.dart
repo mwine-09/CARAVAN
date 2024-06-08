@@ -128,9 +128,16 @@ class RequestsList extends StatelessWidget {
                   } else {
                     var username = userSnapshot.data!.username!;
                     return ListTile(
-                      title: Text(
-                        'Request from $username',
-                        style: const TextStyle(color: Colors.white),
+                      title: GestureDetector(
+                        child: Text(
+                          'Request from $username',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        onTap: () {
+                          // navigate to the user's profile
+                          Navigator.pushNamed(context, '/profile',
+                              arguments: userSnapshot.data);
+                        },
                       ),
                       subtitle: Text('Status: ${request['status']}'),
                       trailing: _buildActionButtons(request),

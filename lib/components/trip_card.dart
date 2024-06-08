@@ -26,7 +26,7 @@ class AvailabeTripCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
-      color: const Color.fromARGB(134, 112, 112, 112),
+      color: const Color.fromARGB(255, 36, 36, 36),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(

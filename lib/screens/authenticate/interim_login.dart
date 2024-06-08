@@ -1,18 +1,15 @@
-import 'dart:io';
-
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/notification_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
-
 import 'package:caravan/providers/user_profile.provider.dart';
+import 'package:caravan/providers/user_provider.dart';
+
 import 'package:caravan/screens/authenticate/email_register.dart';
 import 'package:caravan/screens/more%20screens/complete_profile.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
-
 import 'package:flutter/material.dart';
-
 import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
 
@@ -52,11 +49,13 @@ class _MyLoginState extends State<MyLogin> {
       border: const OutlineInputBorder(),
     );
     UserProfileProvider userProfileProvider =
-        Provider.of(context, listen: true);
+        Provider.of(context, listen: false);
 
     Provider.of<TripDetailsProvider>(context, listen: true);
 
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    final notificationProvider =
+        Provider.of<NotificationProvider>(context, listen: false);
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
@@ -149,17 +148,14 @@ class _MyLoginState extends State<MyLogin> {
                     const SizedBox(height: 20),
                     TextFormField(
                       obscureText: _obscureText,
-                      // obscuringCharacter: '9',
                       style: const TextStyle(
                           color: Colors.white, letterSpacing: 2),
                       cursorColor: Colors.white,
-
                       onChanged: (value) {
                         setState(() {
                           password = value;
                         });
                       },
-
                       decoration: loginInputDecoration.copyWith(
                         labelText: 'Password',
                         suffixIcon: GestureDetector(
@@ -219,79 +215,79 @@ class _MyLoginState extends State<MyLogin> {
                             },
                           );
 
-                          AuthService()
-                              .signInWithEmailAndPassword(email, password)
-                              .then((value) async {
-                            Navigator.pop(context); // Close the loading dialog
-                            if (value != null) {
-                              // Provider.of<NotificationProvider>(context);
+                          try {
+                            await AuthService()
+                                .signInWithEmailAndPassword(email, password)
+                                .then((user) async {
+                              Navigator.pop(
+                                  context); // Close the loading dialog
 
-                              // get email
-                              final userProfile = UserProfile();
-                              final userExists = await DatabaseService()
-                                  .checkIfUserExists(value.uid);
-                              if (!userExists) {
-                                userProfile.completeProfile(
-                                    userID: value.uid,
-                                    email: email,
-                                    username: value.displayName);
+                              if (user != null) {
+                                Provider.of<NotificationProvider>(context,
+                                    listen: false);
 
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => CompleteProfile(
-                                            userProfile: userProfile)));
-                                return;
-                              }
+                                // Get email
+                                final userProfile = UserProfile();
+                                final userExists = await DatabaseService()
+                                    .checkIfUserExists(user.uid);
+                                if (!userExists) {
+                                  userProfile.completeProfile(
+                                      userID: user.uid,
+                                      email: email,
+                                      username: user.displayName);
 
-                              DatabaseService()
-                                  .getUserProfile(value.uid)
-                                  .then((value) {
-                                // userProfileProvider.userProfile = value;
-                                userProfileProvider.saveUserProfile(value);
-                                userProfileProvider.userProfile.email = email;
-                                Provider.of<NotificationProvider>(context);
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => CompleteProfile(
+                                              userProfile: userProfile)));
+                                  return;
+                                }
+
+                                UserProfile profile = await DatabaseService()
+                                    .getUserProfile(user.uid);
+                                userProfileProvider.saveUserProfile(profile);
                                 chatProvider.reset();
-                                chatProvider.listenToChatrooms(value.userID!);
-                              });
+                                chatProvider.listenToChatrooms(user.uid);
+                                notificationProvider.resetProvider();
+                                notificationProvider
+                                    .getNotificationsStream(user);
 
-                              logger.i(
-                                  'Chat provider: ${chatProvider.chatrooms.length}');
-                              Navigator.pop(context);
-                              Navigator.pushNamed(context, '/home');
+                                Navigator.pushReplacementNamed(
+                                    context, '/home');
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "Logged in as ${value.displayName}",
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      "Logged in as ${user.displayName}",
+                                    ),
+                                    action: SnackBarAction(
+                                      backgroundColor: Colors.black87,
+                                      textColor: Colors.white,
+                                      label: 'OK',
+                                      onPressed: () {
+                                        ScaffoldMessenger.of(context)
+                                            .hideCurrentSnackBar();
+                                      },
+                                    ),
                                   ),
-                                  duration: const Duration(seconds: 2),
-                                  action: SnackBarAction(
-                                    textColor: Colors.white,
-                                    label: 'OK',
-                                    onPressed: () {
-                                      ScaffoldMessenger.of(context)
-                                          .hideCurrentSnackBar();
-                                    },
-                                  ),
-                                ),
-                              );
-                            } else {
-                              // User is null, show error message
-                              setState(() {
-                                errorMessage = 'Invalid email or password';
-                              });
-                            }
-                          }).catchError((error) {
+                                );
+                              } else {
+                                // User is null, show error message
+                                setState(() {
+                                  errorMessage = 'Invalid email or password';
+                                });
+                              }
+                            });
+                          } catch (e) {
                             Navigator.pop(context); // Close the loading dialog
                             // Show an error message
                             setState(() {
-                              errorMessage =
-                                  'An error occurred while signing in. Please try again.';
+                              errorMessage = e.toString();
                             });
 
-                            logger.i('Error signing in: $error');
-                          });
+                            logger.d('Error signing in: $e');
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -306,9 +302,7 @@ class _MyLoginState extends State<MyLogin> {
                       ),
                       child: const Text(
                         'Login',
-                        style: TextStyle(
-                            // color: Color.fromARGB(255, 252, 252, 252),
-                            fontSize: 20),
+                        style: TextStyle(fontSize: 20),
                       ),
                     ),
                     const SizedBox(
@@ -317,7 +311,6 @@ class _MyLoginState extends State<MyLogin> {
                     GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
-
                         Navigator.push(
                             context,
                             MaterialPageRoute(

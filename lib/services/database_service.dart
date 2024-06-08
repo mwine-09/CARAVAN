@@ -5,7 +5,6 @@ import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
@@ -69,7 +68,7 @@ class DatabaseService {
 
   Stream<List<Trip>> fetchTrips() {
     return FirebaseFirestore.instance
-        .collection('/trips')
+        .collection('trips')
         .snapshots()
         .asyncMap((snapshot) async {
       List<Trip> trips = [];
@@ -77,7 +76,6 @@ class DatabaseService {
         List<LatLng> polylinePoints = (doc['polylinePoints'] as List)
             .map((point) => LatLng(point['latitude'], point['longitude']))
             .toList();
-
         Trip trip = Trip(
           id: doc.id,
           createdBy: doc['createdBy'],
@@ -89,15 +87,44 @@ class DatabaseService {
               (e) => e.toString().split('.').last == doc['trip status']),
           polylinePoints: polylinePoints,
         );
+
         logger.d("The status for trip ${doc.id} is ${trip.tripStatus}");
 
         UserProfile driverProfile = await getUserProfile(doc['createdBy']);
         trip.driver = driverProfile;
-        logger.i(" check for null fields ${trip.getNullFields()}");
+
+        // Check if the requests field exists
+        List<String> requestIds = [];
+
+        requestIds = List<String>.from(doc['requests']);
+
+        logger.i("Requests for trip ${doc.id}: $requestIds");
+
+        // Fetch requests for the trip
+        List<Request> requests = [];
+        if (requestIds.isNotEmpty) {
+          for (String requestId in requestIds) {
+            Request request = await getRequestById(requestId);
+            requests.add(request);
+          }
+        }
+        trip.requests = requests;
+
         trips.add(trip);
+        logger.i("Check for null fields ${trip.getNullFields()}");
       }
       return trips;
     });
+  }
+
+// Fetch request given request id
+  Future<Request> getRequestById(String requestId) async {
+    logger.d("Fetching request with id $requestId");
+    DocumentSnapshot doc = await FirebaseFirestore.instance
+        .collection('requests')
+        .doc(requestId)
+        .get();
+    return Request.fromSnapshot(doc);
   }
 
   // Add a new booking to the "bookings" collection
@@ -149,40 +176,41 @@ class DatabaseService {
     }
   }
 
-  // Add a new wallet transaction to the "wallet_transactions" collection
-  Future<void> addWalletTransaction(
-      String transactionId,
-      String userId,
-      String transactionType,
-      double amount,
-      String description,
-      DateTime transactionTime) async {
-    try {
-      await _firestore
-          .collection('wallet_transactions')
-          .doc(transactionId)
-          .set({
-        'user ID': userId,
-        'transaction type': transactionType,
-        'amount': amount,
-        'description': description,
-        'transaction time': transactionTime,
-      });
-    } catch (e) {
-      // Handle any errors
-      logger.i('Error adding wallet transaction: $e');
-    }
-  }
-
   Future<UserProfile> getUserProfile(String userId) {
     logger.i("Getting user profile for user id $userId");
-    return _firestore.collection('users').doc(userId).get().then((snapshot) {
-      // logger.i("${snapshot.data()} is the snapshot data");
-      return UserProfile.fromSnapshot(snapshot);
-    }).catchError((e) {
-      // logger.i('Error getting user profile: $e');
-      throw e;
+    return checkAndCreateWalletCollection().then((_) {
+      return _firestore.collection('users').doc(userId).get().then((snapshot) {
+        // logger.i("${snapshot.data()} is the snapshot data");
+        return UserProfile.fromSnapshot(snapshot);
+      }).catchError((e) {
+        // logger.i('Error getting user profile: $e');
+        throw e;
+      });
     });
+  }
+
+  Future<void> checkAndCreateWalletCollection() async {
+    try {
+      DocumentSnapshot snapshot = await _firestore
+          .collection('users')
+          .doc(user!.uid)
+          .collection('wallet')
+          .doc('balance')
+          .get();
+      if (!snapshot.exists) {
+        await _firestore
+            .collection('users')
+            .doc(user!.uid)
+            .collection('wallet')
+            .doc('balance')
+            .set({
+          'balance': 0,
+        });
+      }
+    } catch (e) {
+      logger.i('Error checking and creating wallet collection: $e');
+      rethrow;
+    }
   }
 
   Future<bool> checkIfUserExists(String userId) async {
@@ -307,6 +335,9 @@ class DatabaseService {
     }
 
     String requestId = await _saveRequestToFirestore(request);
+    await _saveRequestToFirestore(request);
+    sendNotification(request.driverId!, "request", "You have a new request",
+        requestId: requestId);
   }
 
   Future<void> sendRequestStatusNotification(
@@ -338,30 +369,6 @@ class DatabaseService {
       rethrow;
     }
   }
-
-  // Future<void> _sendPushNotification(String userToken, String message) async {
-  //   // Implement the logic to send a push notification to the user's device
-  //   // using a push notification service like Firebase Cloud Messaging (FCM)
-  //   // or any other third-party service.
-  //   // This code will depend on the specific push notification service you are using.
-  //   // Consult the documentation of the service for the implementation details.
-  //   // Here is a sample code using FCM:
-
-  //   // Initialize the Firebase Cloud Messaging instance
-  //   var fcm = FirebaseMessaging.instance;
-
-  //   // Create the notification payload
-  //   var notification = {
-  //     'title': 'Request Status Update',
-  //     'body': message,
-  //   };
-
-  //   // Send the notification to the user's device
-  //   await fcm.(
-  //     userToken,
-  //     {'notification': notification},
-  //   );
-  // }
 
   Future<bool> _requestExists(String tripId) async {
     var existingRequest = await FirebaseFirestore.instance
@@ -433,52 +440,6 @@ class DatabaseService {
         .set(notificationData);
   }
 
-  // void sendRequest(String tripId, String driverId) async {
-  //   // Check if a request already exists
-  //   var existingRequest = await FirebaseFirestore.instance
-  //       .collection('requests')
-  //       .where('tripId', isEqualTo: tripId)
-  //       .where('passengerId', isEqualTo: user?.uid)
-  //       .get();
-
-  //   if (existingRequest.docs.isNotEmpty) {
-  //     logger.i("A request for this trip already exists");
-  //     return;
-  //   }
-  //   // Save the request to Firestore
-  //   logger.i("Sending request to the driver");
-  //   var requestID = FirebaseFirestore.instance.collection('requests').doc().id;
-  //   await FirebaseFirestore.instance.collection('requests').doc(requestID).set({
-  //     'tripId': tripId,
-  //     'passengerId': user?.uid,
-  //     'driverId': driverId,
-  //     'status': 'pending',
-  //     'timestamp': DateTime.now(),
-  //   });
-
-  //   // Create a notification for the driver
-  //   var notificationId = FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(driverId)
-  //       .collection('notifications')
-  //       .doc()
-  //       .id;
-  //   logger.e("Saving a notification to the database");
-  //   // Save the notification to Firestore
-  //   await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(driverId)
-  //       .collection('notifications')
-  //       .doc(notificationId)
-  //       .set({
-  //     'type': 'request',
-  //     'requestId': requestID,
-  //     'message': 'You have a new request from ${user?.displayName}',
-  //     'status': 'unread',
-  //     'timestamp': DateTime.now(),
-  //   });
-  // }
-
   Stream<QuerySnapshot> fetchRequestsStream(String tripId) {
     return _firestore
         .collection('requests')
@@ -488,14 +449,37 @@ class DatabaseService {
 
   Future<void> addRequestToTrip(String tripId, String requestId) async {
     try {
-      await _firestore.collection('trips').doc(tripId).update({
-        'requests': FieldValue.arrayUnion([requestId]),
-      });
+      // Check if a request from the same passenger already exists for the trip
+      var existingRequest = await FirebaseFirestore.instance
+          .collection('requests')
+          .where('tripId', isEqualTo: tripId)
+          .where('passengerId', isEqualTo: user?.uid)
+          .get();
+
+      // If no existing request found, add the request to the trip's requests array
+      if (existingRequest.docs.isEmpty) {
+        await _firestore.collection('trips').doc(tripId).update({
+          'requests': FieldValue.arrayUnion([requestId]),
+        });
+      } else {
+        logger.i('Request already exists for this trip and passenger');
+      }
     } catch (e) {
       // Handle any errors
       logger.i('Error adding passenger to trip: $e');
     }
   }
+
+  // Future<void> addRequestToTrip(String tripId, String requestId) async {
+  //   try {
+  //     await _firestore.collection('trips').doc(tripId).update({
+  //       'requests': FieldValue.arrayUnion([requestId]),
+  //     });
+  //   } catch (e) {
+  //     // Handle any errors
+  //     logger.i('Error adding passenger to trip: $e');
+  //   }
+  // }
 
   Future<void> removePassengerFromTrip(String userId, String tripId) async {
     try {

@@ -59,4 +59,8 @@ class TripDetailsProvider extends ChangeNotifier {
   Future<void> cancelTrip(String tripId) async {
     await updateTripStatus(tripId, TripStatus.cancelled);
   }
+
+  void reset() {
+    _tripDetails = null;
+  }
 }

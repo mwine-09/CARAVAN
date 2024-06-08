@@ -81,6 +81,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            EditableProfileField(
+              label: 'Username',
+              value: userProfile.username ?? '',
+              onSave: (value) {
+                // userProfileProvider.updateAge(int.parse(value));
+                _toggleEditing(false);
+              },
+            ),
             GestureDetector(
               onTap: () {
                 _toggleEditing(true);
@@ -120,7 +128,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
             ),
-            // Add other fields as needed
           ],
         ),
       ),

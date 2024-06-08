@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:convert';
-
 import 'package:caravan/models/chat_room.dart';
 import 'package:caravan/models/message.dart';
 import 'package:caravan/services/database_service.dart';
@@ -15,6 +15,7 @@ class ChatProvider with ChangeNotifier {
   static final firebaseAuth = FirebaseAuth.instance;
   static final firebaseFirestore = FirebaseFirestore.instance;
   static List<ChatRoom> _chatrooms = [];
+  StreamSubscription<QuerySnapshot>? _chatroomsSubscription;
 
   List<ChatRoom> get chatrooms {
     _chatrooms.sort((a, b) {
@@ -24,9 +25,17 @@ class ChatProvider with ChangeNotifier {
   }
 
   void listenToChatrooms(String uid) {
+    if (firebaseAuth.currentUser == null) {
+      return;
+    }
+
     final userID = uid;
 
-    firebaseFirestore
+    logger.d("Listening to chatrooms of $userID");
+
+    _chatroomsSubscription?.cancel(); // Cancel any existing subscription
+
+    _chatroomsSubscription = firebaseFirestore
         .collection('chats')
         .where('members', arrayContains: userID)
         .snapshots()
@@ -41,7 +50,6 @@ class ChatProvider with ChangeNotifier {
         );
       }).toList();
 
-      // set the title and photo URL of the chatroom
       await Future.wait(_chatrooms.map((chatroom) async {
         try {
           List<String> userIds = chatroom.id.split('_');
@@ -60,7 +68,6 @@ class ChatProvider with ChangeNotifier {
         }
       }));
 
-      // get messages for each chatroom
       for (var chatRoom in _chatrooms) {
         await fetchMessages(chatRoom);
       }
@@ -72,65 +79,60 @@ class ChatProvider with ChangeNotifier {
     });
   }
 
-  void stopListeningToChatrooms() {
-    _chatrooms = [];
-    notifyListeners();
-  }
+  ChatRoom getChatroom(String otherUserId) {
+    logger.d('Getting chatroom with user ID: $otherUserId');
 
-  ChatRoom? getChatroom(String otherUserId) {
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-    // Sort the user IDs
     List<String> userIds = [currentUserId, otherUserId];
-    userIds.sort();
+    userIds.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    logger.i("Sorted user IDs: $userIds");
 
-    // Join the user IDs with an underscore to create the chatroom ID
     String chatroomId = userIds.join('_');
-    logger.i('Getting chatroom with ID: $chatroomId');
+    logger.d('Getting chatroom with ID: $chatroomId');
+    notifyListeners();
 
-    // Find the chatroom in the list of chatrooms
-    return _chatrooms.firstWhere((chatroom) => chatroom.id == chatroomId,
-        orElse: () => ChatRoom(
-            id: '',
-            lastMessage: '',
-            lastMessageSenderID: '',
-            members: [],
-            lastMessageTime: Timestamp.now(),
-            messages: []));
+    return _chatrooms.firstWhere(
+      (chatroom) => chatroom.id == chatroomId,
+      orElse: () => ChatRoom(
+        id: '',
+        lastMessage: '',
+        lastMessageSenderID: '',
+        members: [],
+        lastMessageTime: Timestamp.now(),
+        messages: [],
+      ),
+    );
   }
 
   bool hasChatroom(String otherUserId) {
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-    // Sort the user IDs
-    List<String> userIds = [currentUserId, otherUserId]..sort();
+    List<String> userIds = [currentUserId, otherUserId];
+    userIds.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
-    // Join the user IDs with an underscore to create the chatroom ID
     String chatroomId = userIds.join('_');
 
-    // Check if the chatroom exists in the list of chatrooms
     return _chatrooms.any((chatroom) => chatroom.id == chatroomId);
   }
 
   Future<void> createChatroom(String otherUserId) async {
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-    // Sort the user IDs
-    List<String> userIds = [currentUserId, otherUserId]..sort();
-
-    // Join the user IDs with an underscore to create the chatroom ID
+    List<String> userIds = [currentUserId, otherUserId];
+    userIds.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
     String chatroomId = userIds.join('_');
 
-    await firebaseFirestore.collection('chats').doc(chatroomId).set({
+    await FirebaseFirestore.instance.collection('chats').doc(chatroomId).set({
       'members': userIds,
       'lastMessage': 'Send a message to chat!',
       'lastMessageSenderID': '',
       'lastMessageTime': Timestamp.now(),
     });
+    notifyListeners();
   }
 
   void openChatroom(String chatRoomId) {
-    // Start listening for new messages in the chatroom
     _listenToMessages(chatRoomId);
     logger.e('Opening chatroom: $chatRoomId');
   }
@@ -143,7 +145,6 @@ class ChatProvider with ChangeNotifier {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .listen((querySnapshot) {
-      // Handle the received messages
       List<Message> messages = querySnapshot.docs.map((doc) {
         return Message(
           senderID: doc["senderID"],
@@ -152,7 +153,6 @@ class ChatProvider with ChangeNotifier {
           createdAt: doc["createdAt"],
         );
       }).toList();
-      // Update the chatroom's messages
       ChatRoom chatRoom =
           _chatrooms.firstWhere((chatroom) => chatroom.id == chatRoomId);
       chatRoom.messages = messages;
@@ -200,8 +200,15 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> checkChatroomExists(String chatRoomId) async {
+    final snapshot =
+        await firebaseFirestore.collection('chats').doc(chatRoomId).get();
+    return snapshot.exists;
+  }
+
   Stream<List<Message>> getMessagesStream(String chatRoomId) {
     logger.i('Getting messages for chatroom: $chatRoomId');
+    notifyListeners();
     return firebaseFirestore
         .collection('chats')
         .doc(chatRoomId)
@@ -251,8 +258,8 @@ class ChatProvider with ChangeNotifier {
   }
 
   void reset() {
+    _chatroomsSubscription?.cancel(); // Cancel the chatrooms subscription
     _chatrooms = [];
-
     notifyListeners();
   }
 }

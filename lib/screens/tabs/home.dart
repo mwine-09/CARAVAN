@@ -2,12 +2,17 @@
 
 // import 'dart:html';
 
+import 'package:caravan/components/editable_textfield.dart';
+import 'package:caravan/components/mytextfield.dart';
+import 'package:caravan/components/wallet_widget.dart';
+import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/models/wallet.dart';
 import 'package:caravan/providers/notification_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/notifications.dart';
-import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
+
 import 'package:caravan/screens/more%20screens/request_sent.dart';
 
 // import 'package:caravan/screens/more%20screens/notifications.dart';
@@ -28,12 +33,12 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final notificationProvider =
-        Provider.of<NotificationProvider>(context, listen: true);
+    final notificationProvider = Provider.of<NotificationProvider>(context);
+
     int unreadNotificationsCount =
         notificationProvider.unreadNotificationsCount;
 
-    var userProfile = context.watch<UserProfileProvider>().userProfile;
+    UserProfile userProfile = context.watch<UserProfileProvider>().userProfile;
     if (userProfile.userID == null) {
       setProvider();
 
@@ -114,13 +119,13 @@ class _HomeState extends State<Home> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Column(
             children: [
-              const SingleCard(),
+              SingleCard(wallet: userProfile.wallet ?? Wallet(0.0)),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   MyCard(
-                      title: 'Request for a ride',
+                      title: 'Trips',
                       icon: const AssetImage('assets/car.png'),
                       onTap: () {
                         // Handle tap on request for a ride
@@ -170,7 +175,7 @@ class _HomeState extends State<Home> {
                         child: Container(
                           // height: 100,
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 20, 20, 20),
+                            color: const Color.fromARGB(255, 36, 36, 36),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -180,7 +185,7 @@ class _HomeState extends State<Home> {
                         child: Container(
                           // height: 100,
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 20, 20, 20),
+                            color: const Color.fromARGB(255, 36, 36, 36),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -190,7 +195,7 @@ class _HomeState extends State<Home> {
                         child: Container(
                           // height: 100,
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 20, 20, 20),
+                            color: const Color.fromARGB(255, 36, 36, 36),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -238,7 +243,7 @@ class _MyCardState extends State<MyCard> {
             // width should fit the content
             width: (MediaQuery.of(context).size.width - 50) / 2,
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 20, 20, 20),
+              color: const Color.fromARGB(255, 36, 36, 36),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
@@ -264,14 +269,31 @@ class _MyCardState extends State<MyCard> {
   }
 }
 
-class SingleCard extends StatelessWidget {
-  const SingleCard({super.key});
+class SingleCard extends StatefulWidget {
+  const SingleCard({super.key, required this.wallet});
+  final Wallet wallet;
+
+  @override
+  _SingleCardState createState() => _SingleCardState();
+}
+
+class _SingleCardState extends State<SingleCard> {
+  bool _isBalanceVisible = false;
+  // final TextEditingController _controller = TextEditingController();
+  final String _selectedCountryCode = '+256';
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
+  void _toggleBalanceVisibility() {
+    setState(() {
+      _isBalanceVisible = !_isBalanceVisible;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      color: const Color.fromARGB(255, 20, 20, 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      color: const Color.fromARGB(255, 36, 36, 36),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -283,66 +305,209 @@ class SingleCard extends StatelessWidget {
                 'MY WALLET',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2),
               ),
             ),
             const SizedBox(height: 20),
-            Text(
-              'UGX ********',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                GestureDetector(
+                  onTap: _toggleBalanceVisibility,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                    child: Text(
+                      _isBalanceVisible
+                          ? 'UGX ${widget.wallet.balance}'
+                          : 'UGX ******',
+                      key: ValueKey<bool>(_isBalanceVisible),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            // const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             const Divider(
-              color: Colors.white,
+              color: Color.fromARGB(255, 187, 187, 187),
               height: 20,
               thickness: 1,
               indent: 0,
               endIndent: 0,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
-            // add a flat button
-            ElevatedButton(
-              onPressed: () {},
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(Colors.white),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+            Row(
+              children: [
+                ActionCard(
+                  imagePath: "assets/deposit.png",
+                  label: "Deposit",
+                  onPressed: () {
+                    // _showDepositBottomSheet(context);
+                    _showDepositBottomSheet(context);
+                  },
+                  imageSize: 30,
                 ),
-              ),
-              child: Flex(
-                direction: Axis.horizontal,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // add a money icon
-                  const Icon(
-                    Icons.money_rounded,
-                    color: Colors.black,
-                  ),
-                  Text(
-                    'DEPOSIT MONEY',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                        ),
-                  ),
-                ],
-              ),
-            )
+                ActionCard(
+                  imagePath: "assets/withdraw-money-icon.png",
+                  label: "Withdraw",
+                  imageSize: 30,
+                  onPressed: () {
+                    _showWithDrawBottomSheet(context);
+                  },
+                ),
+                ActionCard(
+                  imagePath: "assets/transferIcon.png",
+                  label: "Transfer",
+                  imageSize: 30,
+                  onPressed: () {},
+                ),
+                ActionCard(
+                  imagePath: "assets/timesheet-icon.png",
+                  label: "History",
+                  imageSize: 30,
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
+    );
+  }
+
+  void _showDepositBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Deposit',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Text("256",
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: MyTextField(
+                      backgroundColor: const Color.fromARGB(95, 95, 95, 95),
+                      label: "Phone number",
+                      controller: _phoneNumberController,
+                    )),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                MyTextField(
+                  backgroundColor: const Color.fromARGB(95, 106, 106, 106),
+                  label: "Amount",
+                  controller: _amountController,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    // Implement deposit logic here
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Confirm'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showWithDrawBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Withdraw',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Text("256",
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: MyTextField(
+                      backgroundColor: const Color.fromARGB(95, 95, 95, 95),
+                      label: "Phone number",
+                      controller: _phoneNumberController,
+                    )),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                MyTextField(
+                  backgroundColor: const Color.fromARGB(95, 106, 106, 106),
+                  label: "Amount",
+                  controller: _amountController,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    // Implement withdrawal logic here
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Confirm'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

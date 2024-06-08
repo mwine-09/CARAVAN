@@ -6,6 +6,7 @@ import 'package:caravan/screens/more%20screens/view_requests.dart';
 import 'package:caravan/services/location_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 // import 'package:flutter/material.dart';
@@ -42,7 +43,8 @@ class NotificationList extends StatelessWidget {
                 )
               : null,
           onTap: () async {
-            notificationProvider.markAsRead(notification);
+            notificationProvider.markAsRead(
+                notification, FirebaseAuth.instance.currentUser!);
 
             var type = notification.getType;
             logger.i(type);
@@ -53,9 +55,11 @@ class NotificationList extends StatelessWidget {
                   .collection("requests")
                   .doc(notification.getRequestId)
                   .get();
+              logger.d(requestSnapshot.data());
 
               String tripId =
                   (requestSnapshot.data() as Map<String, dynamic>)['tripId'];
+              logger.i("trip is is $tripId");
 
               Navigator.push(
                   context,

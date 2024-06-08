@@ -284,6 +284,14 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                                         logger.d(request.getNullFields());
 
                                         DatabaseService().sendRequest(request);
+                                        // use the snackbar to show the message
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Request sent to driver successfully'),
+                                          ),
+                                        );
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(

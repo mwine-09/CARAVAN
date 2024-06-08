@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/providers/chat_provider.dart';
+import 'package:caravan/providers/notification_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/change_password.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
@@ -73,6 +75,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            const SizedBox(
+              height: 8,
+            ),
             CircleAvatar(
               backgroundColor: Colors.white60,
               radius: 50,
@@ -101,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(
-              height: 15,
+              height: 8,
             ),
             Text(username,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -114,7 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       fontSize: 16,
                     )),
             const SizedBox(
-              height: 15,
+              height: 30,
             ),
             Expanded(
               child: Padding(
@@ -167,7 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           onChanged: (newValue) {
                             _toggleRole();
                           },
-                          activeColor: Colors.green,
+                          activeColor: Colors.blue,
                           inactiveThumbColor: Colors.grey,
                           inactiveTrackColor: Colors.grey[300],
                         ),
@@ -241,6 +246,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.white12,
                       ),
                       ListTile(
+                          leading: const Icon(Icons.help, color: Colors.white),
+                          title: Text(
+                            'User manual',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const Text(
+                                          "User manual",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        )));
+                          }),
+                      const Divider(
+                        height: 1,
+                        color: Colors.white12,
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.support_agent_sharp,
+                            color: Colors.white),
+                        title: Text(
+                          'Contact support',
+                          style:
+                              Theme.of(context).textTheme.labelMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const Text(
+                                        "Support help",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      )));
+                        },
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: Colors.white12,
+                      ),
+                      ListTile(
                         leading: const Icon(Icons.power_settings_new,
                             color: Colors.white),
                         title: Text(
@@ -252,14 +313,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                         ),
                         onTap: () {
-                          FirebaseAuth.instance.signOut();
+                          Provider.of<NotificationProvider>(context,
+                                  listen: false)
+                              .resetProvider();
+                          Provider.of<ChatProvider>(context, listen: false)
+                              .reset();
 
-                          Navigator.pushAndRemoveUntil(
+                          FirebaseAuth.instance.signOut().then((_) {
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => const MyLogin()),
-                              (route) => false);
+                              (route) => false,
+                            );
+                          }).catchError((error) {
+                            logger.e('Error signing out: $error');
+                          });
                         },
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: Colors.white12,
                       ),
                     ],
                   ),

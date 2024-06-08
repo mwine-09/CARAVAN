@@ -1,10 +1,9 @@
 import 'dart:io';
 
-import 'package:caravan/screens/more%20screens/driver/documents/review_submit.dart';
 import 'package:caravan/screens/more%20screens/driver/documents/upload.dart';
 import 'package:flutter/material.dart';
 import 'package:caravan/services/image_picker_service.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:image_picker/image_picker.dart';
 
 class SelfieUploadScreen extends StatefulWidget {
@@ -116,7 +115,7 @@ class _SelfieUploadScreenState extends State<SelfieUploadScreen> {
                     borderRadius: BorderRadius.all(Radius.circular(5)),
                   ),
                 ).copyWith(
-                  backgroundColor: MaterialStateProperty.all(Colors.white),
+                  backgroundColor: WidgetStateProperty.all(Colors.white),
                 ),
                 child: Text(
                   'Review Documents',

@@ -1,4 +1,5 @@
 import 'package:caravan/models/emergency_contact.dart';
+import 'package:caravan/models/wallet.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserProfile {
@@ -7,6 +8,7 @@ class UserProfile {
   String? firstName;
   String? lastName;
   String? email;
+  Wallet? wallet;
   int? age;
   String? carBrand;
   String? make;
@@ -24,6 +26,7 @@ class UserProfile {
     this.lastName,
     this.age,
     this.email,
+    this.wallet,
     this.carBrand,
     this.make,
     this.numberPlate,
@@ -42,6 +45,7 @@ class UserProfile {
     data['firstName'] = firstName;
     data['lastName'] = lastName;
     data['email'] = email;
+    data['wallet'] = wallet?.toJson();
     data['age'] = age;
     data['carBrand'] = carBrand;
     data['photoUrl'] = photoUrl;
@@ -59,6 +63,10 @@ class UserProfile {
   // from snapshot
   factory UserProfile.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    Wallet? wallet;
+    if (data.containsKey('wallet')) {
+      wallet = Wallet.fromJson(data['wallet']);
+    }
     return UserProfile(
       userID: snapshot.id,
       username: data['username'],
@@ -66,6 +74,7 @@ class UserProfile {
       lastName: data['lastName'],
       email: data['email'],
       age: data['age'],
+      wallet: wallet,
       carBrand: data['carBrand'],
       make: data['make'],
       photoUrl: data['profilePicture'],
@@ -120,6 +129,7 @@ class UserProfile {
       'age': age,
       'carBrand': carBrand,
       'make': make,
+      'wallet': wallet?.toJson(),
       'numberPlate': numberPlate,
       'phoneNumber': phoneNumber,
       'preferences': preferences,
@@ -152,6 +162,6 @@ class UserProfile {
 
   @override
   String toString() {
-    return 'UserProfile(userID: $userID, username: $username, firstName: $firstName, lastName: $lastName, email: $email, age: $age, carBrand: $carBrand, make: $make, numberPlate: $numberPlate, phoneNumber: $phoneNumber, preferences: $preferences, emergencyContacts: $emergencyContacts, isDriver: $isDriver, photoUrl: $photoUrl)';
+    return 'UserProfile(userID: $userID, username: $username, firstName: $firstName, lastName: $lastName, email: $email, age: $age, carBrand: $carBrand, make: $make, numberPlate: $numberPlate, phoneNumber: $phoneNumber, preferences: $preferences, emergencyContacts: $emergencyContacts, isDriver: $isDriver, photoUrl: $photoUrl, wallet: $wallet)';
   }
 }

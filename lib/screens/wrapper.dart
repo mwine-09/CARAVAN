@@ -4,10 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Wrapper extends StatelessWidget {
-  // Declare your providers as final fields
-  // final UserProfileProvider userProfileProvider;
-
-  // Initialize your providers in the constructor
   const Wrapper({super.key});
 
   @override

@@ -11,6 +11,7 @@ import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
 import 'package:caravan/screens/more%20screens/passenger/rider_destination_location.dart';
 import 'package:caravan/screens/more%20screens/request_sent.dart';
+
 import 'package:caravan/screens/more%20screens/view_requests.dart';
 import 'package:caravan/services/database_service.dart';
 
@@ -139,31 +140,35 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                                 String driverId =
                                     trip.createdBy ?? "Unknown user";
 
+                                Future<void> navigateToChatroom(
+                                    ChatRoom? chatroom) async {
+                                  if (chatroom != null &&
+                                      chatroom.id.isNotEmpty) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ChatScreen(
+                                          chatRoom: chatroom,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Error: Chatroom not found')),
+                                    );
+                                  }
+                                }
+
+                                ChatRoom? chatroom =
+                                    chatProvider.getChatroom(driverId);
                                 if (chatProvider.hasChatroom(driverId)) {
-                                  ChatRoom? chatroom =
-                                      chatProvider.getChatroom(driverId);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatScreen(
-                                        chatRoom: chatroom!,
-                                      ),
-                                    ),
-                                  );
+                                  await navigateToChatroom(chatroom);
                                 } else {
-                                  await chatProvider.createChatroom(
-                                    driverId,
-                                  );
-                                  ChatRoom? chatroom =
-                                      chatProvider.getChatroom(driverId);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatScreen(
-                                        chatRoom: chatroom!,
-                                      ),
-                                    ),
-                                  );
+                                  await chatProvider.createChatroom(driverId);
+                                  chatroom = chatProvider.getChatroom(driverId);
+                                  await navigateToChatroom(chatroom);
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -292,8 +297,9 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          const DestinationSelectionScreen(),
+                                      builder: (context) => LocationTrackingMap(
+                                        tripId: trip.getId!,
+                                      ),
                                     ));
 
                                 // change the status of the trip from to started

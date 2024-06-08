@@ -50,6 +50,25 @@ class AuthService {
   }
 
   // Sign in with email and password
+  // Future<User?> signInWithEmailAndPassword(
+  //     String email, String password) async {
+  //   try {
+  //     UserCredential result = await _auth.signInWithEmailAndPassword(
+  //         email: email, password: password);
+  //     User? user = result.user;
+
+  //     if (user == null) {
+  //       logger.i('User is null');
+  //       return null;
+  //     }
+
+  //     return user;
+  //   } catch (e) {
+  //     logger.i("Error from the sign in function ${e.toString()}");
+  //     return null;
+  //   }
+  // }
+
   Future<User?> signInWithEmailAndPassword(
       String email, String password) async {
     try {
@@ -58,14 +77,25 @@ class AuthService {
       User? user = result.user;
 
       if (user == null) {
-        logger.i('User is null');
+        logger.d('User is null');
         return null;
       }
 
       return user;
+    } on FirebaseAuthException catch (e) {
+      logger.d("Error from the sign in function ${e.toString()}");
+      if (e.code == 'user-not-found') {
+        throw AuthException('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        throw AuthException('Wrong password provided.');
+      } else if (e.code == 'network-request-failed') {
+        throw AuthException('Network error. Please check your connection.');
+      } else {
+        throw AuthException('An unexpected error occurred. Please try again.');
+      }
     } catch (e) {
-      logger.i("Error from the sign in function ${e.toString()}");
-      return null;
+      logger.d("Unknown error: ${e.toString()}");
+      throw AuthException('An unexpected error occurred. Please try again.');
     }
   }
 
@@ -76,5 +106,15 @@ class AuthService {
     } catch (e) {
       logger.i(e.toString());
     }
+  }
+}
+
+class AuthException implements Exception {
+  final String message;
+  AuthException(this.message);
+
+  @override
+  String toString() {
+    return message;
   }
 }

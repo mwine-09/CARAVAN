@@ -31,4 +31,11 @@ class DriverDocumentProvider with ChangeNotifier {
     _documentsSubmitted = submitted;
     notifyListeners();
   }
+
+  void reset() {
+    _isDriver = false;
+    _documentsApproved = false;
+    _documentsSubmitted = false;
+    notifyListeners();
+  }
 }

@@ -39,7 +39,7 @@ class _AvailableTripsState extends State<AvailableTrips>
 
   List<Trip> _allTrips = [];
   List<Trip> _filteredTrips = [];
-  double _searchRadius = 3; // Initial search radius in km.
+  double _searchRadius = 1; // Initial search radius in km.
   final _debouncer = Debouncer(milliseconds: 300);
 
   // num get pi => null;
@@ -181,7 +181,9 @@ class _AvailableTripsState extends State<AvailableTrips>
   }
 
   Widget _buildAvailableTripsTab() {
-    var trips = Provider.of<TripDetailsProvider>(context).availableTrips;
+    var trips = _filteredTrips.isEmpty
+        ? Provider.of<TripDetailsProvider>(context).availableTrips
+        : _filteredTrips;
 
     if (trips.isEmpty) {
       return Center(
@@ -257,9 +259,7 @@ class _AvailableTripsState extends State<AvailableTrips>
     } else {
       // Get the coordinates of the search location.
       LatLng searchLocation = await locationService.searchLocation(searchText);
-
-      // double searchLat = searchLocation.latitude;
-      // double searchLng = searchLocation.longitude;
+      logger.i('Search Location: $searchLocation');
 
       setState(() {
         _filteredTrips.clear();
@@ -269,6 +269,7 @@ class _AvailableTripsState extends State<AvailableTrips>
               bool isDestinationInPath = trip.polylinePoints!.any((point) {
                 double distanceInMeters =
                     calculateDistance(searchLocation, point);
+                logger.i('Distance to Point: $distanceInMeters');
                 return distanceInMeters <= searchRadiusInMeters;
               });
 
@@ -276,8 +277,10 @@ class _AvailableTripsState extends State<AvailableTrips>
               LatLng firstPoint = trip.polylinePoints!.first;
               double distanceFromCurrentLocation =
                   calculateDistance(_currentLocation, firstPoint);
+              logger.i(
+                  'Distance from Current Location: $distanceFromCurrentLocation');
 
-              return isDestinationInPath ||
+              return isDestinationInPath &&
                   distanceFromCurrentLocation <= searchRadiusInMeters;
             })
             .toSet()

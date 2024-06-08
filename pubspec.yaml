@@ -67,10 +67,9 @@ dependencies:
   geolocator: ^11.0.0
   image_picker: ^1.1.0
   test_cov_console: ^0.2.2
-
-
-
   mime: any
+  sliding_up_panel: ^2.0.0+1
+  lottie: ^3.0.0
 
 flutter_icons:
   android: true

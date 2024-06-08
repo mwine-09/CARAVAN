@@ -8,6 +8,7 @@ enum RequestStatus {
 }
 
 class Request {
+  String? id;
   String? tripId;
   String? passengerId;
   String? driverId;
@@ -19,6 +20,7 @@ class Request {
   String? destinationLocationName;
 
   Request({
+    this.id,
     this.tripId,
     this.passengerId,
     this.driverId,
@@ -33,6 +35,7 @@ class Request {
   factory Request.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Request(
+      id: doc.id,
       tripId: data['tripId'],
       passengerId: data['passengerId'],
       driverId: data['driverId'],
@@ -66,6 +69,27 @@ class Request {
       nullFields.add('destinationLocationName');
     }
     return nullFields;
+  }
+
+  factory Request.fromSnapshot(DocumentSnapshot snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return Request(
+      tripId: data['tripId'],
+      passengerId: data['passengerId'],
+      driverId: data['driverId'],
+      status: _parseStatus(data['status']),
+      timestamp: (data['timestamp'] as Timestamp).toDate(),
+      pickupCoordinates: data['pickupCoordinates'] != null
+          ? LatLng(data['pickupCoordinates']['latitude'],
+              data['pickupCoordinates']['longitude'])
+          : null,
+      pickupLocationName: data['pickupLocationName'],
+      destinationCoordinates: data['destinationCoordinates'] != null
+          ? LatLng(data['destinationCoordinates']['latitude'],
+              data['destinationCoordinates']['longitude'])
+          : null,
+      destinationLocationName: data['destinationLocationName'],
+    );
   }
 
   Map<String, dynamic> toFirestore() {
