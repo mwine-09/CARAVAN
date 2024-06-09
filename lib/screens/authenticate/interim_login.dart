@@ -3,7 +3,6 @@ import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/notification_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
-import 'package:caravan/providers/user_provider.dart';
 
 import 'package:caravan/screens/authenticate/email_register.dart';
 import 'package:caravan/screens/more%20screens/complete_profile.dart';

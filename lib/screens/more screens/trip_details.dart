@@ -9,11 +9,8 @@ import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/more%20screens/location_tracking_map.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
-import 'package:caravan/screens/more%20screens/passenger/rider_destination_location.dart';
-import 'package:caravan/screens/more%20screens/request_sent.dart';
 
 import 'package:caravan/screens/more%20screens/view_requests.dart';
-import 'package:caravan/services/database_service.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -23,8 +20,10 @@ import 'package:provider/provider.dart';
 Logger logger = Logger();
 
 class TripDetailsScreen extends StatefulWidget {
-  final UserProfile userProfile;
-  const TripDetailsScreen({super.key, required this.userProfile});
+  UserProfile? userProfile;
+  String? tripId;
+
+  TripDetailsScreen({super.key, required this.userProfile});
 
   @override
   State<TripDetailsScreen> createState() => _TripDetailsScreenState();
@@ -51,7 +50,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
         Provider.of<UserProfileProvider>(context);
     final tripProvider = Provider.of<TripDetailsProvider>(context);
     final Trip trip = tripProvider.tripDetails!;
-    String? selectedDriverName = widget.userProfile.username ?? "Unknown user";
+    String? selectedDriverName = widget.userProfile!.username ?? "Unknown user";
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -83,7 +82,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                 TripDriverCard(
                     trip: trip,
                     selectedDriverName: selectedDriverName,
-                    userProfile: widget.userProfile),
+                    userProfile: widget.userProfile!),
                 const SizedBox(height: 8),
                 const Text(
                   "Trip Details",
@@ -280,6 +279,8 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                       ),
                       markers: markers.values.toSet(),
                       polylines: polylines.values.toSet(),
+                      myLocationButtonEnabled: true,
+                      myLocationEnabled: true,
                     ),
                   ),
                 ),

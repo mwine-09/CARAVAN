@@ -160,8 +160,8 @@ class _IdDocumentUploadScreenState extends State<IdDocumentUploadScreen> {
                     borderRadius: BorderRadius.all(Radius.circular(5)),
                   ),
                 ).copyWith(
-                  backgroundColor: MaterialStateProperty.all(Colors.white),
-                  minimumSize: MaterialStateProperty.all(const Size(80, 50)),
+                  backgroundColor: WidgetStateProperty.all(Colors.white),
+                  minimumSize: WidgetStateProperty.all(const Size(80, 50)),
                 ),
                 child: Text('Next: Interpol Letter',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(

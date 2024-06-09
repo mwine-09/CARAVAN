@@ -1,5 +1,4 @@
 import 'package:caravan/screens/authenticate/interim_login.dart';
-import 'package:caravan/screens/wrapper.dart';
 import 'package:flutter/material.dart'; // Add this line
 
 class Welcome extends StatefulWidget {

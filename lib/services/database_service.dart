@@ -118,13 +118,23 @@ class DatabaseService {
   }
 
 // Fetch request given request id
+  /// Fetches a request from the database by its ID.
+  ///
+  /// The [requestId] parameter specifies the ID of the request to fetch.
+  /// Returns a [Future] that completes with a [Request] object.
+  /// Throws an error if the request with the specified ID does not exist.
   Future<Request> getRequestById(String requestId) async {
     logger.d("Fetching request with id $requestId");
     DocumentSnapshot doc = await FirebaseFirestore.instance
         .collection('requests')
         .doc(requestId)
         .get();
-    return Request.fromSnapshot(doc);
+
+    if (doc.exists) {
+      return Request.fromSnapshot(doc);
+    }
+
+    return Request();
   }
 
   // Add a new booking to the "bookings" collection

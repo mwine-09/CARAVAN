@@ -27,18 +27,19 @@ class ActionCard extends StatelessWidget {
         child: InkWell(
           onTap: onPressed,
           child: SizedBox(
-            height: 90,
+            height: 120,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const SizedBox(height: 8),
                   Image.asset(
                     imagePath,
                     width: imageSize,
                     height: imageSize,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   Text(
                     label,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(

@@ -54,7 +54,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
   void initState() {
     super.initState();
     locationProvider = Provider.of<LocationProvider>(context, listen: false);
-    logger.i('Location Provider: ${locationProvider.currentPositionName}');
+    logger.i('Location Provider: ${locationProvider.currentPosition}');
     pickupLocation = locationProvider.currentPositionName ?? '';
     updateMap(widget.tripRequest.pickupCoordinates!,
         widget.tripRequest.pickupCoordinates!);

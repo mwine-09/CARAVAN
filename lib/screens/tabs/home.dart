@@ -2,7 +2,6 @@
 
 // import 'dart:html';
 
-import 'package:caravan/components/editable_textfield.dart';
 import 'package:caravan/components/mytextfield.dart';
 import 'package:caravan/components/wallet_widget.dart';
 import 'package:caravan/models/user_profile.dart';
@@ -12,8 +11,10 @@ import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/authenticate/interim_login.dart';
 import 'package:caravan/screens/more%20screens/available_trips.dart';
 import 'package:caravan/screens/more%20screens/notifications.dart';
+import 'package:caravan/screens/more%20screens/payments/payment_screen.dart';
 
 import 'package:caravan/screens/more%20screens/request_sent.dart';
+import 'package:caravan/services/payment_service.dart';
 
 // import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:flutter/material.dart';
@@ -277,6 +278,8 @@ class SingleCard extends StatefulWidget {
   _SingleCardState createState() => _SingleCardState();
 }
 
+PaymentService _paymentService = PaymentService();
+
 class _SingleCardState extends State<SingleCard> {
   bool _isBalanceVisible = false;
   // final TextEditingController _controller = TextEditingController();
@@ -363,22 +366,28 @@ class _SingleCardState extends State<SingleCard> {
                 ActionCard(
                   imagePath: "assets/withdraw-money-icon.png",
                   label: "Withdraw",
-                  imageSize: 30,
+                  imageSize: 35,
                   onPressed: () {
-                    _showWithDrawBottomSheet(context);
+                    _showWithdrawBottomSheet(context);
                   },
                 ),
-                ActionCard(
-                  imagePath: "assets/transferIcon.png",
-                  label: "Transfer",
-                  imageSize: 30,
-                  onPressed: () {},
-                ),
+                // ActionCard(
+                //   imagePath: "assets/transferIcon.png",
+                //   label: "Transfer",
+                //   imageSize: 30,
+                //   onPressed: () {},
+                // ),
                 ActionCard(
                   imagePath: "assets/timesheet-icon.png",
                   label: "History",
-                  imageSize: 30,
-                  onPressed: () {},
+                  imageSize: 35,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const PaymentHistoryScreen()),
+                    );
+                  },
                 ),
               ],
             ),
@@ -421,11 +430,12 @@ class _SingleCardState extends State<SingleCard> {
                             fontSize: 16)),
                     const SizedBox(width: 10),
                     Expanded(
-                        child: MyTextField(
-                      backgroundColor: const Color.fromARGB(95, 95, 95, 95),
-                      label: "Phone number",
-                      controller: _phoneNumberController,
-                    )),
+                      child: MyTextField(
+                        backgroundColor: const Color.fromARGB(95, 95, 95, 95),
+                        label: "Phone number",
+                        controller: _phoneNumberController,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -436,9 +446,19 @@ class _SingleCardState extends State<SingleCard> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
-                    // Implement deposit logic here
-                    Navigator.pop(context);
+                  onPressed: () async {
+                    try {
+                      double amount = double.parse(_amountController.text);
+                      await _paymentService.deposit(amount);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Deposit successful!')),
+                      );
+                      Navigator.pop(context);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Deposit failed: $e')),
+                      );
+                    }
                   },
                   child: const Text('Confirm'),
                 ),
@@ -450,7 +470,7 @@ class _SingleCardState extends State<SingleCard> {
     );
   }
 
-  void _showWithDrawBottomSheet(BuildContext context) {
+  void _showWithdrawBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -497,9 +517,19 @@ class _SingleCardState extends State<SingleCard> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
-                    // Implement withdrawal logic here
-                    Navigator.pop(context);
+                  onPressed: () async {
+                    try {
+                      double amount = double.parse(_amountController.text);
+                      await _paymentService.withdraw(amount);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Withdrawal successful!')),
+                      );
+                      Navigator.pop(context);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Withdrawal failed: $e')),
+                      );
+                    }
                   },
                   child: const Text('Confirm'),
                 ),

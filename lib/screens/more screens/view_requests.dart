@@ -1,8 +1,12 @@
+import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/providers/trips_provider.dart';
+import 'package:caravan/screens/more%20screens/trip_details.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
 Logger logger = Logger();
 
@@ -69,8 +73,11 @@ class RequestsList extends StatelessWidget {
   final String status;
 
   const RequestsList({super.key, required this.tripId, required this.status});
+
   @override
   Widget build(BuildContext context) {
+    final tripProvider = Provider.of<TripDetailsProvider>(context);
+
     return StreamBuilder<QuerySnapshot>(
       stream: DatabaseService().fetchRequestsStream(tripId),
       builder: (context, snapshot) {
@@ -129,15 +136,23 @@ class RequestsList extends StatelessWidget {
                     var username = userSnapshot.data!.username!;
                     return ListTile(
                       title: GestureDetector(
+                        onTap: () async {
+                          Trip trip = tripProvider.availableTrips.firstWhere(
+                              (trip) => trip.getId == request['tripId']);
+                          tripProvider.setTripDetails(trip);
+                          final userProfile = trip.driver;
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TripDetailsScreen(
+                                        userProfile: userProfile,
+                                      )));
+                        },
                         child: Text(
                           'Request from $username',
                           style: const TextStyle(color: Colors.white),
                         ),
-                        onTap: () {
-                          // navigate to the user's profile
-                          Navigator.pushNamed(context, '/profile',
-                              arguments: userSnapshot.data);
-                        },
                       ),
                       subtitle: Text('Status: ${request['status']}'),
                       trailing: _buildActionButtons(request),

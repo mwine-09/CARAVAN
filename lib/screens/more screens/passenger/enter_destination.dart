@@ -1,4 +1,3 @@
-import 'package:caravan/models/request.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/screens/more%20screens/passenger/enter_pickup.dart';
@@ -276,8 +275,8 @@ class _DestinationScreenState extends State<DestinationScreen> {
                                                               value;
 
                                                           tripRequest.driver =
-                                                              widget
-                                                                  .trip.getDriver;
+                                                              widget.trip
+                                                                  .getDriver;
 
                                                           tripRequest.id =
                                                               widget.trip.getId;
@@ -299,9 +298,10 @@ class _DestinationScreenState extends State<DestinationScreen> {
                                                                       .currentPosition ??
                                                                   initialCameraPosition;
                                                         });
+                                                        logger.d(tripRequest);
 
-                                                        logger.e(tripRequest
-                                                            .destinationCoordinates);
+                                                        logger.e(
+                                                            "Destination coordinates ${tripRequest.destinationCoordinates}");
                                                         Navigator.push(
                                                           context,
                                                           MaterialPageRoute(

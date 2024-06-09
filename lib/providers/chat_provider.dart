@@ -62,7 +62,9 @@ class ChatProvider with ChangeNotifier {
 
           String photoUrl =
               await DatabaseService().getUserProfilePictureUrl(senderID);
-          chatroom.photoUrl = photoUrl;
+          if (photoUrl.isEmpty) {
+            chatroom.photoUrl = photoUrl;
+          }
         } catch (e) {
           logger.e('Error getting username: $e');
         }

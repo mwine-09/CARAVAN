@@ -94,7 +94,7 @@ class _InterpolLetterUploadScreenState
                           ),
                         ).copyWith(
                           backgroundColor:
-                              MaterialStateProperty.all(Colors.white),
+                              WidgetStateProperty.all(Colors.white),
                         ),
                         child: Text(
                           'Retake',
@@ -129,7 +129,7 @@ class _InterpolLetterUploadScreenState
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
                     ).copyWith(
-                      backgroundColor: MaterialStateProperty.all(Colors.white),
+                      backgroundColor: WidgetStateProperty.all(Colors.white),
                     ),
                     child: Text(
                       'Next: Selfie',

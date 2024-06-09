@@ -6,7 +6,6 @@ import 'package:caravan/services/trip_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
-import 'package:lottie/lottie.dart' as lottie;
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -272,18 +271,18 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
               ],
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              lottie.Lottie.asset(
-                'assets/lottie.json', // Your Lottie animation file
-                width: 50,
-                height: 50,
-              ),
-              const SizedBox(width: 10),
-              const Text('Trip in progress', style: TextStyle(fontSize: 16)),
-            ],
-          ),
+          // const Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     // lottie.Lottie.asset(
+          //     //   'assets/lottie.json', // Your Lottie animation file
+          //     //   width: 50,
+          //     //   height: 50,
+          //     // ),
+          //     SizedBox(width: 10),
+          //     Text('Trip in progress', style: TextStyle(fontSize: 16)),
+          //   ],
+          // ),
           Expanded(
             child: ListView.builder(
               itemCount: requests.length,

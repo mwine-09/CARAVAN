@@ -14,7 +14,6 @@ import 'package:caravan/screens/tabs/history.dart';
 import 'package:caravan/screens/more%20screens/welcome_screen.dart';
 import 'package:caravan/screens/tabs/main_scaffold.dart';
 import 'package:caravan/screens/more%20screens/profile.dart';
-import 'package:caravan/screens/wrapper.dart';
 import 'package:caravan/services/location_service.dart';
 import 'package:caravan/splash_screen.dart';
 import 'package:flutter/material.dart';

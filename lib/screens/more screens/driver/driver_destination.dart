@@ -1,4 +1,3 @@
-import 'package:caravan/models/request.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/screens/more%20screens/driver/driver_startpoint.dart';
