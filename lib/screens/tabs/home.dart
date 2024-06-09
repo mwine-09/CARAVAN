@@ -2,8 +2,9 @@
 
 // import 'dart:html';
 
-import 'package:caravan/components/mytextfield.dart';
+import 'package:caravan/components/promo_card.dart';
 import 'package:caravan/components/wallet_widget.dart';
+import 'package:caravan/credentials.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/models/wallet.dart';
 import 'package:caravan/providers/notification_provider.dart';
@@ -15,10 +16,18 @@ import 'package:caravan/screens/more%20screens/payments/payment_screen.dart';
 
 import 'package:caravan/screens/more%20screens/request_sent.dart';
 import 'package:caravan/services/payment_service.dart';
+import 'package:caravan/services/secure_storage.dart';
+import 'package:caravan/services/wallet_management.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 // import 'package:caravan/screens/more%20screens/notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
+
+Logger logger = Logger();
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -38,6 +47,20 @@ class _HomeState extends State<Home> {
 
     int unreadNotificationsCount =
         notificationProvider.unreadNotificationsCount;
+    final TextEditingController pinController = TextEditingController();
+
+    void savePin() async {
+      String pin = pinController.text;
+      if (pin.length == 4) {
+        await SecureStorageService().writeSecureData('userPin', pin);
+        Navigator.pop(context);
+      } else {
+        // Show an error
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('PIN must be 4 digits')),
+        );
+      }
+    }
 
     UserProfile userProfile = context.watch<UserProfileProvider>().userProfile;
     if (userProfile.userID == null) {
@@ -47,6 +70,9 @@ class _HomeState extends State<Home> {
     }
 
     String username = userProfile.username ?? 'User';
+
+    logger.e(
+        "This is the wallet balance from the home screen: ${userProfile.wallet?.balance}");
 
     return Scaffold(
       appBar: AppBar(
@@ -120,7 +146,7 @@ class _HomeState extends State<Home> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Column(
             children: [
-              SingleCard(wallet: userProfile.wallet ?? Wallet(0.0)),
+              WalletWidget(wallet: userProfile.wallet ?? Wallet(balance: 0.0)),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -154,7 +180,7 @@ class _HomeState extends State<Home> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'My previous trips',
+                  'Promos',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.white,
                         fontSize: 18,
@@ -163,48 +189,14 @@ class _HomeState extends State<Home> {
                 ),
               ),
               const SizedBox(height: 15),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                child: SizedBox(
-                  width: 380,
-                  height: 100,
-                  child: Flex(
-                    direction: Axis.horizontal,
-                    children: [
-                      // generate 3 blank cards with a height 50 and the same width
-                      Flexible(
-                        child: Container(
-                          // height: 100,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 36, 36, 36),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Container(
-                          // height: 100,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 36, 36, 36),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Container(
-                          // height: 100,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 36, 36, 36),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              const Flexible(
+                child: PromoCard(
+                  title: "Nzuri vibes",
+                  description: "Experience Kampala Lifestyle",
+                  imageUrl:
+                      'https://res.cloudinary.com/hz3gmuqw6/image/upload/c_fill,f_auto,q_60,w_750/v1/goldenapron/6244b2d8ab2d5',
                 ),
-              ),
+              )
             ],
           ),
         ),
@@ -270,21 +262,26 @@ class _MyCardState extends State<MyCard> {
   }
 }
 
-class SingleCard extends StatefulWidget {
-  const SingleCard({super.key, required this.wallet});
+class WalletWidget extends StatefulWidget {
+  const WalletWidget({super.key, required this.wallet});
   final Wallet wallet;
 
   @override
-  _SingleCardState createState() => _SingleCardState();
+  _WalletWidgetState createState() => _WalletWidgetState();
 }
 
-PaymentService _paymentService = PaymentService();
+final _paymentService = PaymentService(
+  clientId: clientId,
+  secret: secret,
+);
 
-class _SingleCardState extends State<SingleCard> {
+class _WalletWidgetState extends State<WalletWidget> {
   bool _isBalanceVisible = false;
   // final TextEditingController _controller = TextEditingController();
   final String _selectedCountryCode = '+256';
   final TextEditingController _phoneNumberController = TextEditingController();
+
+  UserProfileProvider userProfileProvider = UserProfileProvider();
   final TextEditingController _amountController = TextEditingController();
   void _toggleBalanceVisibility() {
     setState(() {
@@ -294,6 +291,7 @@ class _SingleCardState extends State<SingleCard> {
 
   @override
   Widget build(BuildContext context) {
+    String? errorMessage;
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       color: const Color.fromARGB(255, 36, 36, 36),
@@ -326,16 +324,44 @@ class _SingleCardState extends State<SingleCard> {
                         (Widget child, Animation<double> animation) {
                       return FadeTransition(opacity: animation, child: child);
                     },
-                    child: Text(
-                      _isBalanceVisible
-                          ? 'UGX ${widget.wallet.balance}'
-                          : 'UGX ******',
-                      key: ValueKey<bool>(_isBalanceVisible),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2),
+                    child: GestureDetector(
+                      onTap: () async {
+                        String? storedPin = await SecureStorageService()
+                            .readSecureData('userPin');
+
+                        if (userProfileProvider.userProfile.pin == null &&
+                            storedPin == null) {
+                          showPinSetupBottomSheet(context, (pin) {
+                            // Save the pin to the user's profile or secure storage
+                            // Example:
+                            userProfileProvider.userProfile.pin = pin;
+                            // Or store the pin in secure storage
+                            SecureStorageService()
+                                .writeSecureData('userPin', pin);
+                          });
+
+                          return;
+                        }
+
+                        if (!_isBalanceVisible) {
+                          showPinVerificationBottomSheet(
+                            context,
+                            userProfileProvider.userProfile.pin,
+                            _toggleBalanceVisibility,
+                          );
+                        }
+                      },
+                      child: Text(
+                        _isBalanceVisible
+                            ? 'UGX ${widget.wallet.balance}'
+                            : 'UGX ******',
+                        key: ValueKey<bool>(_isBalanceVisible),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2),
+                      ),
                     ),
                   ),
                 ),
@@ -385,7 +411,9 @@ class _SingleCardState extends State<SingleCard> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const PaymentHistoryScreen()),
+                          builder: (context) => TransactionHistoryScreen(
+                                userId: FirebaseAuth.instance.currentUser!.uid,
+                              )),
                     );
                   },
                 ),
@@ -399,12 +427,16 @@ class _SingleCardState extends State<SingleCard> {
   }
 
   void _showDepositBottomSheet(BuildContext context) {
+    bool isError = false;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
         return Padding(
           padding: EdgeInsets.only(
+            top: 20.0,
+            left: 20.0,
+            right: 20.0,
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Container(
@@ -413,54 +445,133 @@ class _SingleCardState extends State<SingleCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Deposit',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                Center(
+                  child: Text(
+                    'Deposit',
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    Text("256",
+                    Text(_selectedCountryCode,
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             color: const Color.fromARGB(255, 0, 0, 0),
                             fontWeight: FontWeight.bold,
                             fontSize: 16)),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: MyTextField(
-                        backgroundColor: const Color.fromARGB(95, 95, 95, 95),
-                        label: "Phone number",
+                      child: TextField(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color.fromARGB(95, 95, 95, 95),
+                          labelText: "Phone number",
+                          labelStyle: const TextStyle(
+                            color: Color.fromARGB(255, 0, 0, 0),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 0, 0, 0),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 0, 0, 0),
+                            ),
+                          ),
+                        ),
                         controller: _phoneNumberController,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 9,
                       ),
                     ),
                   ],
                 ),
+                const Divider(thickness: 1.0),
                 const SizedBox(height: 20),
-                MyTextField(
-                  backgroundColor: const Color.fromARGB(95, 106, 106, 106),
-                  label: "Amount",
+                TextField(
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color.fromARGB(95, 106, 106, 106),
+                    labelText: "Amount",
+                    labelStyle: const TextStyle(
+                      color: Color.fromARGB(255, 0, 0, 0),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                      ),
+                    ),
+                    errorText:
+                        isError ? 'Amount must be greater than 2000' : null,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                      ),
+                    ),
+                  ),
                   controller: _amountController,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      if (double.tryParse(value) != null &&
+                          double.parse(value) <= 2000) {
+                        isError = true;
+                      } else {
+                        isError = false;
+                      }
+                    });
+                  },
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      double amount = double.parse(_amountController.text);
-                      await _paymentService.deposit(amount);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Deposit successful!')),
-                      );
-                      Navigator.pop(context);
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Deposit failed: $e')),
-                      );
-                    }
-                  },
-                  child: const Text('Confirm'),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        double amount = double.parse(_amountController.text);
+                        String phonenumber =
+                            '256${_phoneNumberController.text}';
+                        await _paymentService.deposit(
+                            amount: amount,
+                            phone: phonenumber,
+                            reference: "Top up",
+                            reason: "Deposit to my account");
+
+                        await _paymentService.updateWallet(amount, 'deposit');
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Deposit successful!')),
+                        );
+                        Navigator.pop(context);
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Deposit failed: $e')),
+                        );
+                      }
+                      _amountController.clear();
+                      _phoneNumberController.clear();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(
+                          255, 0, 0, 0), // Adjust color as needed
+                    ),
+                    child: const Text(
+                      'Confirm',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -471,6 +582,7 @@ class _SingleCardState extends State<SingleCard> {
   }
 
   void _showWithdrawBottomSheet(BuildContext context) {
+    bool isError = false;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -495,32 +607,97 @@ class _SingleCardState extends State<SingleCard> {
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    Text("256",
+                    Text(_selectedCountryCode,
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             color: const Color.fromARGB(255, 0, 0, 0),
                             fontWeight: FontWeight.bold,
                             fontSize: 16)),
                     const SizedBox(width: 10),
                     Expanded(
-                        child: MyTextField(
-                      backgroundColor: const Color.fromARGB(95, 95, 95, 95),
-                      label: "Phone number",
-                      controller: _phoneNumberController,
-                    )),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color.fromARGB(95, 95, 95, 95),
+                          labelText: "Phone number",
+                          labelStyle: const TextStyle(
+                            color: Color.fromARGB(255, 0, 0, 0),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 0, 0, 0),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 0, 0, 0),
+                            ),
+                          ),
+                        ),
+                        controller: _phoneNumberController,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 9,
+                      ),
+                    ),
                   ],
                 ),
+                const Divider(thickness: 1.0),
                 const SizedBox(height: 20),
-                MyTextField(
-                  backgroundColor: const Color.fromARGB(95, 106, 106, 106),
-                  label: "Amount",
+                TextField(
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color.fromARGB(95, 106, 106, 106),
+                    labelText: "Amount",
+                    labelStyle: const TextStyle(
+                      color: Color.fromARGB(255, 0, 0, 0),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                      ),
+                    ),
+                    errorText:
+                        isError ? 'Amount must be greater than 2000' : null,
+                  ),
                   controller: _amountController,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      if (double.tryParse(value) != null &&
+                          double.parse(value) <= 2000) {
+                        isError = true;
+                      } else {
+                        isError = false;
+                      }
+                    });
+                  },
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
                     try {
                       double amount = double.parse(_amountController.text);
-                      await _paymentService.withdraw(amount);
+                      String phonenumber = '256${_phoneNumberController.text}';
+
+                      await _paymentService.payout(
+                        amount: amount,
+                        phone: phonenumber,
+                        reference: "Withdraw",
+                      );
+                      await _paymentService.updateWallet(amount, 'withdraw');
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Withdrawal successful!')),
                       );
@@ -529,7 +706,11 @@ class _SingleCardState extends State<SingleCard> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Withdrawal failed: $e')),
                       );
+
+                      Navigator.pop(context);
                     }
+                    _amountController.clear();
+                    _phoneNumberController.clear();
                   },
                   child: const Text('Confirm'),
                 ),

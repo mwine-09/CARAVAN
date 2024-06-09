@@ -1,5 +1,6 @@
 import 'package:caravan/models/emergency_contact.dart';
 import 'package:caravan/models/wallet.dart';
+import 'package:caravan/providers/chat_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserProfile {
@@ -18,6 +19,7 @@ class UserProfile {
   List<EmergencyContact>? emergencyContacts;
   bool isDriver;
   String? photoUrl;
+  String? pin;
 
   UserProfile({
     this.userID,
@@ -30,6 +32,7 @@ class UserProfile {
     this.carBrand,
     this.make,
     this.numberPlate,
+    this.pin,
     this.phoneNumber,
     this.preferences,
     this.emergencyContacts,
@@ -48,6 +51,7 @@ class UserProfile {
     data['wallet'] = wallet?.toJson();
     data['age'] = age;
     data['carBrand'] = carBrand;
+    data['pin'] = pin;
     data['photoUrl'] = photoUrl;
     data['make'] = make;
     data['isDriver'] = isDriver;
@@ -62,11 +66,8 @@ class UserProfile {
 
   // from snapshot
   factory UserProfile.fromSnapshot(DocumentSnapshot snapshot) {
-    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    final Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     Wallet? wallet;
-    if (data.containsKey('wallet')) {
-      wallet = Wallet.fromJson(data['wallet']);
-    }
     return UserProfile(
       userID: snapshot.id,
       username: data['username'],
@@ -74,7 +75,8 @@ class UserProfile {
       lastName: data['lastName'],
       email: data['email'],
       age: data['age'],
-      wallet: wallet,
+      pin: data['pin'],
+      wallet: data.containsKey('wallet') ? wallet : null,
       carBrand: data['carBrand'],
       make: data['make'],
       photoUrl: data['profilePicture'],

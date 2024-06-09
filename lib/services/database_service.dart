@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:caravan/models/request.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/models/wallet.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -186,39 +187,91 @@ class DatabaseService {
     }
   }
 
-  Future<UserProfile> getUserProfile(String userId) {
+  Future<UserProfile> getUserProfile(String userId) async {
     logger.i("Getting user profile for user id $userId");
-    return checkAndCreateWalletCollection().then((_) {
-      return _firestore.collection('users').doc(userId).get().then((snapshot) {
-        // logger.i("${snapshot.data()} is the snapshot data");
+
+    try {
+      await checkAndCreateWalletCollection(userId);
+      DocumentSnapshot snapshot =
+          await _firestore.collection('users').doc(userId).get();
+
+      if (snapshot.exists) {
         return UserProfile.fromSnapshot(snapshot);
-      }).catchError((e) {
-        // logger.i('Error getting user profile: $e');
-        throw e;
-      });
-    });
+      } else {
+        throw Exception("User not found");
+      }
+    } catch (e) {
+      logger.e('Error getting user profile: $e');
+      rethrow;
+    }
   }
 
-  Future<void> checkAndCreateWalletCollection() async {
+  Future<void> checkAndCreateWalletCollection(String uid) async {
     try {
       DocumentSnapshot snapshot = await _firestore
           .collection('users')
-          .doc(user!.uid)
+          .doc(uid)
           .collection('wallet')
           .doc('balance')
           .get();
+
+      logger.e('Checking and creating wallet collection $snapshot');
       if (!snapshot.exists) {
+        logger.i('Creating wallet collection for user $uid');
+
         await _firestore
             .collection('users')
-            .doc(user!.uid)
+            .doc(uid)
             .collection('wallet')
             .doc('balance')
             .set({
           'balance': 0,
         });
       }
+      logger.i('Wallet collection exists for user $uid');
+      //log their wallet balancem
+      DocumentSnapshot balanceSnapshot = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('wallet')
+          .doc('balance')
+          .get();
+
+      double walletBalance = 0;
+      if (balanceSnapshot.exists && balanceSnapshot.data() != null) {
+        Map<String, dynamic>? balanceData =
+            balanceSnapshot.data() as Map<String, dynamic>?;
+        if (balanceData != null && balanceData.containsKey('balance')) {
+          // walletBalance = balanceData['balance'];
+          walletBalance = (balanceData['balance'] as num).toDouble();
+          logger.i('Wallet balance: $walletBalance');
+        }
+      }
     } catch (e) {
       logger.i('Error checking and creating wallet collection: $e');
+      rethrow;
+    }
+  }
+
+// function that returns a users wallet
+  Future<Wallet> getUserWallet(String userId) async {
+    try {
+      DocumentSnapshot snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('wallet')
+          .doc('balance')
+          .get();
+
+      if (snapshot.exists) {
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        double balance = data['balance'];
+        return Wallet(balance: balance);
+      } else {
+        throw Exception('User wallet not found');
+      }
+    } catch (e) {
+      logger.i('Error getting user wallet: $e');
       rethrow;
     }
   }

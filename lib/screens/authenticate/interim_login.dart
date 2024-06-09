@@ -1,4 +1,5 @@
 import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/models/wallet.dart';
 import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/notification_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
@@ -8,6 +9,8 @@ import 'package:caravan/screens/authenticate/email_register.dart';
 import 'package:caravan/screens/more%20screens/complete_profile.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +30,8 @@ class _MyLoginState extends State<MyLogin> {
   late String email;
   late String password;
   String errorMessage = ''; // Add this variable to hold the error message
+
+  final _firestore = FirebaseFirestore.instance;
 
   bool isValidEmail(String email) {
     // Use a regular expression to check if the email is in a valid format
@@ -245,6 +250,21 @@ class _MyLoginState extends State<MyLogin> {
 
                                 UserProfile profile = await DatabaseService()
                                     .getUserProfile(user.uid);
+
+                                DocumentSnapshot balanceSnapshot =
+                                    await _firestore
+                                        .collection('users')
+                                        .doc(FirebaseAuth
+                                            .instance.currentUser!.uid)
+                                        .collection('wallet')
+                                        .doc('balance')
+                                        .get();
+                                profile.wallet = Wallet(balance: 0.0);
+                                profile.wallet?.balance =
+                                    balanceSnapshot['balance'];
+                                logger.d(
+                                    'Wallet balance from the login screen: ${userProfile.wallet?.balance}');
+
                                 userProfileProvider.saveUserProfile(profile);
                                 chatProvider.reset();
                                 chatProvider.listenToChatrooms(user.uid);
@@ -261,9 +281,8 @@ class _MyLoginState extends State<MyLogin> {
                                       "Logged in as ${user.displayName}",
                                     ),
                                     action: SnackBarAction(
-                                      backgroundColor: Colors.black87,
                                       textColor: Colors.white,
-                                      label: 'OK',
+                                      label: 'Close',
                                       onPressed: () {
                                         ScaffoldMessenger.of(context)
                                             .hideCurrentSnackBar();

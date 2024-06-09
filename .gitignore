@@ -42,3 +42,21 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/node_modules/
+
+# node_modules in functions directory
+functions/node_modules/
+
+
+# credentials.dart file in /lib
+/lib/credentials.dart
+
+# eslint.config.js file in /lib
+eslint.config.js
+ 
+
+# mwine.dart in the root directory
+mwine.dart
+mwine3.dart
+
+
