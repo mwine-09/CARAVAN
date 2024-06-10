@@ -32,6 +32,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
   late PolylineResult polylineResult;
   late List<LatLng> polylineCoordinates = [];
   static Map<PolylineId, Polyline> polylines = {};
+  ScrollController scrollController = ScrollController();
 
   late String pickUpLocationQuery = '';
   var locationSuggestions = [];
@@ -54,7 +55,7 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
   void initState() {
     super.initState();
     locationProvider = Provider.of<LocationProvider>(context, listen: false);
-    logger.i('Location Provider: ${locationProvider.currentPosition}');
+    logger.i('Location Provider: ${locationProvider.currentPositionName}');
     pickupLocation = locationProvider.currentPositionName ?? '';
     updateMap(widget.tripRequest.pickupCoordinates!,
         widget.tripRequest.pickupCoordinates!);
@@ -399,66 +400,24 @@ class _PickupLocationScreenState extends State<PickupLocationScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          SizedBox(
-                            height: 200,
+
+                          // location suggestions
+                          Expanded(
                             child: ListView.builder(
+                              controller: scrollController,
                               itemCount: locationSuggestions.length,
-                              itemBuilder: (context, index) {
-                                return GestureDetector(
+                              itemBuilder: (BuildContext context, int index) {
+                                return ListTile(
+                                  title: Text(locationSuggestions[index]),
                                   onTap: () {
                                     setState(() {
+                                      pickupLocation =
+                                          locationSuggestions[index];
                                       pickupFieldController.text =
-                                          locationSuggestions[index]
-                                              ['description'];
-                                      pickupCoordinates = LatLng(
-                                          locationSuggestions[index]['lat'],
-                                          locationSuggestions[index]['lng']);
-                                      locationSuggestions = [];
-                                      logger.d(
-                                          'picked: $pickupCoordinates, name: $pickupLocation');
-                                      widget.tripRequest.pickupCoordinates =
-                                          pickupCoordinates;
-                                      updateMap(
-                                          pickupCoordinates,
-                                          widget.tripRequest
-                                              .destinationCoordinates!);
+                                          locationSuggestions[index];
+                                      isChooseCustomPickUp = false;
                                     });
                                   },
-                                  child: Container(
-                                    margin: const EdgeInsets.only(bottom: 10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 10),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.location_on,
-                                          color: Colors.black,
-                                        ),
-                                        const SizedBox(
-                                          width: 16,
-                                        ),
-                                        Flexible(
-                                          child: Text(
-                                            locationSuggestions[index]
-                                                ['description'],
-                                            style: theme.textTheme.bodyLarge!
-                                                .copyWith(
-                                                    color: Colors.black,
-                                                    letterSpacing: 0.5),
-                                            softWrap: true,
-                                            overflow: TextOverflow.visible,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 );
                               },
                             ),

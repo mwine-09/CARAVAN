@@ -71,6 +71,8 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   lottie: ^3.0.0
   flutter_secure_storage: ^9.2.2
+  slide_to_act: ^2.0.2
+  uuid: ^4.4.0
 
 flutter_icons:
   android: true

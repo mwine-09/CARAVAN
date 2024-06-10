@@ -1,19 +1,24 @@
 import 'dart:math';
 
 import 'package:caravan/models/chat_room.dart';
+
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/providers/chat_provider.dart';
+import 'package:caravan/providers/ongoingtrip.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/more%20screens/location_tracking_map.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
 
+import 'package:caravan/services/location_service.dart';
+
 import 'package:caravan/screens/more%20screens/view_requests.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
@@ -32,15 +37,30 @@ class TripDetailsScreen extends StatefulWidget {
 class _TripDetailsScreenState extends State<TripDetailsScreen> {
   late GoogleMapController mapController;
   Map<PolylineId, Polyline> polylines = {};
+  final Set<Polyline> onGoingPolylines = {};
+  LocationService locationService = LocationService.getInstance();
+
   Map<MarkerId, Marker> markers = {};
   static LatLng _center = const LatLng(0, 0);
 
-  String startTripButton = "Start Trip";
+  late TripDetailsProvider tripProvider;
+  late Trip trip;
+
+  late bool isTripOngoing;
+
+  void toggleIsTripOnGoing() {
+    setState(() {
+      isTripOngoing = !isTripOngoing;
+    });
+  }
 
   @override
-  void initState() {
-    super.initState();
-    print("TripDetailsScreen initialized");
+  void didChangeDependencies() {
+    tripProvider = Provider.of<TripDetailsProvider>(context);
+    trip = tripProvider.tripDetails!;
+    isTripOngoing = trip.tripStatus == TripStatus.started;
+
+    super.didChangeDependencies();
   }
 
   @override
@@ -48,8 +68,10 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
     ChatProvider chatProvider = Provider.of<ChatProvider>(context);
     UserProfileProvider userProfileProvider =
         Provider.of<UserProfileProvider>(context);
-    final tripProvider = Provider.of<TripDetailsProvider>(context);
-    final Trip trip = tripProvider.tripDetails!;
+
+    OnGoingTripDetailsProvider onGoingTripDetailsProvider =
+        Provider.of<OnGoingTripDetailsProvider>(context);
+
     String? selectedDriverName = widget.userProfile!.username ?? "Unknown user";
     return Scaffold(
       backgroundColor: Colors.black,
@@ -294,33 +316,38 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
+                              onPressed: () async {
+                                logger.i(
+                                    "Trip status: ${trip.tripStatus} and flag isTripOngoing: $isTripOngoing");
+                                if (isTripOngoing) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => LocationTrackingMap(
+                                        tripId: trip.getId!,
+                                        polylines: onGoingTripDetailsProvider
+                                            .onGoingTripPolylineSet!,
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                try {
+                                  Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => LocationTrackingMap(
                                         tripId: trip.getId!,
                                       ),
-                                    ));
+                                    ),
+                                  );
+                                  // Notify the passengers of the trip
+                                } catch (e) {
+                                  Navigator.pop(context);
 
-                                // change the status of the trip from to started
-                                // tripProvider.updateTripStatus(
-                                //     trip.id!, TripStatus.started);
-
-                                // DatabaseService().sendNotification(
-                                //     trip.createdBy!,
-                                //     "alert",
-                                //     "Trip to ${trip.destination} by ${trip.driver!.username} has started");
-
-                                // notify the passengers that supposed to be in that trip
-
-                                // Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (context) =>
-                                //             LocationTrackingMap(
-                                //               tripId: trip.id!,
-                                //             )));
+                                  // Handle the error appropriately, e.g., show an error message to the user
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor:
@@ -329,9 +356,9 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(5)),
                                   )),
-                              child: Text(
-                                startTripButton,
-                                style: const TextStyle(
+                              child: const Text(
+                                "See Route",
+                                style: TextStyle(
                                   color: Color.fromARGB(255, 0, 0, 0),
                                   fontSize: 16,
                                 ),

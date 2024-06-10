@@ -3,7 +3,6 @@ import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/services/database_service.dart';
-import 'package:caravan/services/directions_service.dart';
 import 'package:caravan/services/location_service.dart';
 import 'package:caravan/services/trip_service.dart';
 import 'package:flutter/material.dart';
@@ -11,38 +10,35 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-class LocationTrackingMap extends StatefulWidget {
+class OnGoingTripScreen extends StatefulWidget {
   final String tripId;
   Set<gmaps.Polyline>? polylines;
-
-  LocationTrackingMap({super.key, required this.tripId, this.polylines});
+  OnGoingTripScreen({super.key, required this.tripId, this.polylines});
 
   @override
-  _LocationTrackingMapState createState() => _LocationTrackingMapState();
+  _OnGoingTripScreenState createState() => _OnGoingTripScreenState();
 }
 
-class _LocationTrackingMapState extends State<LocationTrackingMap>
+class _OnGoingTripScreenState extends State<OnGoingTripScreen>
     with SingleTickerProviderStateMixin {
   final TripService _tripService = TripService();
   gmaps.GoogleMapController? _mapController;
-  bool isLoading = false;
   Position? _currentPosition;
   gmaps.Marker? _currentMarker;
   late LocationProvider locationProvider;
   final PanelController _panelController = PanelController();
   Set<gmaps.Marker> markers = {};
-  final Set<gmaps.Polyline> _polylines = {};
+  Set<gmaps.Polyline> _polylines = {};
   LocationService locationService = LocationService.getInstance();
-  late bool isTripStarted;
+  bool isTripStarted = false;
   gmaps.BitmapDescriptor? carIcon;
   gmaps.BitmapDescriptor? pickupIcon;
   DatabaseService dbservice = DatabaseService();
   late TripDetailsProvider tripProvider;
-  late Trip trip;
+
   late AnimationController _animationController;
   double _sliderValue = 0.0;
 
@@ -54,8 +50,10 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
 
   void _onSliderEnd() {
     if (_sliderValue == 100.0) {
+      // Start the trip
       _startTrip();
     } else {
+      // Reset the slider
       setState(() {
         _sliderValue = 0.0;
       });
@@ -68,10 +66,10 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
     setState(() {
       isTripStarted = true;
     });
+    // Logic to start the trip
     tripProvider.updateTripStatus(trip.getId!, TripStatus.started);
-    // Notify the creator of the trip
-    DatabaseService().sendNotification(trip.createdBy!, "alert",
-        "Trip to ${trip.destination} by ${trip.driver!.username} has started");
+
+    // Navigate to the trip tracking screen or perform any other action
   }
 
   void _setCustomMarkerIcon() async {
@@ -93,26 +91,18 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
   @override
   void initState() {
     super.initState();
-    tripProvider = Provider.of<TripDetailsProvider>(context, listen: false);
-    trip = tripProvider.availableTrips
-        .firstWhere((trip) => trip.getId == widget.tripId);
-
-    isTripStarted = trip.getTripStatus == TripStatus.started;
-    locationProvider = Provider.of<LocationProvider>(context, listen: false);
-
+    // Trip trip = Provider.of<TripDetailsProvider>(context, listen: false)
+    //     .availableTrips
+    //     .firstWhere((trip) => trip.getId == widget.tripId);
+    _polylines = widget.polylines ?? {};
     _setCustomMarkerIcon();
     _setPickupMarkerIcon();
     _tripService.startLocationUpdates(_onLocationUpdate);
-    _getDirections();
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   @override
@@ -125,6 +115,7 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
   void _onLocationUpdate(Position position) {
     setState(() {
       _currentPosition = position;
+      _polylines = widget.polylines ?? {};
 
       _currentMarker = gmaps.Marker(
         markerId: const gmaps.MarkerId('currentLocation'),
@@ -144,13 +135,13 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
 
       markers.add(_currentMarker!);
 
+      tripProvider = Provider.of<TripDetailsProvider>(context, listen: false);
       Trip trip = tripProvider.availableTrips
           .firstWhere((trip) => trip.getId == widget.tripId);
       List<Request> requests = trip.getRequests ?? [];
 
       for (Request request in requests) {
-        if (request.pickupCoordinates != null &&
-            request.destinationCoordinates != null) {
+        if (request.pickupCoordinates != null) {
           gmaps.Marker pickupMarker = gmaps.Marker(
             markerId: gmaps.MarkerId('pickup_${request.passengerId}'),
             position: request.destinationCoordinates!,
@@ -161,87 +152,10 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
                 gmaps.BitmapDescriptor.defaultMarkerWithHue(
                     gmaps.BitmapDescriptor.hueYellow),
           );
-
-          // Add the pickup marker to the map for pickup location
-          gmaps.Marker destinationMarker = gmaps.Marker(
-            markerId: gmaps.MarkerId(const Uuid().v4().toString()),
-            position: request.destinationCoordinates!,
-            infoWindow: gmaps.InfoWindow(
-              title: request.destinationLocationName,
-            ),
-            icon: pickupIcon ??
-                gmaps.BitmapDescriptor.defaultMarkerWithHue(
-                    gmaps.BitmapDescriptor.hueGreen),
-          );
-
           markers.add(pickupMarker);
-          markers.add(destinationMarker);
         }
       }
     });
-  }
-
-  Future<void> _getDirections() async {
-    final directionsService = DirectionsService();
-    List<String> waypoints = [];
-    for (Request request in trip.requests!) {
-      waypoints.add(request.destinationLocationName!);
-      waypoints.add(request.pickupLocationName!);
-    }
-
-    List<String> sortedWaypoints = await locationService.sortWaypoints(
-        trip.location!, waypoints, trip.destination!);
-    final directions = await directionsService.getDirections(
-      origin: trip.location!,
-      waypoints: sortedWaypoints,
-      destination: trip.destination!,
-    );
-
-    if (directions != null) {
-      final polylinePoints =
-          directions['routes'][0]['overview_polyline']['points'];
-      final decodedPoints = _decodePolyline(polylinePoints);
-
-      setState(() {
-        _polylines.add(Polyline(
-          polylineId: const PolylineId('overview_polyline'),
-          points: decodedPoints,
-          color: Colors.blue,
-          width: 5,
-        ));
-      });
-    }
-  }
-
-  List<LatLng> _decodePolyline(String encoded) {
-    List<LatLng> points = [];
-    int index = 0, len = encoded.length;
-    int lat = 0, lng = 0;
-
-    while (index < len) {
-      int b, shift = 0, result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lng += dlng;
-
-      points.add(LatLng(lat / 1E5, lng / 1E5));
-    }
-
-    return points;
   }
 
   @override
@@ -252,36 +166,59 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
     Trip trip = tripProvider.availableTrips
         .firstWhere((trip) => trip.getId == widget.tripId);
 
-    isTripStarted = trip.getTripStatus == TripStatus.started;
+    List<Polyline> polylineList = _polylines.toList();
+
+    Polyline firstPolyline = polylineList.first;
+    Polyline lastPolyline = polylineList.last;
+    markers.add(
+      gmaps.Marker(
+        markerId: const gmaps.MarkerId('startLocation'),
+        infoWindow: const gmaps.InfoWindow(title: "Start point"),
+        position: firstPolyline.points.first,
+        icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
+            gmaps.BitmapDescriptor.hueGreen),
+      ),
+    );
+
+    markers.add(
+      gmaps.Marker(
+        markerId: const gmaps.MarkerId('endLocation'),
+        position: lastPolyline.points.last,
+        infoWindow: const gmaps.InfoWindow(title: "Destination"),
+        icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
+            gmaps.BitmapDescriptor.hueRed),
+      ),
+    );
 
     return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          leading: Container(
-            margin: const EdgeInsets.only(left: 15),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 10.0,
-                  spreadRadius: 0.5,
-                  offset: Offset(0.7, 0.7),
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              color: const Color.fromARGB(255, 0, 0, 0),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        leading: Container(
+          margin: const EdgeInsets.only(left: 15),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10.0,
+                spreadRadius: 0.5,
+                offset: Offset(0.7, 0.7),
+              ),
+            ],
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            color: const Color.fromARGB(255, 0, 0, 0),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
         ),
-        body: Stack(children: [
+      ),
+      body: Stack(
+        children: [
           gmaps.GoogleMap(
             onMapCreated: (controller) {
               _mapController = controller;
@@ -323,7 +260,9 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
             maxHeight: MediaQuery.of(context).size.height * 0.8,
             panel: _buildPanelContent(trip),
           ),
-        ]));
+        ],
+      ),
+    );
   }
 
   Widget _buildPanelContent(Trip trip) {

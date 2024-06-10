@@ -24,45 +24,49 @@ class NotificationList extends StatelessWidget {
       itemCount: notifications.length,
       itemBuilder: (context, index) {
         final notification = notifications[index];
-        return ListTile(
-          title: Text(
-            notification.message,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
+        return Card(
+          elevation: 2,
+          color: const Color.fromARGB(255, 36, 36, 36),
+          child: ListTile(
+            title: Text(
+              notification.message,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
+            subtitle: Text(
+              notification.timestamp.toString(),
+              style: const TextStyle(fontSize: 13),
+            ),
+            trailing: notification.status == 'unread'
+                ? const Icon(
+                    Icons.new_releases_rounded,
+                    color: Colors.blueAccent,
+                  )
+                : null,
+            onTap: () async {
+              notificationProvider.markAsRead(
+                  notification, FirebaseAuth.instance.currentUser!);
+
+              var type = notification.getType;
+              logger.i(type);
+              logger.i(notification.requestId);
+              if (type == 'request') {
+                Request request = await DatabaseService()
+                    .getRequestById(notification.requestId!);
+                logger.d(request);
+
+                String tripId = request.tripId!;
+                logger.i("trip is is $tripId");
+
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ViewRequestsScreen(
+                              tripId: tripId,
+                            )));
+              }
+              // Handle notification tap
+            },
           ),
-          subtitle: Text(
-            notification.timestamp.toString(),
-            style: const TextStyle(fontSize: 13),
-          ),
-          trailing: notification.status == 'unread'
-              ? const Icon(
-                  Icons.new_releases_rounded,
-                  color: Colors.blueAccent,
-                )
-              : null,
-          onTap: () async {
-            notificationProvider.markAsRead(
-                notification, FirebaseAuth.instance.currentUser!);
-
-            var type = notification.getType;
-            logger.i(type);
-            logger.i(notification.requestId);
-            if (type == 'request') {
-              Request request = await DatabaseService()
-                  .getRequestById(notification.requestId!);
-              logger.d(request);
-
-              String tripId = request.tripId!;
-              logger.i("trip is is $tripId");
-
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ViewRequestsScreen(
-                            tripId: tripId,
-                          )));
-            }
-            // Handle notification tap
-          },
         );
       },
       separatorBuilder: (BuildContext context, int index) {

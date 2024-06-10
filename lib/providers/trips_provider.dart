@@ -1,17 +1,33 @@
 import 'package:caravan/models/trip.dart';
+import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/services/database_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 
 class TripDetailsProvider extends ChangeNotifier {
   Trip? _tripDetails;
   final List<Trip> _availableTrips = [];
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Set<gmaps.Polyline>? onGoingTripPolylines;
+
+  set onGoingTripPolylinesSet(Set<gmaps.Polyline> polylines) {
+    onGoingTripPolylines = polylines;
+    notifyListeners();
+  }
+
+  Set<gmaps.Polyline>? get onGoingTripPolylineSet => onGoingTripPolylines;
 
   Trip? get tripDetails => _tripDetails;
   List<Trip> get availableTrips => _availableTrips;
 
   TripDetailsProvider() {
+    logger.i("TripDetailsProvider initialized");
+    initializeTripsListener();
+  }
+
+  void initializeTripsListener() {
+    logger.i("Listening for trips");
     DatabaseService().fetchTrips().listen((trips) {
       _availableTrips.clear();
       _availableTrips.addAll(trips);
@@ -25,11 +41,7 @@ class TripDetailsProvider extends ChangeNotifier {
   }
 
   Future<void> updateTripStatus(String tripId, TripStatus status) async {
-    await _firestore.collection('trips').doc(tripId).update({
-      'tripStatus': status.toString().split('.').last,
-      'statusTimestamp':
-          DateTime.now().toIso8601String(), // Update timestamp to current time
-    });
+    DatabaseService().updateTripStatus(tripId, status);
 
     // If _tripDetails is not null and matches the tripId, update its status locally
     if (_tripDetails != null && _tripDetails!.id == tripId) {

@@ -105,10 +105,6 @@ class _UsernameScreenState extends State<UsernameScreen> {
                               email: widget.userProfile.email,
                             );
 
-                            print(
-                                "${widget.userProfile.username} ${widget.userProfile.email} ${widget.userProfile.userID}");
-                            print("User logged in successfully");
-
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(

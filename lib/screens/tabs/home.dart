@@ -188,7 +188,7 @@ class _HomeState extends State<Home> {
                       ),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 8),
               const Flexible(
                 child: PromoCard(
                   title: "Nzuri vibes",
@@ -329,16 +329,22 @@ class _WalletWidgetState extends State<WalletWidget> {
                         String? storedPin = await SecureStorageService()
                             .readSecureData('userPin');
 
-                        if (userProfileProvider.userProfile.pin == null &&
+                        if (userProfileProvider.userProfile.pin == null ||
                             storedPin == null) {
                           showPinSetupBottomSheet(context, (pin) {
                             // Save the pin to the user's profile or secure storage
                             // Example:
                             userProfileProvider.userProfile.pin = pin;
+
                             // Or store the pin in secure storage
                             SecureStorageService()
                                 .writeSecureData('userPin', pin);
                           });
+// snakbar feedback
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('PIN has been set successfully')),
+                          );
 
                           return;
                         }

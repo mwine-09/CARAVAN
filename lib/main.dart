@@ -5,6 +5,7 @@ import 'package:caravan/firebase_options.dart';
 import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/providers/notification_provider.dart';
+import 'package:caravan/providers/ongoingtrip.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
 
@@ -32,6 +33,7 @@ Future<void> main() async {
     ChangeNotifierProvider(create: (context) => ChatProvider()),
     ChangeNotifierProvider(create: (context) => UserProfileProvider()),
     ChangeNotifierProvider(create: (context) => NotificationProvider()),
+    ChangeNotifierProvider(create: (context) => OnGoingTripDetailsProvider()),
   ], child: const MyRideSharingApp()));
 }
 

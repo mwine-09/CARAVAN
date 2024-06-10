@@ -16,7 +16,7 @@ class NotificationProvider with ChangeNotifier {
   StreamSubscription? _notificationSubscription;
 
   NotificationProvider() {
-    _startListeningToNotifications();
+    startListeningToNotifications();
   }
 
   Stream<List<MyNotification>> getNotificationsStream(User? user) {
@@ -44,7 +44,7 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  void _startListeningToNotifications() {
+  void startListeningToNotifications() {
     User? user = FirebaseAuth.instance.currentUser;
     logger.i("Listening for notifications for $user");
     if (user != null) {

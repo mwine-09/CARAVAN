@@ -73,48 +73,61 @@ class DatabaseService {
         .snapshots()
         .asyncMap((snapshot) async {
       List<Trip> trips = [];
-      for (var doc in snapshot.docs) {
-        List<LatLng> polylinePoints = (doc['polylinePoints'] as List)
-            .map((point) => LatLng(point['latitude'], point['longitude']))
-            .toList();
-        Trip trip = Trip(
-          id: doc.id,
-          createdBy: doc['createdBy'],
-          location: doc['departure location'],
-          destination: doc['destination'],
-          availableSeats: doc['available seats'],
-          dateTime: (doc['departure time'] as Timestamp).toDate(),
-          tripStatus: TripStatus.values.firstWhere(
-              (e) => e.toString().split('.').last == doc['trip status']),
-          polylinePoints: polylinePoints,
-        );
+      try {
+        for (var doc in snapshot.docs) {
+          try {
+            List<LatLng> polylinePoints = (doc['polylinePoints'] as List)
+                .map((point) => LatLng(point['latitude'], point['longitude']))
+                .toList();
+            Trip trip = Trip(
+              id: doc.id,
+              createdBy: doc['createdBy'],
+              location: doc['departure location'],
+              destination: doc['destination'],
+              availableSeats: doc['available seats'],
+              dateTime: (doc['departure time'] as Timestamp).toDate(),
+              tripStatus: TripStatus.values.firstWhere(
+                  (e) => e.toString().split('.').last == doc['trip status']),
+              polylinePoints: polylinePoints,
+            );
 
-        logger.d("The status for trip ${doc.id} is ${trip.tripStatus}");
+            logger.d("The status for trip ${doc.id} is ${trip.tripStatus}");
 
-        UserProfile driverProfile = await getUserProfile(doc['createdBy']);
-        trip.driver = driverProfile;
+            // Fetch driver profile
+            UserProfile driverProfile = await getUserProfile(doc['createdBy']);
+            trip.driver = driverProfile;
 
-        // Check if the requests field exists
-        List<String> requestIds = [];
+            // Fetch requests for the trip
+            List<String> requestIds = List<String>.from(doc['requests']);
+            logger.i("Requests for trip ${doc.id}: $requestIds");
 
-        requestIds = List<String>.from(doc['requests']);
+            List<Request> requests = [];
+            if (requestIds.isNotEmpty) {
+              for (String requestId in requestIds) {
+                Request request = await getRequestById(requestId);
+                requests.add(request);
+              }
+            }
+            trip.requests = requests;
 
-        logger.i("Requests for trip ${doc.id}: $requestIds");
-
-        // Fetch requests for the trip
-        List<Request> requests = [];
-        if (requestIds.isNotEmpty) {
-          for (String requestId in requestIds) {
-            Request request = await getRequestById(requestId);
-            requests.add(request);
+            trips.add(trip);
+            logger.i("Check for null fields ${trip.getNullFields()}");
+          } catch (e) {
+            logger.e("Error processing trip document ${doc.id}: $e");
           }
         }
-        trip.requests = requests;
-
-        trips.add(trip);
-        logger.i("Check for null fields ${trip.getNullFields()}");
+      } catch (e) {
+        logger.e("Error fetching trips: $e");
       }
       return trips;
+    });
+  }
+
+  Future<void> updateTripStatus(String tripId, TripStatus status) async {
+    await _firestore.collection('trips').doc(tripId).update({
+      'trip status': status.toString().split('.').last,
+      'statusTimestamp':
+          DateTime.now().toIso8601String(), // Update timestamp to current time
     });
   }
 
@@ -151,22 +164,6 @@ class DatabaseService {
     } catch (e) {
       // Handle any errors
       logger.i('Error adding booking: $e');
-    }
-  }
-
-  // Add a new payment to the "payments" collection
-  Future<void> addPayment(String paymentId, String bookingId, double amount,
-      String paymentMethod, DateTime paymentTime) async {
-    try {
-      await _firestore.collection('payments').doc(paymentId).set({
-        'booking ID': bookingId,
-        'amount': amount,
-        'payment method': paymentMethod,
-        'payment time': paymentTime,
-      });
-    } catch (e) {
-      // Handle any errors
-      logger.i('Error adding payment: $e');
     }
   }
 
@@ -208,47 +205,33 @@ class DatabaseService {
 
   Future<void> checkAndCreateWalletCollection(String uid) async {
     try {
-      DocumentSnapshot snapshot = await _firestore
+      DocumentReference walletDocRef = _firestore
           .collection('users')
           .doc(uid)
           .collection('wallet')
-          .doc('balance')
-          .get();
+          .doc('balance');
 
-      logger.e('Checking and creating wallet collection $snapshot');
+      DocumentSnapshot snapshot = await walletDocRef.get();
+
       if (!snapshot.exists) {
         logger.i('Creating wallet collection for user $uid');
-
-        await _firestore
-            .collection('users')
-            .doc(uid)
-            .collection('wallet')
-            .doc('balance')
-            .set({
-          'balance': 0,
-        });
+        await walletDocRef.set({'balance': 0});
+      } else {
+        logger.i('Wallet collection exists for user $uid');
       }
-      logger.i('Wallet collection exists for user $uid');
-      //log their wallet balancem
-      DocumentSnapshot balanceSnapshot = await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('wallet')
-          .doc('balance')
-          .get();
 
-      double walletBalance = 0;
+      DocumentSnapshot balanceSnapshot = await walletDocRef.get();
+
       if (balanceSnapshot.exists && balanceSnapshot.data() != null) {
         Map<String, dynamic>? balanceData =
             balanceSnapshot.data() as Map<String, dynamic>?;
         if (balanceData != null && balanceData.containsKey('balance')) {
-          // walletBalance = balanceData['balance'];
-          walletBalance = (balanceData['balance'] as num).toDouble();
+          double walletBalance = (balanceData['balance'] as num).toDouble();
           logger.i('Wallet balance: $walletBalance');
         }
       }
     } catch (e) {
-      logger.i('Error checking and creating wallet collection: $e');
+      logger.e('Error checking and creating wallet collection: $e');
       rethrow;
     }
   }
@@ -532,17 +515,6 @@ class DatabaseService {
       logger.i('Error adding passenger to trip: $e');
     }
   }
-
-  // Future<void> addRequestToTrip(String tripId, String requestId) async {
-  //   try {
-  //     await _firestore.collection('trips').doc(tripId).update({
-  //       'requests': FieldValue.arrayUnion([requestId]),
-  //     });
-  //   } catch (e) {
-  //     // Handle any errors
-  //     logger.i('Error adding passenger to trip: $e');
-  //   }
-  // }
 
   Future<void> removePassengerFromTrip(String userId, String tripId) async {
     try {

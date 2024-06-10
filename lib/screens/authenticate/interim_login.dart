@@ -7,6 +7,7 @@ import 'package:caravan/providers/user_profile.provider.dart';
 
 import 'package:caravan/screens/authenticate/email_register.dart';
 import 'package:caravan/screens/more%20screens/complete_profile.dart';
+import 'package:caravan/screens/tabs/main_scaffold.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -55,7 +56,8 @@ class _MyLoginState extends State<MyLogin> {
     UserProfileProvider userProfileProvider =
         Provider.of(context, listen: false);
 
-    Provider.of<TripDetailsProvider>(context, listen: true);
+    final tripDetailsProvider =
+        Provider.of<TripDetailsProvider>(context, listen: true);
 
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
     final notificationProvider =
@@ -194,8 +196,7 @@ class _MyLoginState extends State<MyLogin> {
                         if (_formKey.currentState!.validate()) {
                           showDialog(
                             context: context,
-                            barrierDismissible:
-                                false, // Prevent dialog from being dismissed
+                            barrierDismissible: false,
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 titleTextStyle: Theme.of(context)
@@ -207,7 +208,7 @@ class _MyLoginState extends State<MyLogin> {
                                     ),
                                 backgroundColor: Colors.white,
                                 content: const Row(
-                                  children: <Widget>[
+                                  children: [
                                     CircularProgressIndicator(
                                       color: Colors.black,
                                     ),
@@ -220,91 +221,73 @@ class _MyLoginState extends State<MyLogin> {
                           );
 
                           try {
-                            await AuthService()
-                                .signInWithEmailAndPassword(email, password)
-                                .then((user) async {
-                              Navigator.pop(
-                                  context); // Close the loading dialog
+                            final user = await AuthService()
+                                .signInWithEmailAndPassword(email, password);
 
-                              if (user != null) {
-                                Provider.of<NotificationProvider>(context,
-                                    listen: false);
+                            if (user != null) {
+                              final userProfileProvider =
+                                  Provider.of<UserProfileProvider>(context,
+                                      listen: false);
 
-                                // Get email
-                                final userProfile = UserProfile();
-                                final userExists = await DatabaseService()
-                                    .checkIfUserExists(user.uid);
-                                if (!userExists) {
-                                  userProfile.completeProfile(
-                                      userID: user.uid,
-                                      email: email,
-                                      username: user.displayName);
+                              final userProfile = UserProfile();
+                              final userExists = await DatabaseService()
+                                  .checkIfUserExists(user.uid);
 
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => CompleteProfile(
-                                              userProfile: userProfile)));
-                                  return;
-                                }
+                              if (!userExists) {
+                                userProfile.completeProfile(
+                                  userID: user.uid,
+                                  email: email,
+                                  username: user.displayName,
+                                );
+                                Navigator.pop(
+                                    context); // Close the loading dialog
 
-                                UserProfile profile = await DatabaseService()
-                                    .getUserProfile(user.uid);
-
-                                DocumentSnapshot balanceSnapshot =
-                                    await _firestore
-                                        .collection('users')
-                                        .doc(FirebaseAuth
-                                            .instance.currentUser!.uid)
-                                        .collection('wallet')
-                                        .doc('balance')
-                                        .get();
-                                profile.wallet = Wallet(balance: 0.0);
-                                profile.wallet?.balance =
-                                    balanceSnapshot['balance'];
-                                logger.d(
-                                    'Wallet balance from the login screen: ${userProfile.wallet?.balance}');
-
-                                userProfileProvider.saveUserProfile(profile);
-                                chatProvider.reset();
-                                chatProvider.listenToChatrooms(user.uid);
-                                notificationProvider.resetProvider();
-                                notificationProvider
-                                    .getNotificationsStream(user);
-
-                                Navigator.pushReplacementNamed(
-                                    context, '/home');
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      "Logged in as ${user.displayName}",
-                                    ),
-                                    action: SnackBarAction(
-                                      textColor: Colors.white,
-                                      label: 'Close',
-                                      onPressed: () {
-                                        ScaffoldMessenger.of(context)
-                                            .hideCurrentSnackBar();
-                                      },
-                                    ),
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CompleteProfile(
+                                        userProfile: userProfile),
                                   ),
                                 );
-                              } else {
-                                // User is null, show error message
-                                setState(() {
-                                  errorMessage = 'Invalid email or password';
-                                });
+                                return;
                               }
-                            });
+
+                              UserProfile profile = await DatabaseService()
+                                  .getUserProfile(user.uid);
+                              userProfileProvider.saveUserProfile(profile);
+                              chatProvider.reset();
+                              chatProvider.listenToChatrooms(user.uid);
+                              notificationProvider.resetProvider();
+                              // notificationProvider.getNotificationsStream(user);
+                              notificationProvider
+                                  .startListeningToNotifications();
+
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const HomePage(tabDestination: 1)));
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text("Logged in as ${user.displayName}"),
+                                ),
+                              );
+                            } else {
+                              setState(() {
+                                errorMessage = 'Invalid email or password';
+                              });
+                            }
                           } catch (e) {
                             Navigator.pop(context); // Close the loading dialog
-                            // Show an error message
                             setState(() {
-                              errorMessage = e.toString();
+                              errorMessage =
+                                  'Invalid email or password. Please try again.';
                             });
 
-                            logger.d('Error signing in: $e');
+                            // Log the detailed error
+                            logger.e('Error signing in: $e');
                           }
                         }
                       },

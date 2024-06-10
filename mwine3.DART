@@ -1,194 +1,264 @@
-import 'package:caravan/models/user_profile.dart';
+import 'package:caravan/credentials.dart';
+import 'package:caravan/models/request.dart';
+import 'package:caravan/models/trip.dart';
+import 'package:caravan/providers/location_provider.dart';
+import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/services/database_service.dart';
+import 'package:caravan/services/location_service.dart';
+import 'package:caravan/services/trip_service.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:slide_to_act/slide_to_act.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-class ViewRequestsScreen extends StatefulWidget {
+class LocationTrackingMap extends StatefulWidget {
   final String tripId;
-
-  const ViewRequestsScreen({super.key, required this.tripId});
+  Set<gmaps.Polyline>? polylines;
+  LocationTrackingMap({super.key, required this.tripId, this.polylines});
 
   @override
-  _ViewRequestsScreenState createState() => _ViewRequestsScreenState();
+  _LocationTrackingMapState createState() => _LocationTrackingMapState();
 }
 
-class _ViewRequestsScreenState extends State<ViewRequestsScreen>
+class _LocationTrackingMapState extends State<LocationTrackingMap>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  final TripService _tripService = TripService();
+  gmaps.GoogleMapController? _mapController;
+  bool isLoading = false;
+  Position? _currentPosition;
+  gmaps.Marker? _currentMarker;
+  late LocationProvider locationProvider;
+  final PanelController _panelController = PanelController();
+  Set<gmaps.Marker> markers = {};
+  Set<gmaps.Polyline> _polylines = {};
+  LocationService locationService = LocationService.getInstance();
+  late bool isTripStarted;
+  gmaps.BitmapDescriptor? carIcon;
+  gmaps.BitmapDescriptor? pickupIcon;
+  DatabaseService dbservice = DatabaseService();
+  late TripDetailsProvider tripProvider;
+
+  late AnimationController _animationController;
+  double _sliderValue = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    isLoading = true;
+    _polylines = widget.polylines ?? {};
+    _setCustomMarkerIcon();
+    _setPickupMarkerIcon();
+    _tripService.startLocationUpdates(_onLocationUpdate);
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat();
+
+    // Fetch trip details and load the route
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchTripDetailsAndLoadRoute();
+    });
+  }
+
+  Future<void> _fetchTripDetailsAndLoadRoute() async {
+    try {
+      tripProvider = Provider.of<TripDetailsProvider>(context, listen: false);
+      Trip trip = tripProvider.availableTrips
+          .firstWhere((trip) => trip.getId == widget.tripId);
+      isTripStarted = trip.getTripStatus == TripStatus.started;
+      await _loadRoute(trip);
+    } catch (e) {
+      print('Error fetching trip details: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadRoute(Trip trip) async {
+    setState(() {
+      isLoading = true;
+    });
+    LatLng origin = locationProvider.currentPosition ?? const LatLng(0, 0);
+    LatLng destination =
+        trip.destinationCoordinates!; // Example destination (Los Angeles, CA)
+
+    //  loop though the requests and get the waypoints
+    List<LatLng> waypoints = [];
+    // for each request in the trip, get the pickup coordinates and destination coordinates
+    for (Request request in trip.requests!) {
+      waypoints.add(request.pickupCoordinates!);
+      waypoints.add(request.destinationCoordinates!);
+    }
+
+    try {
+      var data = await locationService.getOptimizedRoute(
+        apiKey: googleMapsApiKey,
+        origin: origin,
+        destination: destination,
+        waypoints: waypoints,
+      );
+      var routeData = locationService.parseRouteData(data);
+      setState(() {
+        _polylines.add(Polyline(
+          polylineId: const PolylineId('optimized_route'),
+          points: routeData['polylineCoordinates'],
+          color: Colors.blue,
+          width: 5,
+        ));
+        isLoading = false;
+        // You can use routeData['waypointOrder'] and routeData['eta'] as needed
+        print('Optimized Waypoint Order: ${routeData['waypointOrder']}');
+        print('Estimated Time of Arrival: ${routeData['eta']}');
+      });
+    } catch (e) {
+      print('Error loading route: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _onSliderChanged(double value) {
+    setState(() {
+      _sliderValue = value;
+    });
+  }
+
+  void _onSliderEnd() {
+    if (_sliderValue == 100.0) {
+      // Start the trip
+      _startTrip();
+    } else {
+      // Reset the slider
+      setState(() {
+        _sliderValue = 0.0;
+      });
+    }
+  }
+
+  Future<void> _startTrip() async {
+    Trip trip = tripProvider.availableTrips
+        .firstWhere((trip) => trip.getId == widget.tripId);
+    setState(() {
+      isTripStarted = true;
+    });
+    // Logic to start the trip
+    tripProvider.updateTripStatus(trip.getId!, TripStatus.started);
+
+    // Navigate to the trip tracking screen or perform any other action
+  }
+
+  void _setCustomMarkerIcon() async {
+    carIcon = await gmaps.BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(50, 50)),
+      'assets/car_icon.png',
+    );
+    setState(() {});
+  }
+
+  void _setPickupMarkerIcon() async {
+    pickupIcon = await gmaps.BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(50, 50)),
+      'assets/rider.png',
+    );
+    setState(() {});
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tripService.stopLocationUpdates();
+    _animationController.dispose();
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'View Requests',
-          style: TextStyle(color: Colors.white),
-        ),
-        bottom: TabBar(
-          indicatorColor: Colors.blueAccent,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white38,
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Pending'),
-            Tab(text: 'Accepted'),
-            Tab(text: 'Declined'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          RequestsList(tripId: widget.tripId, status: 'pending'),
-          RequestsList(tripId: widget.tripId, status: 'accepted'),
-          RequestsList(tripId: widget.tripId, status: 'declined'),
-        ],
-      ),
-    );
-  }
-}
+  void _onLocationUpdate(Position position) {
+    setState(() {
+      _currentPosition = position;
+      _polylines = widget.polylines ?? {};
 
-class RequestsList extends StatelessWidget {
-  final String tripId;
-  final String status;
+      _currentMarker = gmaps.Marker(
+        markerId: const gmaps.MarkerId('currentLocation'),
+        position: gmaps.LatLng(position.latitude, position.longitude),
+        icon: carIcon ??
+            gmaps.BitmapDescriptor.defaultMarkerWithHue(
+                gmaps.BitmapDescriptor.hueBlue),
+      );
 
-  const RequestsList({super.key, required this.tripId, required this.status});
+      if (_mapController != null) {
+        _mapController!.animateCamera(
+          gmaps.CameraUpdate.newLatLng(
+            gmaps.LatLng(position.latitude, position.longitude),
+          ),
+        );
+      }
 
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<QuerySnapshot>(
-      future: DatabaseService().fetchRequestsByStatus(tripId, status),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-              child: CircularProgressIndicator(
-            color: Colors.white,
-          ));
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(
-              child: Text(
-            'No requests found.',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.white, fontSize: 20),
-          ));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              var request = snapshot.data!.docs[index];
-              return FutureBuilder<UserProfile>(
-                future:
-                    DatabaseService().getUserProfile(request['passengerId']),
-                builder: (context, userSnapshot) {
-                  if (userSnapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox(); // Show nothing while loading user data
-                  } else if (userSnapshot.hasError) {
-                    return Center(child: Text('Error: ${userSnapshot.error}'));
-                  } else {
-                    var username = userSnapshot.data!.username!;
-                    return ListTile(
-                      title: Text(
-                        'Request from $username',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      subtitle: Text('Status: ${request['status']}'),
-                      trailing: _buildActionButtons(request),
-                    );
-                  }
-                },
-              );
-            },
+      markers.add(_currentMarker!);
+
+      tripProvider = Provider.of<TripDetailsProvider>(context, listen: false);
+      Trip trip = tripProvider.availableTrips
+          .firstWhere((trip) => trip.getId == widget.tripId);
+      List<Request> requests = trip.getRequests ?? [];
+
+      for (Request request in requests) {
+        if (request.pickupCoordinates != null) {
+          gmaps.Marker pickupMarker = gmaps.Marker(
+            markerId: gmaps.MarkerId('pickup_${request.passengerId}'),
+            position: request.destinationCoordinates!,
+            infoWindow: gmaps.InfoWindow(
+              title: request.pickupLocationName,
+            ),
+            icon: pickupIcon ??
+                gmaps.BitmapDescriptor.defaultMarkerWithHue(
+                    gmaps.BitmapDescriptor.hueYellow),
           );
+          markers.add(pickupMarker);
         }
-      },
-    );
+      }
+    });
   }
 
-  Widget _buildActionButtons(QueryDocumentSnapshot request) {
-    switch (request['status']) {
-      case 'pending':
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                DatabaseService().addPassengerToTrip(
-                    request['passengerId'], request['tripId']);
-                DatabaseService().updateRequestStatus(request.id, 'accepted');
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: Colors.white, // Text color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
-              ),
-              child: const Text('Accept'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                DatabaseService().updateRequestStatus(request.id, 'declined');
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.black, // Text color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
-              ),
-              child: const Text('Decline'),
-            ),
-          ],
-        );
-      case 'accepted':
-        return ElevatedButton(
-          onPressed: () {
-            DatabaseService().updateRequestStatus(request.id, 'pending');
-          },
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.red, // Text color
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-          child: const Text('Cancel'),
-        );
-      case 'declined':
-        return ElevatedButton(
-          onPressed: () {
-            DatabaseService().updateRequestStatus(request.id, 'accepted');
-            DatabaseService()
-                .addPassengerToTrip(request['passengerId'], request['tripId']);
-          },
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.black,
-            backgroundColor: Colors.white, // Text color
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-          child: const Text('Accept'),
-        );
-      default:
-        return const SizedBox.shrink();
+  @override
+  Widget build(BuildContext context) {
+    locationProvider = Provider.of<LocationProvider>(context, listen: false);
+    _currentPosition = locationProvider.userLocation!;
+
+    Trip trip = tripProvider.availableTrips
+        .firstWhere((trip) => trip.getId == widget.tripId);
+
+    isTripStarted = trip.getTripStatus == TripStatus.started;
+
+    List<Polyline> polylineList = _polylines.toList();
+
+    if (polylineList.isNotEmpty) {
+      Polyline firstPolyline = polylineList.first;
+      Polyline lastPolyline = polylineList.last;
+      markers.add(
+        gmaps.Marker(
+          markerId: const gmaps.MarkerId('startLocation'),
+          infoWindow: const gmaps.InfoWindow(title: "Start point"),
+          position: firstPolyline.points.first,
+          icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
+              gmaps.BitmapDescriptor.hueGreen),
+        ),
+      );
+
+      markers.add(
+        gmaps.Marker(
+          markerId: const gmaps.MarkerId('endLocation'),
+          position: lastPolyline.points.last,
+          infoWindow: const gmaps.InfoWindow(title:
+              "End point"),
+          icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
+
+              gmaps.BitmapDescriptor.hueRed),
+        ),
+      );
     }
-  }
-}
+
+
+
