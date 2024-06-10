@@ -11,6 +11,7 @@ class NotificationsScreen extends StatelessWidget {
     final notificationProvider = Provider.of<NotificationProvider>(context);
     final notifications = notificationProvider.notifications;
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 12, 12, 12),
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
@@ -19,12 +20,15 @@ class NotificationsScreen extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: notifications.isNotEmpty
-            ? NotificationList()
-            : const Text(
-                " You don't have notifications!",
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: notifications.isNotEmpty
+              ? NotificationList()
+              : const Text(
+                  " You don't have notifications!",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:caravan/models/chat_room.dart';
+import 'package:caravan/models/request.dart';
 
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
@@ -11,6 +12,7 @@ import 'package:caravan/providers/user_profile.provider.dart';
 import 'package:caravan/screens/more%20screens/location_tracking_map.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
+import 'package:caravan/services/directions_service.dart';
 
 import 'package:caravan/services/location_service.dart';
 
@@ -39,13 +41,13 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   Map<PolylineId, Polyline> polylines = {};
   final Set<Polyline> onGoingPolylines = {};
   LocationService locationService = LocationService.getInstance();
-
+  late OnGoingTripDetailsProvider onGoingTripDetailsProvider;
   Map<MarkerId, Marker> markers = {};
   static LatLng _center = const LatLng(0, 0);
 
   late TripDetailsProvider tripProvider;
   late Trip trip;
-
+  String alertMessage = "Please wait while we plan your trip";
   late bool isTripOngoing;
 
   void toggleIsTripOnGoing() {
@@ -63,13 +65,79 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
     super.didChangeDependencies();
   }
 
+  Future<void> _getDirections() async {
+    final directionsService = DirectionsService();
+    List<String> waypoints = [];
+    for (Request request in trip.requests!) {
+      waypoints.add(request.destinationLocationName!);
+      waypoints.add(request.pickupLocationName!);
+    }
+
+    List<String> sortedWaypoints = await locationService.sortWaypoints(
+        trip.location!, waypoints, trip.destination!);
+    final directions = await directionsService.getDirections(
+      origin: trip.location!,
+      waypoints: sortedWaypoints,
+      destination: trip.destination!,
+    );
+
+    if (directions != null) {
+      final polylinePoints =
+          directions['routes'][0]['overview_polyline']['points'];
+      final decodedPoints = _decodePolyline(polylinePoints);
+
+      setState(() {
+        onGoingPolylines.add(Polyline(
+          polylineId: const PolylineId('overview_polyline'),
+          points: decodedPoints,
+          color: Colors.green,
+          width: 5,
+        ));
+
+        // register the polylines in the provider as well
+        onGoingTripDetailsProvider.onGoingTripPolylines = onGoingPolylines;
+      });
+    }
+  }
+
+  List<LatLng> _decodePolyline(String encoded) {
+    List<LatLng> points = [];
+    int index = 0, len = encoded.length;
+    int lat = 0, lng = 0;
+
+    while (index < len) {
+      int b, shift = 0, result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+
+      points.add(LatLng(lat / 1E5, lng / 1E5));
+    }
+
+    return points;
+  }
+
   @override
   Widget build(BuildContext context) {
     ChatProvider chatProvider = Provider.of<ChatProvider>(context);
     UserProfileProvider userProfileProvider =
         Provider.of<UserProfileProvider>(context);
 
-    OnGoingTripDetailsProvider onGoingTripDetailsProvider =
+    onGoingTripDetailsProvider =
         Provider.of<OnGoingTripDetailsProvider>(context);
 
     String? selectedDriverName = widget.userProfile!.username ?? "Unknown user";
@@ -317,28 +385,103 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                         children: [
                           ElevatedButton(
                               onPressed: () async {
-                                logger.i(
-                                    "Trip status: ${trip.tripStatus} and flag isTripOngoing: $isTripOngoing");
-                                if (isTripOngoing) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => LocationTrackingMap(
-                                        tripId: trip.getId!,
-                                        polylines: onGoingTripDetailsProvider
-                                            .onGoingTripPolylineSet!,
-                                      ),
-                                    ),
-                                  );
-                                  return;
-                                }
-
+                                // Show the initial dialog
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return StatefulBuilder(
+                                      builder: (context, setState) {
+                                        return AlertDialog(
+                                          titleTextStyle: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                color: Colors.black,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                          backgroundColor: Colors.white,
+                                          content: Row(
+                                            children: [
+                                              const CircularProgressIndicator(
+                                                color: Colors.black,
+                                              ),
+                                              const SizedBox(width: 20),
+                                              Expanded(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      "Let's plan your trip",
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                            color: Colors.black,
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      alertMessage,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                            color: Colors.black,
+                                                            fontSize: 14,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
                                 try {
+                                  logger.i(
+                                      "Trip status: ${trip.tripStatus} and flag isTripOngoing: $isTripOngoing");
+                                  if (isTripOngoing &&
+                                      onGoingTripDetailsProvider
+                                          .onGoingTripPolylineSet!.isNotEmpty) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            LocationTrackingMap(
+                                          tripId: trip.getId!,
+                                          polylines: onGoingTripDetailsProvider
+                                              .onGoingTripPolylineSet!,
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  await _getDirections();
+
+                                  Navigator.pop(context);
+
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => LocationTrackingMap(
                                         tripId: trip.getId!,
+                                        polylines: onGoingPolylines,
                                       ),
                                     ),
                                   );

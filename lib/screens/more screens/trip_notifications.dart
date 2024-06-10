@@ -20,21 +20,22 @@ class NotificationList extends StatelessWidget {
     final notificationProvider = Provider.of<NotificationProvider>(context);
     final notifications = notificationProvider.notifications;
 
-    return ListView.separated(
-      itemCount: notifications.length,
-      itemBuilder: (context, index) {
-        final notification = notifications[index];
+    return ListView(
+      // itemCount: notifications.length,
+      children: notifications.map((notification) {
         return Card(
           elevation: 2,
-          color: const Color.fromARGB(255, 36, 36, 36),
+          color: const Color.fromARGB(255, 255, 255, 255),
           child: ListTile(
             title: Text(
               notification.message,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(
+                  color: Color.fromARGB(255, 0, 0, 0), fontSize: 14),
             ),
             subtitle: Text(
               notification.timestamp.toString(),
-              style: const TextStyle(fontSize: 13),
+              style: const TextStyle(
+                  fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
             ),
             trailing: notification.status == 'unread'
                 ? const Icon(
@@ -68,13 +69,7 @@ class NotificationList extends StatelessWidget {
             },
           ),
         );
-      },
-      separatorBuilder: (BuildContext context, int index) {
-        return const Divider(
-          height: 1,
-          color: Colors.white24,
-        );
-      },
+      }).toList(),
     );
   }
 }

@@ -3,13 +3,13 @@ import 'package:caravan/models/trip.dart';
 import 'package:caravan/providers/location_provider.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/services/database_service.dart';
-import 'package:caravan/services/directions_service.dart';
+
 import 'package:caravan/services/location_service.dart';
 import 'package:caravan/services/trip_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:slide_to_act/slide_to_act.dart';
@@ -35,7 +35,7 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
   late LocationProvider locationProvider;
   final PanelController _panelController = PanelController();
   Set<gmaps.Marker> markers = {};
-  final Set<gmaps.Polyline> _polylines = {};
+  Set<gmaps.Polyline> _polylines = {};
   LocationService locationService = LocationService.getInstance();
   late bool isTripStarted;
   gmaps.BitmapDescriptor? carIcon;
@@ -92,6 +92,7 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
 
   @override
   void initState() {
+    _polylines = widget.polylines ?? {};
     super.initState();
     tripProvider = Provider.of<TripDetailsProvider>(context, listen: false);
     trip = tripProvider.availableTrips
@@ -103,7 +104,7 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
     _setCustomMarkerIcon();
     _setPickupMarkerIcon();
     _tripService.startLocationUpdates(_onLocationUpdate);
-    _getDirections();
+    // _getDirections();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -179,69 +180,6 @@ class _LocationTrackingMapState extends State<LocationTrackingMap>
         }
       }
     });
-  }
-
-  Future<void> _getDirections() async {
-    final directionsService = DirectionsService();
-    List<String> waypoints = [];
-    for (Request request in trip.requests!) {
-      waypoints.add(request.destinationLocationName!);
-      waypoints.add(request.pickupLocationName!);
-    }
-
-    List<String> sortedWaypoints = await locationService.sortWaypoints(
-        trip.location!, waypoints, trip.destination!);
-    final directions = await directionsService.getDirections(
-      origin: trip.location!,
-      waypoints: sortedWaypoints,
-      destination: trip.destination!,
-    );
-
-    if (directions != null) {
-      final polylinePoints =
-          directions['routes'][0]['overview_polyline']['points'];
-      final decodedPoints = _decodePolyline(polylinePoints);
-
-      setState(() {
-        _polylines.add(Polyline(
-          polylineId: const PolylineId('overview_polyline'),
-          points: decodedPoints,
-          color: Colors.blue,
-          width: 5,
-        ));
-      });
-    }
-  }
-
-  List<LatLng> _decodePolyline(String encoded) {
-    List<LatLng> points = [];
-    int index = 0, len = encoded.length;
-    int lat = 0, lng = 0;
-
-    while (index < len) {
-      int b, shift = 0, result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lng += dlng;
-
-      points.add(LatLng(lat / 1E5, lng / 1E5));
-    }
-
-    return points;
   }
 
   @override
