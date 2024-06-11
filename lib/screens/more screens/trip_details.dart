@@ -9,6 +9,7 @@ import 'package:caravan/providers/chat_provider.dart';
 import 'package:caravan/providers/ongoingtrip.dart';
 import 'package:caravan/providers/trips_provider.dart';
 import 'package:caravan/providers/user_profile.provider.dart';
+import 'package:caravan/screens/more%20screens/driver/driver_profile_screen.dart';
 import 'package:caravan/screens/more%20screens/location_tracking_map.dart';
 import 'package:caravan/screens/more%20screens/messaging_screen.dart';
 import 'package:caravan/screens/more%20screens/passenger/enter_destination.dart';
@@ -169,10 +170,22 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                TripDriverCard(
-                    trip: trip,
-                    selectedDriverName: selectedDriverName,
-                    userProfile: widget.userProfile!),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DriverProfileScreen(
+                          tripId: trip.getId!,
+                        ),
+                      ),
+                    );
+                  },
+                  child: TripDriverCard(
+                      trip: trip,
+                      selectedDriverName: selectedDriverName,
+                      userProfile: widget.userProfile!),
+                ),
                 const SizedBox(height: 8),
                 const Text(
                   "Trip Details",

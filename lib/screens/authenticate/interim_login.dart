@@ -255,7 +255,7 @@ class _MyLoginState extends State<MyLogin> {
                               }
                               tripDetailsProvider.reset();
                               tripDetailsProvider.initializeTripsListener();
-                              UserProfile profile = await DatabaseService()
+                              UserProfile? profile = await DatabaseService()
                                   .getUserProfile(user.uid);
                               userProfileProvider.saveUserProfile(profile);
                               chatProvider.reset();

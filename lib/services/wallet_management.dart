@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+
 import 'package:flutter/material.dart';
 
 final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
@@ -91,7 +91,7 @@ void showPinSetupBottomSheet(
 }
 
 void showPinVerificationBottomSheet(
-    BuildContext context, String? storedPin, Function() onPinVerified) {
+    BuildContext context, String? storedPin, Function()? onPinVerified) {
   final TextEditingController pinController = TextEditingController();
   String? errorMessage;
 
@@ -177,7 +177,7 @@ void showPinVerificationBottomSheet(
                             return;
                           }
                           if (pin == storedPin) {
-                            onPinVerified();
+                            onPinVerified!();
                             Navigator.pop(context);
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(

@@ -42,4 +42,13 @@ class EmergencyContact {
       phoneNumber: json['phoneNumber'],
     );
   }
+
+  // fromfirestore
+  factory EmergencyContact.fromFirestore(Map<String, dynamic> data) {
+    return EmergencyContact(
+      name: data['name'],
+      relationship: data['relationship'],
+      phoneNumber: data['phoneNumber'],
+    );
+  }
 }

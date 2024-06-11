@@ -1,4 +1,5 @@
 import 'package:caravan/models/emergency_contact.dart';
+import 'package:caravan/models/transaction_history.dart';
 import 'package:caravan/models/wallet.dart';
 import 'package:caravan/providers/chat_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,6 +40,32 @@ class UserProfile {
     this.photoUrl,
     this.isDriver = false, // Default role is passenger
   });
+
+  factory UserProfile.fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> snapshot) {
+    final data = snapshot.data()!;
+    Wallet? wallet;
+    return UserProfile(
+      userID: snapshot.id,
+      username: data['username'],
+      firstName: data['firstName'],
+      lastName: data['lastName'],
+      email: data['email'],
+      age: data['age'],
+      pin: data['pin'],
+      wallet: data.containsKey('wallet') ? wallet : null,
+      carBrand: data['carBrand'],
+      make: data['make'],
+      photoUrl: data['profilePicture'],
+      isDriver: data['isDriver'],
+      numberPlate: data['numberPlate'],
+      phoneNumber: data['phoneNumber'],
+      preferences: List<String>.from(data['preferences']),
+      emergencyContacts: (data['emergencyContacts'] as List<dynamic>?)
+          ?.map((e) => EmergencyContact.fromMap(e))
+          .toList(),
+    );
+  }
 
   // to json
   Map<String, dynamic> toJson() {
@@ -89,6 +116,42 @@ class UserProfile {
           .toList(),
     );
   }
+
+  // Future<UserProfile?> fetchUserProfile(String userID) async {
+  //   final userDoc =
+  //       await FirebaseFirestore.instance.collection('users').doc(userID).get();
+
+  //   if (!userDoc.exists) {
+  //     return null;
+  //   }
+
+  //   final userProfile = UserProfile.fromFirestore(userDoc);
+
+  //   final walletDoc = await FirebaseFirestore.instance
+  //       .collection('users')
+  //       .doc(userID)
+  //       .collection('wallet')
+  //       .doc('balance')
+  //       .get();
+
+  //   if (walletDoc.exists) {
+  //     userProfile.wallet = Wallet.fromFirestore(walletDoc);
+
+  //     final historyQuery = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(userID)
+  //         .collection('wallet')
+  //         .doc('balance')
+  //         .collection('history')
+  //         .get();
+
+  //     userProfile.wallet?.history = historyQuery.docs
+  //         .map((doc) => History.fromFirestore(doc.data()))
+  //         .toList();
+  //   }
+
+  //   return userProfile;
+  // }
 
   // create a function, completeProfile that will take the given arguments and set them to model and leave other to be null
   void completeProfile({

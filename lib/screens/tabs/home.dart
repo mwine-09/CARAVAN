@@ -326,11 +326,17 @@ class _WalletWidgetState extends State<WalletWidget> {
                     },
                     child: GestureDetector(
                       onTap: () async {
+                        if (_isBalanceVisible) {
+                          _toggleBalanceVisibility();
+                          return;
+                        }
+
                         String? storedPin = await SecureStorageService()
                             .readSecureData('userPin');
 
                         if (userProfileProvider.userProfile.pin == null ||
                             storedPin == null) {
+                          logger.e("PIN is null");
                           showPinSetupBottomSheet(context, (pin) {
                             // Save the pin to the user's profile or secure storage
                             // Example:
@@ -390,7 +396,6 @@ class _WalletWidgetState extends State<WalletWidget> {
                   imagePath: "assets/deposit.png",
                   label: "Deposit",
                   onPressed: () {
-                    // _showDepositBottomSheet(context);
                     _showDepositBottomSheet(context);
                   },
                   imageSize: 30,
@@ -399,7 +404,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                   imagePath: "assets/withdraw-money-icon.png",
                   label: "Withdraw",
                   imageSize: 35,
-                  onPressed: () {
+                  onPressed: () async {
                     _showWithdrawBottomSheet(context);
                   },
                 ),

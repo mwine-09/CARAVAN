@@ -31,25 +31,50 @@ class PromoCard extends StatelessWidget {
               ),
             ),
             // Blur effect
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10), // Match border radius
-                child: BackdropFilter(
-                  blendMode: BlendMode.darken,
-                  filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                  child: Container(
-                    color: Colors.black.withOpacity(0.3),
-                  ),
-                ),
-              ),
-            ),
+            // Positioned.fill(
+            //   child: ClipRRect(
+            //     borderRadius: BorderRadius.circular(10), // Match border radius
+            //     child: BackdropFilter(
+            //       blendMode: BlendMode.darken,
+            //       filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+            //       child: Container(
+            //         color: Colors.black.withOpacity(0.1),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             // Title and description
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
-              child: Padding(
+              child: Container(
+                color: Colors.black.withOpacity(0.3),
+                child: ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(10), // Match border radius
+                  child: BackdropFilter(
+                    blendMode: BlendMode.darken,
+                    filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+                    child: Container(
+                      height: 70,
+                      color: Colors.black.withOpacity(0.3),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
                 padding: const EdgeInsets.all(10),
+                // color: Colors.black.withOpacity(0.3),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

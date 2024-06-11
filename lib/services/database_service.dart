@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:caravan/models/request.dart';
+import 'package:caravan/models/transaction_history.dart';
 import 'package:caravan/models/trip.dart';
 import 'package:caravan/models/user_profile.dart';
 import 'package:caravan/models/wallet.dart';
@@ -42,6 +43,62 @@ class DatabaseService {
     } catch (e) {
       // Handle any errors
       logger.i('Error adding user: $e');
+    }
+  }
+
+  Future<UserProfile> getUserProfile(String userID) async {
+    try {
+      await checkAndCreateWalletCollection(userID);
+
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userID)
+          .get();
+
+      final userProfile = UserProfile.fromFirestore(userDoc);
+
+      final walletDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userID)
+          .collection('wallet')
+          .doc('balance')
+          .get();
+      logger.i("Done fetching user profile");
+      if (walletDoc.exists) {
+        logger.i("Fetching wallet");
+        userProfile.wallet = Wallet.fromFirestore(walletDoc);
+        // logger the data type of the wallet.balance
+        logger.f("logging the data type of the wallet.balance");
+        logger.i(
+            "user wallet balance data type: ${userProfile.wallet?.balance.runtimeType}");
+
+        logger.i("user wallet: ${userProfile.wallet?.balance}");
+
+        logger.i("Fetching wallet history");
+
+        final historyQuery = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userID)
+            .collection('wallet')
+            .doc('balance')
+            .collection('history')
+            .get();
+
+        logger.i("Done fetching wallet history");
+
+        userProfile.wallet?.history = historyQuery.docs.map((doc) {
+          final historyData = doc.data();
+          logger.i("This is the history data $historyData");
+          return History.fromFirestore(historyData);
+        }).toList();
+      }
+
+      logger.i(
+          "This is the user profile $userProfile with wallet ${userProfile.wallet}");
+      return userProfile;
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      rethrow; // Add a throw statement to handle the error and satisfy the non-nullable return type.
     }
   }
 
@@ -94,7 +151,7 @@ class DatabaseService {
             logger.d("The status for trip ${doc.id} is ${trip.tripStatus}");
 
             // Fetch driver profile
-            UserProfile driverProfile = await getUserProfile(doc['createdBy']);
+            UserProfile? driverProfile = await getUserProfile(doc['createdBy']);
             trip.driver = driverProfile;
 
             // Fetch requests for the trip
@@ -184,24 +241,24 @@ class DatabaseService {
     }
   }
 
-  Future<UserProfile> getUserProfile(String userId) async {
-    logger.i("Getting user profile for user id $userId");
+  // Future<UserProfile> getUserProfile(String userId) async {
+  //   try {
+  //     logger.i("Getting user profile for user id $userId");
 
-    try {
-      await checkAndCreateWalletCollection(userId);
-      DocumentSnapshot snapshot =
-          await _firestore.collection('users').doc(userId).get();
+  //     await checkAndCreateWalletCollection(userId);
 
-      if (snapshot.exists) {
-        return UserProfile.fromSnapshot(snapshot);
-      } else {
-        throw Exception("User not found");
-      }
-    } catch (e) {
-      logger.e('Error getting user profile: $e');
-      rethrow;
-    }
-  }
+  //     var userProfile = await fetchUserProfile(userId);
+
+  //     if (userProfile == null) {
+  //       throw Exception('User profile not found');
+  //     }
+
+  //     return userProfile;
+  //   } catch (e) {
+  //     logger.e('Error getting user profile: $e');
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> checkAndCreateWalletCollection(String uid) async {
     try {
