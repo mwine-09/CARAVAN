@@ -10,6 +10,7 @@ import 'package:caravan/screens/more%20screens/complete_profile.dart';
 import 'package:caravan/screens/tabs/main_scaffold.dart';
 import 'package:caravan/services/auth.dart';
 import 'package:caravan/services/database_service.dart';
+import 'package:caravan/services/location_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -225,6 +226,7 @@ class _MyLoginState extends State<MyLogin> {
                                 .signInWithEmailAndPassword(email, password);
 
                             if (user != null) {
+                              LocationService.getInstance();
                               final userProfileProvider =
                                   Provider.of<UserProfileProvider>(context,
                                       listen: false);
@@ -251,22 +253,17 @@ class _MyLoginState extends State<MyLogin> {
                                 );
                                 return;
                               }
-
+                              tripDetailsProvider.reset();
+                              tripDetailsProvider.initializeTripsListener();
                               UserProfile profile = await DatabaseService()
                                   .getUserProfile(user.uid);
                               userProfileProvider.saveUserProfile(profile);
                               chatProvider.reset();
                               chatProvider.listenToChatrooms(user.uid);
                               notificationProvider.resetProvider();
-                              // notificationProvider.getNotificationsStream(user);
+                              notificationProvider.getNotificationsStream(user);
                               notificationProvider
                                   .startListeningToNotifications();
-
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const HomePage(tabDestination: 1)));
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -274,6 +271,11 @@ class _MyLoginState extends State<MyLogin> {
                                       Text("Logged in as ${user.displayName}"),
                                 ),
                               );
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const HomePage(tabDestination: 1)));
                             } else {
                               setState(() {
                                 errorMessage = 'Invalid email or password';

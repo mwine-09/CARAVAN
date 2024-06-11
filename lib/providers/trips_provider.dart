@@ -23,7 +23,7 @@ class TripDetailsProvider extends ChangeNotifier {
 
   TripDetailsProvider() {
     logger.i("TripDetailsProvider initialized");
-    initializeTripsListener();
+    // initializeTripsListener();
   }
 
   void initializeTripsListener() {

@@ -16,7 +16,7 @@ class NotificationProvider with ChangeNotifier {
   StreamSubscription? _notificationSubscription;
 
   NotificationProvider() {
-    startListeningToNotifications();
+    // startListeningToNotifications();
   }
 
   Stream<List<MyNotification>> getNotificationsStream(User? user) {

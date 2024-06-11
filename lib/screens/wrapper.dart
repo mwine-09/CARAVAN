@@ -16,9 +16,6 @@ class Wrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authChanges = FirebaseAuth.instance.authStateChanges();
 
-    final notificationProvider = NotificationProvider();
-    final tripDetailsProvider = TripDetailsProvider();
-
     return StreamBuilder<User?>(
       stream: authChanges,
       builder: (context, snapshot) {
@@ -29,16 +26,19 @@ class Wrapper extends StatelessWidget {
           if (user == null) {
             return const MyLogin();
           } else {
+            final notificationProvider =
+                Provider.of<NotificationProvider>(context, listen: false);
+            notificationProvider.startListeningToNotifications();
+            final tripDetailsProvider =
+                Provider.of<TripDetailsProvider>(context, listen: false);
+            tripDetailsProvider.initializeTripsListener();
             logger.i("User is logged in: $user");
 
             return MultiProvider(
               providers: [
-                ChangeNotifierProvider.value(
-                  value: notificationProvider,
-                ),
-                ChangeNotifierProvider.value(
-                  value: tripDetailsProvider,
-                ),
+                //  create the trip provider here
+                ChangeNotifierProvider(
+                    create: (context) => TripDetailsProvider()),
               ],
               child: const HomePage(tabDestination: 1),
             );
